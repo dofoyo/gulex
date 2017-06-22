@@ -1,0 +1,9 @@
+1、如何执行年报下载任务
+执行com.rhb.gulex.download.DownloadFinancialStatementsFromSinaTest.testDownload()即可完成指定期间的年报的下载
+系统自动更新stocklist
+
+
+2、如何选股
+执行com.rhb.gulex.domain.StockTest.getGoodStock()
+
+
