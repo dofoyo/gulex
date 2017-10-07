@@ -11,10 +11,10 @@ import com.rhb.gulex.util.ParseString;
 
 public class StockTest {
 
-	//@Test
+	@Test
 	public void test(){
 		int year = 2016;
-		String stockid = "600030";
+		String stockid = "002713";
 		String stockname = "";
 		Stock stock = new Stock(stockid,stockname);
 		
@@ -51,6 +51,7 @@ public class StockTest {
 		
 		System.out.println("there are " + goods.size() + " good stocks");
 		for(String s : goods){
+			
 			System.out.println(s);
 		}
 	}

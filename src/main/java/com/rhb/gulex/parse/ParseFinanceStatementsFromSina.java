@@ -7,6 +7,7 @@ import com.rhb.gulex.domain.BalanceSheet;
 import com.rhb.gulex.domain.CashFlow;
 import com.rhb.gulex.domain.ProfitStatement;
 import com.rhb.gulex.util.FileUtil;
+import com.rhb.gulex.util.ParseString;
 
 public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 
@@ -48,27 +49,33 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 			String period = cells[m][0];
 			if(period.contains("1231")){
 				BalanceSheet bs = new BalanceSheet();
-				if(lines.length>98){
-					bs.setPeriod(cells[m][0]);
-					bs.setCash(Double.valueOf(cells[m][3]));
-					bs.setInventories(Double.valueOf(cells[m][22]));
-					bs.setAccountsReceivable(Double.valueOf(cells[m][9]));
-					bs.setNotesReceivable(Double.valueOf(cells[m][8]));
-					bs.setPayables(Double.valueOf(cells[m][10]));
-					bs.setAssets(Double.valueOf(cells[m][55]));
-					bs.setDebt(Double.valueOf(cells[m][98]));
-					balancesheets.put(period,bs);
-				}else{
-					bs.setPeriod(cells[m][0]);
-					bs.setCash(Double.valueOf(cells[m][3]));
+				bs.setPeriod(cells[m][0]);
+				if(lines.length>100){
+					bs.setCash(ParseString.toDouble(cells[m][3]));
+					bs.setInventories(ParseString.toDouble(cells[m][22]));
+					bs.setAccountsReceivable(ParseString.toDouble(cells[m][9]));
+					bs.setNotesReceivable(ParseString.toDouble(cells[m][8]));
+					bs.setPayables(ParseString.toDouble(cells[m][10]));
+					bs.setAssets(ParseString.toDouble(cells[m][55]));
+					bs.setDebt(ParseString.toDouble(cells[m][98]));
+				}else if(lines.length > 85){   // 银行
+					bs.setCash(ParseString.toDouble(cells[m][3]));
 					bs.setInventories(0.0);
 					bs.setAccountsReceivable(0.0);
 					bs.setNotesReceivable(0.0);
 					bs.setPayables(0.0);
-					bs.setAssets(Double.valueOf(cells[m][46]));
-					bs.setDebt(Double.valueOf(cells[m][80]));
-					balancesheets.put(period,bs);
+					bs.setAssets(ParseString.toDouble(cells[m][41]));
+					bs.setDebt(ParseString.toDouble(cells[m][71]));
+				}else{ // 券商
+					bs.setCash(ParseString.toDouble(cells[m][3]));
+					bs.setInventories(0.0);
+					bs.setAccountsReceivable(0.0);
+					bs.setNotesReceivable(0.0);
+					bs.setPayables(0.0);
+					bs.setAssets(ParseString.toDouble(cells[m][24]));
+					bs.setDebt(ParseString.toDouble(cells[m][44]));
 				}
+				balancesheets.put(period,bs);
 			}
 		}
 		
@@ -115,16 +122,19 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 			String period = cells[m][0];
 			if(period.contains("1231")){
 				CashFlow fs = new CashFlow();
-				if(lines.length>68){
-					fs.setPeriod(period);
-					fs.setPurchaseAssets(Double.valueOf(cells[m][36]));
-					fs.setNetCashFlow(Double.valueOf(cells[m][27]));
-					fs.setDepreciationAssets(Double.valueOf(cells[m][66]) + Double.valueOf(cells[m][67]) + Double.valueOf(cells[m][68]));					
-				}else{
-					fs.setPeriod(period);
-					fs.setPurchaseAssets(Double.valueOf(cells[m][36]));
-					fs.setNetCashFlow(Double.valueOf(cells[m][27]));
-					fs.setDepreciationAssets(0.0);					
+				fs.setPeriod(period);
+				if(lines.length>90){
+					fs.setPurchaseAssets(ParseString.toDouble(cells[m][36]));
+					fs.setNetCashFlow(ParseString.toDouble(cells[m][27]));
+					fs.setDepreciationAssets(ParseString.toDouble(cells[m][66]) + ParseString.toDouble(cells[m][67]) + ParseString.toDouble(cells[m][68]));					
+				}else if(lines.length > 76){  //银行
+					fs.setPurchaseAssets(ParseString.toDouble(cells[m][20]));
+					fs.setNetCashFlow(ParseString.toDouble(cells[m][12]));
+					fs.setDepreciationAssets(ParseString.toDouble(cells[m][48]));					
+				}else{  //券商
+					fs.setPurchaseAssets(ParseString.toDouble(cells[m][23]));
+					fs.setNetCashFlow(ParseString.toDouble(cells[m][15]));
+					fs.setDepreciationAssets(ParseString.toDouble(cells[m][47]));					
 				}
 				cashflows.put(period,fs);
 			}
@@ -174,14 +184,34 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 			if(period.contains("1231")){
 				ProfitStatement fs = new ProfitStatement();
 				fs.setPeriod(period);
-				fs.setAllOperatingRevenue(Double.valueOf(cells[m][2]));
-				fs.setOperatingRevenue(Double.valueOf(cells[m][3]));
-				fs.setAllOperatingCost(Double.valueOf(cells[m][9]));
-				fs.setOperatingCost(Double.valueOf(cells[m][10]));
-				fs.setOperatingExpense(Double.valueOf(cells[m][23]));
-				fs.setFinanceExpense(Double.valueOf(cells[m][24]));
-				fs.setSalesExpense(Double.valueOf(cells[m][22]));
-				fs.setTax(Double.valueOf(cells[m][39]));
+				if(lines.length > 50){
+					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
+					fs.setOperatingRevenue(ParseString.toDouble(cells[m][3]));
+					fs.setAllOperatingCost(ParseString.toDouble(cells[m][9]));
+					fs.setOperatingCost(ParseString.toDouble(cells[m][10]));
+					fs.setOperatingExpense(ParseString.toDouble(cells[m][23]));
+					fs.setFinanceExpense(ParseString.toDouble(cells[m][24]));
+					fs.setSalesExpense(ParseString.toDouble(cells[m][22]));
+					fs.setTax(ParseString.toDouble(cells[m][39]));
+				}else if(lines.length > 35){ //券商
+					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
+					fs.setOperatingRevenue(ParseString.toDouble(cells[m][2]));
+					fs.setAllOperatingCost(ParseString.toDouble(cells[m][15]));
+					fs.setOperatingCost(0.00);
+					fs.setOperatingExpense(0.00);
+					fs.setFinanceExpense(0.00);
+					fs.setSalesExpense(0.00);
+					fs.setTax(ParseString.toDouble(cells[m][24]));
+				}else{	//银行
+					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
+					fs.setOperatingRevenue(ParseString.toDouble(cells[m][3]));
+					fs.setAllOperatingCost(ParseString.toDouble(cells[m][4]));
+					fs.setOperatingCost(ParseString.toDouble(cells[m][5]));
+					fs.setOperatingExpense(ParseString.toDouble(cells[m][8]));
+					fs.setFinanceExpense(ParseString.toDouble(cells[m][9]));
+					fs.setSalesExpense(ParseString.toDouble(cells[m][7]));
+					fs.setTax(ParseString.toDouble(cells[m][20]));
+				}
 				profitstatements.put(period,fs);
 			}
 		}

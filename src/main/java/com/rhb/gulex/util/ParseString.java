@@ -48,5 +48,13 @@ public class ParseString {
 		return source.substring(i+begin.length(), j);
 		
 	}
+	
+	public static double toDouble(String str){
+		double d = 0.00;
+		if(str!=null && !str.trim().isEmpty()){
+			d = Double.valueOf(str);
+		}
+		return d;
+	}
 
 }

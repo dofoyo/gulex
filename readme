@@ -7,3 +7,11 @@
 执行com.rhb.gulex.domain.StockTest.getGoodStock()
 
 
+
+系统架构：
+
+domain
+service
+repository
+
+

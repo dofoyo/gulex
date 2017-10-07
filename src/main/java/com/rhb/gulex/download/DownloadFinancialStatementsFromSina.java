@@ -41,9 +41,26 @@ public class DownloadFinancialStatementsFromSina implements
 	
 	private void download(String stockid){
 		downloadBalanceSheet(stockid);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 		downloadCashFlow(stockid);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 		
 		downloadProfitStatement(stockid);
-		
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 
 

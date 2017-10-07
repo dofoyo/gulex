@@ -16,13 +16,17 @@ public class Stock {
 	//利润		利润持续增长，且年均增长率大于20%
 	//现金流		经营活动现金流为正，且持续增长，且年均增长率大于20%
 	//应收账款		应收账款的增长率小于销售收入的增长率
+	//现金流与利润的比率大于1
+	//应收占比销售额的比例小于20%
 	public boolean isOk(int year){
 		fs.setYear(year);
 		boolean flag = false;
 		if(fs.getRateOfOperatngRevenue()>0.44 
 			&& fs.getRateOfProfit()>0.44
 			&& fs.getRateOfCashflow()>0.44
-			&& fs.getRateOfOperatngRevenue()>fs.getRateOfAccountsReceivable()
+			//&& fs.getRateOfOperatngRevenue()>fs.getRateOfAccountsReceivable()
+			&& fs.getCPR()>=1
+			&& fs.getReceivableRatio()<=0.2
 			){
 			flag = true;
 		}
