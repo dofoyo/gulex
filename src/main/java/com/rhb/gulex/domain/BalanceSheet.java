@@ -3,17 +3,17 @@ package com.rhb.gulex.domain;
 
 public class BalanceSheet{
 	private String period = "";
-	private Double cash = 0.0;       			//×Ê²ú¸ºÕ®±í.»õ±Ò×Ê½ğ
-	private Double inventories = 0.0;  			//×Ê²ú¸ºÕ®±í.´æ»õ¾»¶î
-	private Double accountsReceivable = 0.0; 	//×Ê²ú¸ºÕ®±í.Ó¦ÊÕÕË¿î¾»¶î
-	private Double notesReceivable = 0.0;  		//×Ê²ú¸ºÕ®±í.Ó¦ÊÕÆ±¾İ
-	private Double payables = 0.0;      		//×Ê²ú¸ºÕ®±í.Ô¤ÊÕÕÊ¿î
-	private Double debt = 0.0; //×Ê²ú¸ºÕ®±í.¸ºÕ®ºÏ¼Æ
-	private Double assets = 0.0; // //×Ê²ú¸ºÕ®±í.×Ê²ú×Ü¼Æ
+	private Double cash = 0.0;       			//èµ„äº§è´Ÿå€ºè¡¨.è´§å¸èµ„é‡‘
+	private Double inventories = 0.0;  			//èµ„äº§è´Ÿå€ºè¡¨.å­˜è´§å‡€é¢
+	private Double accountsReceivable = 0.0; 	//èµ„äº§è´Ÿå€ºè¡¨.åº”æ”¶è´¦æ¬¾å‡€é¢
+	private Double notesReceivable = 0.0;  		//èµ„äº§è´Ÿå€ºè¡¨.åº”æ”¶ç¥¨æ®
+	private Double payables = 0.0;      		//èµ„äº§è´Ÿå€ºè¡¨.é¢„æ”¶å¸æ¬¾
+	private Double debt = 0.0; //èµ„äº§è´Ÿå€ºè¡¨.è´Ÿå€ºåˆè®¡
+	private Double assets = 0.0; // //èµ„äº§è´Ÿå€ºè¡¨.èµ„äº§æ€»è®¡
 	
 
 	public Double getDAR(){
-		return this.debt/this.assets;
+		return this.assets.intValue()==0 ? 0.0 : this.debt/this.assets;
 	}
 	
 	public Double getDebt() {

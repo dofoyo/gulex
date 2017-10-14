@@ -11,7 +11,7 @@ public class DownloadFinancialStatementsFromSinaTest {
 		String period = "20161231";
 		boolean overwrite = false;
 		refreshStockList();
-		dfs.down(overwrite,period);
+		//dfs.down(overwrite,period);
 		System.out.println("testDownload over!");
 	}
 	

@@ -1,6 +1,8 @@
 package com.rhb.gulex.download;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.rhb.gulex.domain.Stock;
 import com.rhb.gulex.parse.ParseStocklist;
@@ -66,14 +68,14 @@ public class DownloadFinancialStatementsFromSina implements
 
 	public void down(boolean overwrite,String period) {
 		ParseStocklist psl = new ParseStocklistFromEastmoney();
-		List<String> stocklist = psl.parse();
-		String stockid = null;
+		Map<String,String> stocklist = psl.parse();
 		Stock s = null;
-		for(int i=0; i<stocklist.size(); i++){
-			String stock = (String)stocklist.get(i);
-			stockid = ParseString.subString(stock,"(",")");
-			s = new Stock(stockid,"");
 		
+		int i=0;
+		
+		for(String stockid : stocklist.keySet()){
+			s = new Stock(stockid,"");
+			
 			if(s.exists(period)){
 				if(overwrite){
 					download(stockid);
@@ -83,10 +85,42 @@ public class DownloadFinancialStatementsFromSina implements
 			}else{
 				download(stockid);
 			}
-			System.out.println(i + "/" + stocklist.size());
+			System.out.println(i++ + "/" + stocklist.size());
 		}
 		
+	}
+
+	@Override
+	public String downloadBalanceSheetUrl(String stockid) {
+		return "http://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
+	}
+
+	@Override
+	public String downloadCashFlowUrl(String stockid) {
+		return "http://money.finance.sina.com.cn/corp/go.php/vDOWN_CashFlow/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
+	}
+
+	@Override
+	public String downloadProfitStatementUrl(String stockid) {
+		return "http://money.finance.sina.com.cn/corp/go.php/vDOWN_ProfitStatement/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
+	}
+
+	@Override
+	public void down(Map<String,String> urls) {
+		for(Map.Entry<String, String> entry : urls.entrySet()){
+			HttpDownload.saveToFile(entry.getValue(), path + entry.getKey());
+			System.out.println(entry.getKey() + " have downloaded!");		
+			
+			//为避免被反扒工具禁止，需要暂停一下
+			try {
+				Thread.sleep(10000);  //10��
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			} 
+			
+		}
 		
 	}
-	
+
 }

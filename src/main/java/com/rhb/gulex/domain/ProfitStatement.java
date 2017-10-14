@@ -3,14 +3,14 @@ package com.rhb.gulex.domain;
 public class ProfitStatement {
 	private String period = "";
 
-	private double allOperatingRevenue = 0.0;  	//×ÜÓªÒµÊÕÈë
-	private double operatingRevenue = 0.0;  	//Ö÷ÓªÒµÎñÊÕÈë
-	private double allOperatingCost = 0.0; 		//×ÜÓªÒµ³É±¾
-	private double operatingCost = 0.0; 		//Ö÷ÓªÒµÎñ³É±¾
-	private double operatingExpense = 0.0;  	//¹ÜÀí·ÑÓÃ
-	private double salesExpense = 0.0; 			//ÏúÊÛ·ÑÓÃ
-	private double financeExpense = 0.0; 		//²ÆÎñ·ÑÓÃ
-	private double tax = 0.0; 					//ÓªÒµË°½ğ¼°¸½¼Ó
+	private double allOperatingRevenue = 0.0;  	//æ€»è¥ä¸šæ”¶å…¥
+	private double operatingRevenue = 0.0;  	//ä¸»è¥ä¸šåŠ¡æ”¶å…¥
+	private double allOperatingCost = 0.0; 		//æ€»è¥ä¸šæˆæœ¬
+	private double operatingCost = 0.0; 		//ä¸»è¥ä¸šåŠ¡æˆæœ¬
+	private double operatingExpense = 0.0;  	//ç®¡ç†è´¹ç”¨
+	private double salesExpense = 0.0; 			//é”€å”®è´¹ç”¨
+	private double financeExpense = 0.0; 		//è´¢åŠ¡è´¹ç”¨
+	private double tax = 0.0; 					//è¥ä¸šç¨é‡‘åŠé™„åŠ 
 	
 	public double getProfit(){
 		return operatingRevenue - operatingCost - operatingExpense - salesExpense - financeExpense; 

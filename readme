@@ -1,14 +1,17 @@
-1¡¢ÈçºÎÖ´ĞĞÄê±¨ÏÂÔØÈÎÎñ
-Ö´ĞĞcom.rhb.gulex.download.DownloadFinancialStatementsFromSinaTest.testDownload()¼´¿ÉÍê³ÉÖ¸¶¨ÆÚ¼äµÄÄê±¨µÄÏÂÔØ
-ÏµÍ³×Ô¶¯¸üĞÂstocklist
+1ã€å¦‚ä½•æ‰§è¡Œå¹´æŠ¥ä¸‹è½½ä»»åŠ¡
+(1)é€šè¿‡åŒèŠ±é¡ºå¯¼å‡ºè‚¡ç¥¨æ¸…å•ï¼Œä¿å­˜ä¸ºï¼šd:\stocks\tables.xls
+(2)æ‰§è¡Œtestç›®å½•ä¸‹çš„com.rhb.gulex.service.downloadFinancialStatementsFromTHS()
+
+æˆ–è€…
+   æ‰§è¡Œtestç›®å½•ä¸‹çš„com.rhb.gulex.service.downloadFinancialStatementsFromEastmoney()
 
 
-2¡¢ÈçºÎÑ¡¹É
-Ö´ĞĞcom.rhb.gulex.domain.StockTest.getGoodStock()
+2ã€å¦‚ä½•é€‰è‚¡
+æ‰§è¡Œtestç›®å½•ä¸‹çš„com.rhb.gulex.service.selectGoodStocks()
 
 
 
-ÏµÍ³¼Ü¹¹£º
+ç³»ç»Ÿæ¶æ„ï¼š
 
 domain
 service

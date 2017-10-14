@@ -50,14 +50,16 @@ public class ParseFinanceStatementsFromSinaTest {
 	public void differentBalancesheet(){
 		String pathAndFilename = "d:\\stocks\\";
 		ParseStocklist psl = new ParseStocklistFromEastmoney();
-		List<String> stocklist = psl.parse();
+		
+		Map<String,String> stocks = psl.parse();
 		String stockid = null;
 		Set<String> diff = new HashSet<String>();
 		int k = 1;
-		for(String stockname : stocklist){
-			stockid = ParseString.subString(stockname,"(",")");
-			System.out.println(k++ + "/" + stocklist.size());
-			System.out.println("********    stock = " + stockname);
+		for(Map.Entry<String, String> entry : stocks.entrySet()){
+			
+			stockid = entry.getKey();
+			System.out.println(k++ + "/" + stocks.size());
+			System.out.println("********    stock = " + entry.getValue());
 
 			String str = FileUtil.readTextFile(pathAndFilename + stockid + "_profitstatement.xls");
 			String[] lines = str.split("\n");

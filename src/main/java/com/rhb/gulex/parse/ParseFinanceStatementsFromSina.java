@@ -58,7 +58,7 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					bs.setPayables(ParseString.toDouble(cells[m][10]));
 					bs.setAssets(ParseString.toDouble(cells[m][55]));
 					bs.setDebt(ParseString.toDouble(cells[m][98]));
-				}else if(lines.length > 85){   // 银行
+				}else if(lines.length > 85){   // 閾惰
 					bs.setCash(ParseString.toDouble(cells[m][3]));
 					bs.setInventories(0.0);
 					bs.setAccountsReceivable(0.0);
@@ -66,7 +66,7 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					bs.setPayables(0.0);
 					bs.setAssets(ParseString.toDouble(cells[m][41]));
 					bs.setDebt(ParseString.toDouble(cells[m][71]));
-				}else{ // 券商
+				}else{ // 鍒稿晢
 					bs.setCash(ParseString.toDouble(cells[m][3]));
 					bs.setInventories(0.0);
 					bs.setAccountsReceivable(0.0);
@@ -127,11 +127,11 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					fs.setPurchaseAssets(ParseString.toDouble(cells[m][36]));
 					fs.setNetCashFlow(ParseString.toDouble(cells[m][27]));
 					fs.setDepreciationAssets(ParseString.toDouble(cells[m][66]) + ParseString.toDouble(cells[m][67]) + ParseString.toDouble(cells[m][68]));					
-				}else if(lines.length > 76){  //银行
+				}else if(lines.length > 76){  //閾惰
 					fs.setPurchaseAssets(ParseString.toDouble(cells[m][20]));
 					fs.setNetCashFlow(ParseString.toDouble(cells[m][12]));
 					fs.setDepreciationAssets(ParseString.toDouble(cells[m][48]));					
-				}else{  //券商
+				}else{  //鍒稿晢
 					fs.setPurchaseAssets(ParseString.toDouble(cells[m][23]));
 					fs.setNetCashFlow(ParseString.toDouble(cells[m][15]));
 					fs.setDepreciationAssets(ParseString.toDouble(cells[m][47]));					
@@ -193,7 +193,7 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					fs.setFinanceExpense(ParseString.toDouble(cells[m][24]));
 					fs.setSalesExpense(ParseString.toDouble(cells[m][22]));
 					fs.setTax(ParseString.toDouble(cells[m][39]));
-				}else if(lines.length > 35){ //券商
+				}else if(lines.length > 35){ //鍒稿晢
 					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
 					fs.setOperatingRevenue(ParseString.toDouble(cells[m][2]));
 					fs.setAllOperatingCost(ParseString.toDouble(cells[m][15]));
@@ -202,7 +202,7 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					fs.setFinanceExpense(0.00);
 					fs.setSalesExpense(0.00);
 					fs.setTax(ParseString.toDouble(cells[m][24]));
-				}else{	//银行
+				}else{	//閾惰
 					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
 					fs.setOperatingRevenue(ParseString.toDouble(cells[m][3]));
 					fs.setAllOperatingCost(ParseString.toDouble(cells[m][4]));

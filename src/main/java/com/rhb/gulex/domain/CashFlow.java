@@ -2,9 +2,9 @@ package com.rhb.gulex.domain;
 
 public class CashFlow {
 	private String period = "";
-	private double purchaseAssets = 0.0;  		//¹º½¨¹Ì¶¨×Ê²ú¡¢ÎŞĞÎ×Ê²ú¼°ÆäËû³¤ÆÚ×Ê²úËùÖ§¸¶µÄÏÖ½ğ
-	private double depreciationAssets = 0.0; 	//¹Ì¶¨×Ê²úÕÛ¾É+ÎŞĞÎ×Ê²úÌ¯Ïú+µİÑÓ×Ê²úÌ¯Ïú+³¤ÆÚ´ıÌ¯·ÑÓÃÌ¯Ïú
-	private double netCashFlow = 0.0; 			//¾­Óª»î¶¯ÏÖ½ğÁ÷Á¿¾»¶î
+	private double purchaseAssets = 0.0;  		//è´­å»ºå›ºå®šèµ„äº§ã€æ— å½¢èµ„äº§åŠå…¶ä»–é•¿æœŸèµ„äº§æ‰€æ”¯ä»˜çš„ç°é‡‘
+	private double depreciationAssets = 0.0; 	//å›ºå®šèµ„äº§æŠ˜æ—§+æ— å½¢èµ„äº§æ‘Šé”€+é€’å»¶èµ„äº§æ‘Šé”€+é•¿æœŸå¾…æ‘Šè´¹ç”¨æ‘Šé”€
+	private double netCashFlow = 0.0; 			//ç»è¥æ´»åŠ¨ç°é‡‘æµé‡å‡€é¢
 	
 		
 	public String getPeriod() {

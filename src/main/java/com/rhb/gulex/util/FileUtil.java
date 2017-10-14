@@ -22,9 +22,9 @@ public class FileUtil {
 		try {
 			File file = new File(path);
 
-			if (file.exists() == false) { // Èç¹ûÎÄ±¾ÎÄ¼ş²»´æÔÚÔò´´½¨Ëü
+			if (file.exists() == false) { // å¦‚æœæ–‡æœ¬æ–‡ä»¶ä¸å­˜åœ¨åˆ™åˆ›å»ºå®ƒ
 				file.createNewFile();
-				file = new File(path); // ÖØĞÂÊµÀı»¯
+				file = new File(path); // é‡æ–°å®ä¾‹åŒ–
 				FileWriter filewriter = new FileWriter(file, append);
 				BufferedWriter bufwriter = new BufferedWriter(filewriter);
 				filewriter.write(content);
@@ -42,13 +42,13 @@ public class FileUtil {
 		StringBuffer buffer = new StringBuffer();
 		try {
 			InputStream is = new FileInputStream(path);
-			String line; // ÓÃÀ´±£´æÃ¿ĞĞ¶ÁÈ¡µÄÄÚÈİ
+			String line; // ç”¨æ¥ä¿å­˜æ¯è¡Œè¯»å–çš„å†…å®¹
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			line = reader.readLine(); // ¶ÁÈ¡µÚÒ»ĞĞ
-			while (line != null) { // Èç¹û line Îª¿ÕËµÃ÷¶ÁÍêÁË
-				buffer.append(line); // ½«¶Áµ½µÄÄÚÈİÌí¼Óµ½ buffer ÖĞ
-				buffer.append("\n"); // Ìí¼Ó»»ĞĞ·û
-				line = reader.readLine(); // ¶ÁÈ¡ÏÂÒ»ĞĞ
+			line = reader.readLine(); // è¯»å–ç¬¬ä¸€è¡Œ
+			while (line != null) { // å¦‚æœ line ä¸ºç©ºè¯´æ˜è¯»å®Œäº†
+				buffer.append(line); // å°†è¯»åˆ°çš„å†…å®¹æ·»åŠ åˆ° buffer ä¸­
+				buffer.append("\n"); // æ·»åŠ æ¢è¡Œç¬¦
+				line = reader.readLine(); // è¯»å–ä¸‹ä¸€è¡Œ
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -70,7 +70,7 @@ public class FileUtil {
 
 	private static void listFile(List list, File dir, String suffix,	boolean isdepth) {
 
-		// ÊÇÄ¿Â¼£¬Í¬Ê±ĞèÒª±éÀú×ÓÄ¿Â¼
+		// æ˜¯ç›®å½•ï¼ŒåŒæ—¶éœ€è¦éå†å­ç›®å½•
 		if (dir.isDirectory() && isdepth == true) {
 			File[] t = dir.listFiles();
 			for (int i = 0; i < t.length; i++) {
@@ -79,10 +79,10 @@ public class FileUtil {
 		} else {
 			String filePath = dir.getAbsolutePath();
 			if (suffix != null) {
-				int begIndex = filePath.lastIndexOf(".");// ×îºóÒ»¸ö.(¼´ºó×ºÃûÇ°ÃæµÄ.)µÄË÷Òı
+				int begIndex = filePath.lastIndexOf(".");// æœ€åä¸€ä¸ª.(å³åç¼€åå‰é¢çš„.)çš„ç´¢å¼•
 				String tempsuffix = "";
 
-				if (begIndex != -1) {// ·ÀÖ¹ÊÇÎÄ¼şµ«È´Ã»ÓĞºó×ºÃû½áÊøµÄÎÄ¼ş
+				if (begIndex != -1) {// é˜²æ­¢æ˜¯æ–‡ä»¶ä½†å´æ²¡æœ‰åç¼€åç»“æŸçš„æ–‡ä»¶
 					tempsuffix = filePath.substring(begIndex + 1, filePath
 							.length());
 				}
@@ -91,7 +91,7 @@ public class FileUtil {
 					list.add(filePath);
 				}
 			} else {
-				// ºó×ºÃûÎªnullÔòÎªËùÓĞÎÄ¼ş
+				// åç¼€åä¸ºnullåˆ™ä¸ºæ‰€æœ‰æ–‡ä»¶
 				list.add(filePath);
 			}
 		}

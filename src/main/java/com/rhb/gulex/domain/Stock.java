@@ -1,32 +1,37 @@
 package com.rhb.gulex.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Stock {
 
-	private String stockid;
-	private String stockname;
+	private String stockId;
+	private String stockName;
+	private Map<Integer,Integer> goodTims;
 	private FinancialStatements fs;
 	
 	public Stock(String stockid, String stockname){
-		this.stockid = stockid;
-		this.stockname = stockname;
+		this.stockId = stockid;
+		this.stockName = stockname;
 		this.fs = new FinancialStatements(stockid);
+		this.goodTims = new HashMap<Integer,Integer>();
 	}
 	
-	//ÏúÊÛÊÕÈë	ÏúÊÛÊÕÈë³ÖĞøÔö³¤£¬ÇÒÄê¾ùÔö³¤ÂÊ´óÓÚ20%(¶şÄêÔö³¤´óÓÚ44%)
-	//ÀûÈó		ÀûÈó³ÖĞøÔö³¤£¬ÇÒÄê¾ùÔö³¤ÂÊ´óÓÚ20%
-	//ÏÖ½ğÁ÷		¾­Óª»î¶¯ÏÖ½ğÁ÷ÎªÕı£¬ÇÒ³ÖĞøÔö³¤£¬ÇÒÄê¾ùÔö³¤ÂÊ´óÓÚ20%
-	//Ó¦ÊÕÕË¿î		Ó¦ÊÕÕË¿îµÄÔö³¤ÂÊĞ¡ÓÚÏúÊÛÊÕÈëµÄÔö³¤ÂÊ
-	//ÏÖ½ğÁ÷ÓëÀûÈóµÄ±ÈÂÊ´óÓÚ1
-	//Ó¦ÊÕÕ¼±ÈÏúÊÛ¶îµÄ±ÈÀıĞ¡ÓÚ20%
-	public boolean isOk(int year){
+	//é”€å”®æ”¶å…¥	é”€å”®æ”¶å…¥æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%(äºŒå¹´å¢é•¿å¤§äº44%)
+	//åˆ©æ¶¦		åˆ©æ¶¦æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%
+	//ç°é‡‘æµ		ç»è¥æ´»åŠ¨ç°é‡‘æµä¸ºæ­£ï¼Œä¸”æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%
+	//åº”æ”¶è´¦æ¬¾		åº”æ”¶è´¦æ¬¾çš„å¢é•¿ç‡å°äºé”€å”®æ”¶å…¥çš„å¢é•¿ç‡
+	//ç°é‡‘æµä¸åˆ©æ¶¦çš„æ¯”ç‡å¤§äº1
+	//åº”æ”¶å æ¯”é”€å”®é¢çš„æ¯”ä¾‹å°äº20%
+	private boolean isOK(int year){
 		fs.setYear(year);
 		boolean flag = false;
-		if(fs.getRateOfOperatngRevenue()>0.44 
-			&& fs.getRateOfProfit()>0.44
-			&& fs.getRateOfCashflow()>0.44
-			//&& fs.getRateOfOperatngRevenue()>fs.getRateOfAccountsReceivable()
-			&& fs.getCPR()>=1
-			&& fs.getReceivableRatio()<=0.2
+		if(fs.getRateOfOperatngRevenue()>0.44 //é”€å”®æ”¶å…¥æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%(äºŒå¹´å¢é•¿å¤§äº44%)
+			&& fs.getRateOfProfit()>0.44  //åˆ©æ¶¦æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%(äºŒå¹´å¢é•¿å¤§äº44%)
+			&& fs.getRateOfCashflow()>0.44  //ç»è¥æ´»åŠ¨ç°é‡‘æµä¸ºæ­£ï¼Œä¸”æŒç»­å¢é•¿ï¼Œä¸”å¹´å‡å¢é•¿ç‡å¤§äº20%(äºŒå¹´å¢é•¿å¤§äº44%)
+			//&& fs.getRateOfOperatngRevenue()>fs.getRateOfAccountsReceivable() //åº”æ”¶è´¦æ¬¾çš„å¢é•¿ç‡å°äºé”€å”®æ”¶å…¥çš„å¢é•¿ç‡
+			&& fs.getCPR()>=1  //ç°é‡‘æµä¸åˆ©æ¶¦çš„æ¯”ç‡å¤§äº1
+			&& fs.getReceivableRatio()<=0.2  //åº”æ”¶å æ¯”é”€å”®é¢çš„æ¯”ä¾‹å°äº20%
 			){
 			flag = true;
 		}
@@ -34,18 +39,34 @@ public class Stock {
 		return flag;
 	}
 	
+	public void refresh(int bYear, int eYear){
+		for(int year=bYear; year<=eYear; year++){
+			if(this.isOK(year)){
+				this.goodTims.put(year, 1);
+			}
+		}
+	}
+	
+	public boolean isGood(int year){
+		return goodTims.containsKey(year);
+	}
+	
+	public int getGoodTimes(){
+		return goodTims.size();
+	}
+	
 	public boolean exists(String period){
 		return fs.exists(period);
 	}
 	
 	public String getStockName(){
-		return stockname;
+		return stockName;
 	}
 	
 	public String getRateOfFinancialStatements(int year){
 		fs.setYear(year);
 		StringBuffer sb = new StringBuffer();
-		sb.append(stockname);
+		sb.append(stockName);
 		sb.append(",");
 		sb.append("RateOfOperatngRevenue = ");
 		sb.append(fs.getRateOfOperatngRevenue());
@@ -78,23 +99,27 @@ public class Stock {
 		return fs.getTurnoverRatioOfReceivable(year);
 	}
 	
-	//×Ê²ú¸ºÕ®ÂÊ  debt to assets ratio
+	//èµ„äº§è´Ÿå€ºç‡  debt to assets ratio
 	public Double getDAR(int year){
 		fs.setYear(year);
 		return fs.getDAR();
 	}
 	
-	//ÀûÈóÏÖ½ğº¬Á¿  cashflow to profit ratio
+	//åˆ©æ¶¦ç°é‡‘å«é‡  cashflow to profit ratio
 	public Double getCPR(int year){
 		fs.setYear(year);
 		return fs.getCPR();
 	}
 	
-	//Ó¦ÊÕÕ¼±È Receivable Ratio
+	//åº”æ”¶å æ¯” Receivable Ratio
 	public double getReceivableRatio(int year){
 		fs.setYear(year);
 		return fs.getReceivableRatio();
 		
+	}
+
+	public String getStockId() {
+		return stockId;
 	}
 	
 }

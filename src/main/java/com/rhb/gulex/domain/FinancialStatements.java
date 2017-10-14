@@ -172,27 +172,27 @@ public class FinancialStatements {
 		return d;
 	}
 	
-	//资产负债率  debt to assets ratio
+	//璧勪骇璐熷�虹巼  debt to assets ratio
 	public Double getDAR(){
 		return ((BalanceSheet)this.balancesheets.get(periods[0])).getDAR();
 	}
 	
-	//利润现金含量  cashflow to profit ratio
+	//鍒╂鼎鐜伴噾鍚噺  cashflow to profit ratio
 	public Double getCPR(){
-		double cash = ((CashFlow)this.cashflows.get(periods[0])).getNetCashFlow();
-		double profit = ((ProfitStatement)this.profitstatements.get(periods[0])).getProfit();
-		return cash/profit;
+		Double cash = ((CashFlow)this.cashflows.get(periods[0])).getNetCashFlow();
+		Double profit = ((ProfitStatement)this.profitstatements.get(periods[0])).getProfit();
+		return profit.intValue()==0 ? 0.0 : cash/profit;
 	}
 	
-	//应收占比 Receivable Ratio
+	//搴旀敹鍗犳瘮 Receivable Ratio
 	public Double getReceivableRatio(){
 		BalanceSheet bs = (BalanceSheet)this.balancesheets.get(periods[0]);
 		ProfitStatement ps = (ProfitStatement)this.profitstatements.get(periods[0]);
 		
-		double operating = ps.getOperatingRevenue();
-		double receivable = bs.getAccountsReceivable();
+		Double operating = ps.getOperatingRevenue();
+		Double receivable = bs.getAccountsReceivable();
 		
-		return receivable/operating;
+		return operating.intValue()==0 ? 0.0 : receivable/operating;
 		
 	}
 	

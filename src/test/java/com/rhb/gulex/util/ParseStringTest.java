@@ -11,8 +11,8 @@ public class ParseStringTest {
 
 	@Test
 	public void TestSubString(){
-		String expected = "ÈÕ³ö¶«·½(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>ÈÕ³ö¶«·½(603366)</a></li>";
+		String expected = "æ—¥å‡ºä¸œæ–¹(603366)";
+		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>æ—¥å‡ºä¸œæ–¹(603366)</a></li>";
 		String regexp = "<a.*?>|</a>";
 		String actual = ParseString.subString(source, regexp);
 		assertEquals(expected,actual);
@@ -21,8 +21,8 @@ public class ParseStringTest {
 
 	@Test
 	public void TestSubString2(){
-		String expected = "ÈÕ³ö¶«·½(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>ÈÕ³ö¶«·½(603366)</a></li>";
+		String expected = "æ—¥å‡ºä¸œæ–¹(603366)";
+		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>æ—¥å‡ºä¸œæ–¹(603366)</a></li>";
 		String regexp = "<a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>|</a>";
 		String actual = ParseString.subString(source, regexp);
 		assertEquals(expected,actual);
@@ -32,11 +32,11 @@ public class ParseStringTest {
 	@Test
 	public void TestSubStrings(){
 		List expected = new ArrayList();
-		expected.add("ÈÕ³ö¶«·½(603366)");
-		expected.add("½ñÊÀÔµ(603369)");
+		expected.add("æ—¥å‡ºä¸œæ–¹(603366)");
+		expected.add("ä»Šä¸–ç¼˜(603369)");
 		
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>ÈÕ³ö¶«·½(603366)</a></li>";
-		source += "<li><a target='_blank' href='http://quote.eastmoney.com/sh603369.html'>½ñÊÀÔµ(603369)</a></li>";
+		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>æ—¥å‡ºä¸œæ–¹(603366)</a></li>";
+		source += "<li><a target='_blank' href='http://quote.eastmoney.com/sh603369.html'>ä»Šä¸–ç¼˜(603369)</a></li>";
 		
 		String regexp = "<a.*?>|</a>";
 		List actual = ParseString.subStrings(source, regexp);
@@ -47,8 +47,8 @@ public class ParseStringTest {
 	
 	@Test
 	public void TestSubString3(){
-		String expected = "ÈÕ³ö¶«·½(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>ÈÕ³ö¶«·½(603366)</a></li>";
+		String expected = "æ—¥å‡ºä¸œæ–¹(603366)";
+		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>æ—¥å‡ºä¸œæ–¹(603366)</a></li>";
 		String begin = "'>";
 		String end = "</a>";
 		String actual = ParseString.subString(source,begin,end);
