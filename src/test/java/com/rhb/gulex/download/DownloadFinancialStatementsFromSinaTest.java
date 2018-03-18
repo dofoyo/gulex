@@ -6,7 +6,7 @@ public class DownloadFinancialStatementsFromSinaTest {
 	DownloadFinancialStatements dfs = new DownloadFinancialStatementsFromSina();
 
 
-	@Test
+	//@Test
 	public void testDownload(){
 		String period = "20161231";
 		boolean overwrite = false;

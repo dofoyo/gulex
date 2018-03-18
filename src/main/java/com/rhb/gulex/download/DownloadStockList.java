@@ -1,6 +1,8 @@
 package com.rhb.gulex.download;
 
+import java.util.Map;
+
 public interface DownloadStockList {
 
-	public void go();
+	public Map<String,String> go();
 }

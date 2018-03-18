@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class ParseStringTest {
 
-	@Test
+	//@Test
 	public void TestSubString(){
 		String expected = "日出东方(603366)";
 		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
@@ -19,7 +19,7 @@ public class ParseStringTest {
 		System.out.println("TestSubString done!");
 	}
 
-	@Test
+	//@Test
 	public void TestSubString2(){
 		String expected = "日出东方(603366)";
 		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
@@ -29,7 +29,7 @@ public class ParseStringTest {
 		System.out.println("TestSubString2 done!");
 	}
 	
-	@Test
+	//@Test
 	public void TestSubStrings(){
 		List expected = new ArrayList();
 		expected.add("日出东方(603366)");
@@ -45,7 +45,7 @@ public class ParseStringTest {
 		System.out.println("TestSubStrings done!");
 	}
 	
-	@Test
+	//@Test
 	public void TestSubString3(){
 		String expected = "日出东方(603366)";
 		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";

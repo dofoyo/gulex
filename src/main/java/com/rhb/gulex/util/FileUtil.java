@@ -30,7 +30,10 @@ public class FileUtil {
 				filewriter.write(content);
 				filewriter.flush();
 			} else {
-				System.out.println(path + " has already exist!");
+				FileWriter filewriter = new FileWriter(file, append);
+				BufferedWriter bufwriter = new BufferedWriter(filewriter);
+				filewriter.write(content);
+				filewriter.flush();
 			}
 
 		} catch (Exception d) {
@@ -52,7 +55,7 @@ public class FileUtil {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return buffer.toString();
 	}
@@ -63,12 +66,12 @@ public class FileUtil {
 		return files;
 	}
 	
-	private static void getListFiles(List list, String path, String suffix,boolean isdepth) {
+	private static void getListFiles(List<File> list, String path, String suffix,boolean isdepth) {
 		File dir = new File(path);
 		listFile(list, dir, suffix, isdepth);
 	}
 
-	private static void listFile(List list, File dir, String suffix,	boolean isdepth) {
+	private static void listFile(List<File> list, File dir, String suffix,	boolean isdepth) {
 
 		// 是目录，同时需要遍历子目录
 		if (dir.isDirectory() && isdepth == true) {
@@ -88,11 +91,11 @@ public class FileUtil {
 				}
 
 				if (tempsuffix.equals(suffix)) {
-					list.add(filePath);
+					list.add(new File(filePath));
 				}
 			} else {
 				// 后缀名为null则为所有文件
-				list.add(filePath);
+				list.add(new File(filePath));
 			}
 		}
 	}

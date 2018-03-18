@@ -1,7 +1,10 @@
-package com.rhb.gulex.parse;
+package com.rhb.gulex.repository.financestatement;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.domain.BalanceSheet;
 import com.rhb.gulex.domain.CashFlow;
@@ -9,16 +12,21 @@ import com.rhb.gulex.domain.ProfitStatement;
 import com.rhb.gulex.util.FileUtil;
 import com.rhb.gulex.util.ParseString;
 
-public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
+@Service("FinanceStatementsRepositoryFromSina")
+public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRepository {
+	@Value("${dataPath}")
+	private String dataPath;
 
-	private String pathAndFilename = "d:\\stocks\\";
-	
-	public Map<String,BalanceSheet> parseBalanceSheet(String stockid) {
+	@Override
+	public Map<String,BalanceSheet> getBalanceSheets(String stockid) {
 		Map<String,BalanceSheet> balancesheets = new TreeMap<String,BalanceSheet>();
 		
-		String pf = pathAndFilename + stockid + "_balancesheet.xls";
+		String pf = dataPath + stockid + "_balancesheet.xls";
 		
-		if(!FileUtil.isExists(pf)) return balancesheets;
+		if(!FileUtil.isExists(pf)){
+			System.out.println(pf + " do NOT exist!!");
+			return balancesheets;
+		}
 		
 		String str = FileUtil.readTextFile(pf);
 		String[] lines = str.split("\n");
@@ -87,10 +95,11 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 		
 	}
 	
-	public Map<String,CashFlow> parseCashFlow(String stockid) {
+	@Override
+	public Map<String,CashFlow> getCashFlows(String stockid) {
 		Map<String,CashFlow> cashflows = new TreeMap<String,CashFlow>();
 		
-		String pf = pathAndFilename + stockid + "_cashflow.xls";
+		String pf = dataPath + stockid + "_cashflow.xls";
 		if(!FileUtil.isExists(pf)) return cashflows;
 		
 		String str = FileUtil.readTextFile(pf);
@@ -148,10 +157,11 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 		
 	}
 
-	public Map<String, ProfitStatement> parseProfitStatement(String stockid) {
+	@Override
+	public Map<String, ProfitStatement> getProfitStatements(String stockid) {
 		Map<String,ProfitStatement> profitstatements = new TreeMap<String,ProfitStatement>();
 		
-		String pf = pathAndFilename + stockid + "_profitstatement.xls";
+		String pf = dataPath + stockid + "_profitstatement.xls";
 		if(!FileUtil.isExists(pf)) return profitstatements;
 		
 		String str = FileUtil.readTextFile(pf);
@@ -202,7 +212,7 @@ public class ParseFinanceStatementsFromSina implements ParseFinanceStatements {
 					fs.setFinanceExpense(0.00);
 					fs.setSalesExpense(0.00);
 					fs.setTax(ParseString.toDouble(cells[m][24]));
-				}else{	//银行
+				}else if(lines.length > 20){	//银行
 					fs.setAllOperatingRevenue(ParseString.toDouble(cells[m][2]));
 					fs.setOperatingRevenue(ParseString.toDouble(cells[m][3]));
 					fs.setAllOperatingCost(ParseString.toDouble(cells[m][4]));

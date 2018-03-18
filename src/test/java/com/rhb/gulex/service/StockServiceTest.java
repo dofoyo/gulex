@@ -1,67 +1,106 @@
 package com.rhb.gulex.service;
 
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.rhb.gulex.download.DownloadFinancialStatements;
-import com.rhb.gulex.download.DownloadFinancialStatementsFromSina;
-import com.rhb.gulex.download.DownloadStockList;
-import com.rhb.gulex.download.DownloadStockListFromEastmoney;
-import com.rhb.gulex.parse.ParseStocklist;
-import com.rhb.gulex.parse.ParseStocklistFromEastmoney;
-import com.rhb.gulex.parse.ParseStocklistFromTHS;
-import com.rhb.gulex.util.FileUtil;
+import com.rhb.gulex.api.stock.StockDTO;
+import com.rhb.gulex.domain.TradeRecord;
+import com.rhb.gulex.download.DownloadReportedStockList;
+import com.rhb.gulex.download.DownloadTradeRecord;
 
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest
 public class StockServiceTest {
-	DownloadFinancialStatements dfs = new DownloadFinancialStatementsFromSina();
-	DownloadStockList dsl = new DownloadStockListFromEastmoney();
-	ParseStocklist pslEastmoney = new ParseStocklistFromEastmoney();
-	ParseStocklist pslTHS = new ParseStocklistFromTHS();
+	@Autowired
+	StockService stockService;
+	
+	@Autowired
+	DownloadReportedStockList downloadReportedStockList;   
+	
+	@Autowired
+	DownloadTradeRecord downloadTradeData;
     
+   
     
-    //@Test
-    public void downloadFinancialStatementsFromTHS(){ //根据同花顺导出的股票清单下载财务报表
-		String period = "20161231";
-		boolean overwrite = false;
-		
-        StockService ss = new StockServiceImp(dfs,dsl,pslTHS);
-        ss.downloadFinancialStatements(overwrite,period);
+    @Test
+    public void testGetGoodStocks(){
+    	List<StockDTO> list = stockService.getGoodStocks(LocalDate.now());
+    	for(StockDTO stock : list){
+    		System.out.println(stock.getCode() + ", " + stock.getName() + ", " + stock.getGoodPeriod() + ", " + stock.getUpProbability());
+    	}
     	
     }
-
     
+   
    // @Test
-    public void downloadFinancialStatementsFromEastmoney(){//根据eastmoney的股票清单下载财务报表，已放弃
-		String period = "20161231";
-		boolean overwrite = false;
-		
-        StockService ss = new StockServiceImp(dfs,dsl,pslEastmoney);
-        ss.downloadFinancialStatements(overwrite,period);
-    	
+    public void testGetDeletedStocks(){
+    	List<StockDTO> list = stockService.getDeletedStocks();
+    	for(StockDTO stock : list){
+    		System.out.println(stock.getCode() + "," + stock.getName() + "," + stock.getLastPeriod());
+    	}    	
+     }
+    
+    //@Test
+    public void testNoReport(){
+    	Integer year = 2017;
+    	String[] codes = downloadReportedStockList.go(Integer.toString(year));
+    	for(String code : codes){
+    		System.out.println(code);
+    		if(stockService.noReport(code, year)){
+    			System.out.println(" NO report!");
+    		}else{
+    			System.out.println(" done!");
+    		}
+    	}
+		System.out.println("**************");
     }
     
     //@Test
-    public void selectGoodStocks(){
-		String path = "d:\\stocks\\goodstocks.txt";
-		String olds = FileUtil.readTextFile(path);
-		StringBuffer sb = new StringBuffer();
-		String flag;
+    public void testRefresh(){
+    	String[] codes = downloadReportedStockList.go("2017");
+    	stockService.setFinancialStatements(codes);
+    }
+    
+   //@Test
+    public void testGetTradeRecords(){
+    	String code = "601137";
+    	List<TradeRecord> trs = stockService.getTradeRecords(code);
+    	for(TradeRecord tr : trs){
+    		System.out.println(tr.getDate().toString() + ", " + tr.getPrice().toString() + ", " + tr.getAvarage().toString());
+    	}
+    	System.out.println("up Probability: " + stockService.getUpProbability(code));
+    }
+    
+    //@Test
+    public void testGetTradeData(){
+		System.out.println(LocalDateTime.now() +  "   " + Thread.currentThread().getName() + ":  下载交易数据任务开始.............");
 
-		StockService ss = new StockServiceImp(dfs,dsl,pslTHS);
-        int bYear = 2014;
-        int eYear = 2016;
-        Map<String,String> goods = ss.selectGoodStock(bYear, eYear);
-		System.out.println("there are " + goods.size() + " good stocks");
-		for(Map.Entry<String, String> entry : goods.entrySet()){
-			flag = olds.contains(entry.getKey()) ? "" : "new";
-			System.out.println(entry.getKey() + " " + entry.getValue() + "    " + flag);
-			sb.append(entry.getKey()+entry.getValue()+",");
+		List<StockDTO> stocks =  stockService.getGoodStocks(LocalDate.now());
+		
+		int i=0;
+		for(StockDTO stock : stocks){
+			
+			System.out.print(i++ + "/" + stocks.size() + "\r");
+
+			downloadTradeData.go(stock.getCode());
+
+			//完成年报下载后，刷新内存中STOCK对象
+			stockService.refreshMarketInfo(stock.getCode());		
 		}
 		
-		//需要确定覆盖才打开
-		//FileUtil.writeTextFile(path, sb.toString(), false);
+		System.out.print("下载了" + stocks.size() + "只股票的交易数据");
 
+		
+		
+		System.out.println(Thread.currentThread().getName() + ":  下载交易数据任务结束.............");
     }
 
 }
