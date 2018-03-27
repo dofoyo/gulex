@@ -4,48 +4,60 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class Stock {
 
 	private String stockId;
 	private String stockName;
+	private LocalDate ipoDate;
 	private Integer deleted = 0;
-	private LocalDate dDate = LocalDate.now();
-	private FinancialStatements financialStatements = new FinancialStatements();
+	private FinancialStatement financialStatements = new FinancialStatement();
 	private MarketInfo marketInfo = new MarketInfo();
+	private boolean isInitMrketInfo = false;
 	
+	public int getFirstPeriod(){
+		return this.financialStatements.getFirstPeriod();
+	}
+	
+	public boolean isOk(Integer year){
+		return financialStatements.isOK(year);
+	}
+	
+	public LocalDate getIpoDate() {
+		return ipoDate;
+	}
+
+	public void setIpoDate(LocalDate ipoDate) {
+		this.ipoDate = ipoDate;
+	}
+
+	public boolean isInitMrketInfo() {
+		return isInitMrketInfo;
+	}
+
+	public void setInitMrketInfo(boolean isInitMrketInfo) {
+		this.isInitMrketInfo = isInitMrketInfo;
+	}
+
+	public MarketInfo getMarketInfo() {
+		return marketInfo;
+	}
+
+	public void setMarketInfo(MarketInfo marketInfo) {
+		this.marketInfo = marketInfo;
+	}
+
 	public Stock(String stockid, String stockname){
 		this.stockId = stockid;
 		this.stockName = stockname;
-		//this.fs = new FinancialStatements(stockid,dataPath);
-		//this.refresh();
-		//this.trade = 
 	}
 	
-	public void SetDdate(LocalDate date){
-		this.dDate = date;
-		
-	}
-	public LocalDate getDdate(){
-		return this.dDate;
-	}
-	
-	public boolean isGood(){
-		return financialStatements.isGood();
-	}
-	
-	public int getGoodTimes(){
-		return financialStatements.getGoodTimes();
-	}
-	
-	public String getGoodPeriodString(){
-		return financialStatements.getGoodPeriodString();
+	public String getGoodPeriod(Integer year){
+		return financialStatements.getGoodPeriod(year);
 	}
 
 	public Integer getLastPeriod(){
-		return financialStatements.getLastPeriod(LocalDate.now());
+		return financialStatements.getLastPeriod();
 	}
 	
 	public void setBalancesheets(Map<String, BalanceSheet> balancesheets) {
@@ -59,25 +71,13 @@ public class Stock {
 	public void setProfitstatements(Map<String, ProfitStatement> profitstatements) {
 		this.financialStatements.setProfitstatements(profitstatements);
 	}
-
-	
-	public void refreshFinancialStatements(LocalDate date){
-		financialStatements.refreshGoodPeriods(date);		
-	}
-
-	public void refreshMarketInfo(){
-		//System.out.println("stock.refreshMarketInfo");
-		marketInfo.refreshAvaragePrice();
-	}
-
 	
 	public List<TradeRecord> getTradeRecords(){
 		return marketInfo.getTradeRecords();
 	}
 	
-	
-	public boolean exists(String period){
-		return financialStatements.exists(period);
+	public TradeRecord getTradeRecord(LocalDate date){
+		return marketInfo.findByDate(date);
 	}
 	
 	public String getStockName(){
@@ -96,20 +96,12 @@ public class Stock {
 		this.deleted = deleted;
 	}
 	public void addTradeRecord(LocalDate date,BigDecimal price) {
-		//System.out.println("stock.addTradeRecord");
-		this.marketInfo.addTradeRecord(date,price);
+		this.marketInfo.addTradeRecord(date,price,this.stockName);
 	}
 
-	public Integer getUpProbability(){
-		return marketInfo.getUpProbability();
-	}
 	
-	public boolean isAboveAv120(){
-		return marketInfo.isAboveAv120();
-	}
-	
-	public BigDecimal getPrice(LocalDate date){
-		return marketInfo.getPrice(date);
+	public TradeRecord getPrice(LocalDate date){
+		return marketInfo.findByDate(date);
 	}
 	
 }

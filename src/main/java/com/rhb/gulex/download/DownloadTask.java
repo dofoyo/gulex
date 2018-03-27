@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,11 @@ import org.springframework.stereotype.Component;
 
 import com.rhb.gulex.api.stock.StockDTO;
 import com.rhb.gulex.domain.Stock;
-import com.rhb.gulex.service.StockService;
+import com.rhb.gulex.repository.financestatement.DownloadFinancialStatements;
+import com.rhb.gulex.repository.financestatement.DownloadReportedStockList;
+import com.rhb.gulex.repository.stock.DownloadStockList;
+import com.rhb.gulex.repository.traderecord.DownloadTradeRecord;
+import com.rhb.gulex.service.stock.StockService;
 
 @Component
 public class DownloadTask {
@@ -69,7 +74,7 @@ public class DownloadTask {
 	/*
 	 * 
 	 */
-	@Scheduled(cron="0 0 9 ? * 1-5") //每星期一至五上午9点，下载最新的股票清单，看有无新股
+	//@Scheduled(cron="0 0 9 ? * 1-5") //每星期一至五上午9点，下载最新的股票清单，看有无新股
 	//@Scheduled(cron="0 42 * ? * *") //测试
 	public void getNewStock(){
 		System.out.println(LocalDateTime.now() +  "  " + Thread.currentThread().getName() + ":  下载新股任务开始.............");
@@ -108,7 +113,7 @@ public class DownloadTask {
 	}
 	
 	
-	@Scheduled(cron="0 0 5 ? * *") //每周2至6凌晨5点，下载最新年报
+	//@Scheduled(cron="0 0 5 ? * *") //每周2至6凌晨5点，下载最新年报
 	//@Scheduled(cron="0 50 * ? * *") //测试
 	public void getNewReport(){
 		LocalDate today = LocalDate.now();
@@ -139,25 +144,28 @@ public class DownloadTask {
 	}
 	
 	//
-	@Scheduled(cron="0 0 16 ? * 1-5")  //正式，每周1至5收盘后，4点，下载交易数据
-	//@Scheduled(cron="0 40 * ? * *")  //测试
+	//@Scheduled(cron="0 0 16 ? * 1-5")  //正式，每周1至5收盘后，4点，下载交易数据
+	//@Scheduled(cron="0 0 22 ? * *")  //测试
 	public void getTradeDate(){
 		System.out.println(LocalDateTime.now() +  "   " + Thread.currentThread().getName() + ":  下载交易数据任务开始.............");
 
-		List<StockDTO> stocks =  stockService.getGoodStocks(LocalDate.now());
-		
+		Set<String> codes = stockService.getStockCodes();
 		int i=0;
-		for(StockDTO stock : stocks){
+		for(String code : codes){
 			
-			System.out.print(i++ + "/" + stocks.size() + "\r");
+			System.out.print(i++ + "/" + codes.size() + "\r");
 
-			downloadTradeData.go(stock.getCode());
+			downloadTradeData.go(code);
 
-			//完成年报下载后，刷新内存中STOCK对象
-			stockService.refreshMarketInfo(stock.getCode());		
+			//完成数据下载后，完善数据，如：av120, aboveAv120Days, bias等
+			//stockService.setMarketInfo(code);		
 		}
+
 		
-		System.out.print("下载了" + stocks.size() + "只股票的交易数据");
+
+
+		
+		System.out.print("下载了" + codes.size() + "只股票的交易数据");
 		
 		System.out.println(Thread.currentThread().getName() + ":  下载交易数据任务结束.............");
 

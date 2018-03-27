@@ -24,6 +24,7 @@ public class StockRepositoryImp implements StockRepository{
 
 	@Value("${dataPath}")
 	private String dataPath;
+	
 	private static final String filename = "stocks.json";
 	
 	public List<String> getGoodStocks(){
@@ -43,7 +44,7 @@ public class StockRepositoryImp implements StockRepository{
 			e.printStackTrace();
 		}
 		
-		return null;
+		return stocks;
 	}
 	
 	public void saveGoodStocks(List<String> stocks){
@@ -100,6 +101,33 @@ public class StockRepositoryImp implements StockRepository{
 			e.printStackTrace();
 		}
 		return stocks;
+	}
+
+	@Override
+	public void SaveBluechip(List<BluechipEntity> list) {
+		writeToFile(dataPath + "bluechips.json", list);
+		
+	}
+
+	@Override
+	public List<BluechipEntity> getBluechips() {
+		List<BluechipEntity> entities = null;
+		String jsonfile = dataPath + "bluechips.json";
+
+		ObjectMapper mapper = new ObjectMapper();
+    	try {
+        	JavaType javatype =  mapper.getTypeFactory().constructParametricType(List.class,BluechipEntity.class); 
+        	entities =  (List<BluechipEntity>)mapper.readValue(new File(jsonfile), javatype);
+
+    	} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return entities;
 	}
 	
 }

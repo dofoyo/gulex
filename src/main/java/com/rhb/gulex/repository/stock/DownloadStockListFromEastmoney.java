@@ -1,4 +1,4 @@
-package com.rhb.gulex.download;
+package com.rhb.gulex.repository.stock;
 
 import java.util.HashMap;
 import java.util.List;

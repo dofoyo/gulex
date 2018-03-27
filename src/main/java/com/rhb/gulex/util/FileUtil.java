@@ -63,6 +63,7 @@ public class FileUtil {
 	public static List<File> getFiles(String path, String suffix,boolean isdepth){
 		List<File> files = new ArrayList();
 		getListFiles(files,path,suffix,isdepth);
+		System.out.println(files.size());
 		return files;
 	}
 	
@@ -72,7 +73,6 @@ public class FileUtil {
 	}
 
 	private static void listFile(List<File> list, File dir, String suffix,	boolean isdepth) {
-
 		// 是目录，同时需要遍历子目录
 		if (dir.isDirectory() && isdepth == true) {
 			File[] t = dir.listFiles();

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rhb.gulex.api.ResponseContent;
 import com.rhb.gulex.api.ResponseEnum;
-import com.rhb.gulex.service.StockService;
+import com.rhb.gulex.service.stock.StockService;
 
 @RestController
 public class StockController {

@@ -1,4 +1,4 @@
-package com.rhb.gulex.download;
+package com.rhb.gulex.repository.traderecord;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +13,7 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 	@Value("${dataPath}")
 	private String dataPath;
 	
+	private String subPath = "trade/163/";
 	
 	@Override
 	public void go(String code) {
@@ -33,16 +34,18 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 		
 		//System.out.println(url);
 		
-		String pathAndfileName = dataPath + code + "_tradedata.csv";
+		String pathAndfileName = dataPath + subPath + code + "_tradedata.csv";
 
+		System.out.println("pathAndfileName: " + pathAndfileName);
 		HttpDownload.saveToFile(url, pathAndfileName);
 		
+		/*
 		try {
 			Thread.sleep(5000);  //为避免被反扒工具禁止，需要暂停一下
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 

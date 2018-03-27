@@ -2,6 +2,8 @@ package com.rhb.gulex.download;
 
 import org.junit.Test;
 
+import com.rhb.gulex.repository.financestatement.DownloadReportedStockListFromSina;
+
 public class DownloadReportedStockListFromSinaTest {
 
 	@Test

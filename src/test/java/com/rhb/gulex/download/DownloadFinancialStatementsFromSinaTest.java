@@ -2,6 +2,11 @@ package com.rhb.gulex.download;
 
 import org.junit.Test;
 
+import com.rhb.gulex.repository.financestatement.DownloadFinancialStatements;
+import com.rhb.gulex.repository.financestatement.DownloadFinancialStatementsFromSina;
+import com.rhb.gulex.repository.stock.DownloadStockList;
+import com.rhb.gulex.repository.stock.DownloadStockListFromEastmoney;
+
 public class DownloadFinancialStatementsFromSinaTest {
 	DownloadFinancialStatements dfs = new DownloadFinancialStatementsFromSina();
 

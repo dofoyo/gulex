@@ -1,5 +1,6 @@
 package com.rhb.gulex.repository.stock;
 
+
 public class StockEntity {
 	private String code;
 	private String name;

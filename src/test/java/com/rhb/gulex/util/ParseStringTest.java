@@ -2,58 +2,78 @@ package com.rhb.gulex.util;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
+import com.rhb.gulex.repository.reportdate.ReportDateEntity;
+
 public class ParseStringTest {
 
+	
+	
+	
+	@Test
+	public void test1(){
+		String path = "D:/stocks/fina/sina/";
+	    File[] files = new File(path).listFiles();
+		
+		//List<File> files  = FileUtil.getFiles(path, ".xls", true);
+		for(File file : files){
+			System.out.println(file.getName());
+		}
+
+	}
+	
+	
+	
+	
+	
+	
+	
 	//@Test
-	public void TestSubString(){
-		String expected = "日出东方(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
-		String regexp = "<a.*?>|</a>";
-		String actual = ParseString.subString(source, regexp);
-		assertEquals(expected,actual);
-		System.out.println("TestSubString done!");
+	public void test(){
+		String url = "http://finance.sina.com.cn/realstock/income_statement/2016-12-31/issued_pdate_de_5.html";
+		String result = HttpDownload.getResult(url);
+		List<String> trs = getTrs1(result);
+		trs.addAll(getTrs2(result));
+		for(String tr : trs){
+			List<String> tds = getTds(tr);
+			String code = getCode(tds.get(0));
+			String date = tds.get(2);
+			System.out.println(code + "," + date);
+		}
 	}
 
-	//@Test
-	public void TestSubString2(){
-		String expected = "日出东方(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
-		String regexp = "<a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>|</a>";
-		String actual = ParseString.subString(source, regexp);
-		assertEquals(expected,actual);
-		System.out.println("TestSubString2 done!");
+	private List<String> getTds(String str){
+		String regexp = "<td>|</td>";
+		List<String> list = ParseString.subStrings(str,regexp);
+		return list;
 	}
 	
-	//@Test
-	public void TestSubStrings(){
-		List expected = new ArrayList();
-		expected.add("日出东方(603366)");
-		expected.add("今世缘(603369)");
-		
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
-		source += "<li><a target='_blank' href='http://quote.eastmoney.com/sh603369.html'>今世缘(603369)</a></li>";
-		
-		String regexp = "<a.*?>|</a>";
-		List actual = ParseString.subStrings(source, regexp);
-		assertEquals(expected,actual);
-		
-		System.out.println("TestSubStrings done!");
+	private List<String> getTrs2(String str){
+		String regexp = "<tr style='background:#F1F6FC;'>|</tr>";
+		List<String> list = ParseString.subStrings(str,regexp);
+		return list;
+	}
+
+	
+	private List<String> getTrs1(String str){
+		String regexp = "<tr>|</tr>";
+		List<String> list = ParseString.subStrings(str,regexp);
+		return list;
+	}
+
+	
+	private String getCode(String str){
+		String regexp = "nc.shtml\">|</a>";
+		String code = ParseString.subString(str,regexp);
+		return code;
 	}
 	
-	//@Test
-	public void TestSubString3(){
-		String expected = "日出东方(603366)";
-		String source = "<li><a target='_blank' href='http://quote.eastmoney.com/sh603366.html'>日出东方(603366)</a></li>";
-		String begin = "'>";
-		String end = "</a>";
-		String actual = ParseString.subString(source,begin,end);
-		assertEquals(expected,actual);
-		System.out.println("TestSubString3 done!");
-	}
+
 	
 }

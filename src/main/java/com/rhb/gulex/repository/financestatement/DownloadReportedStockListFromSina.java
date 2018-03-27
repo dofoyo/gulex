@@ -1,4 +1,4 @@
-package com.rhb.gulex.download;
+package com.rhb.gulex.repository.financestatement;
 
 import java.util.ArrayList;
 import java.util.List;

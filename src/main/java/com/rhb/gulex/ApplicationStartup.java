@@ -3,7 +3,7 @@ package com.rhb.gulex;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.rhb.gulex.service.StockService;
+import com.rhb.gulex.service.stock.StockService;
 
 public class ApplicationStartup implements ApplicationListener<ContextRefreshedEvent> {
 

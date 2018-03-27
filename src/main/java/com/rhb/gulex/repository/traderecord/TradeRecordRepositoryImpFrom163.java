@@ -8,11 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.crypto.Data;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.rhb.gulex.download.DownloadTradeRecord;
 import com.rhb.gulex.util.FileUtil;
 import com.rhb.gulex.util.ParseString;
 
@@ -21,19 +22,21 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 	@Value("${dataPath}")
 	private String dataPath;
 	
+	private String subPath = "\\trade\\163\\";
+	
 	@Autowired
 	DownloadTradeRecord downloadTradeData;
 	
 	
 	@Override
 	public List<TradeRecordEntity> getTradeRecordEntities(String code) {
-		String pathAndfileName = dataPath + code + "_tradedata.csv";
+		String pathAndfileName = dataPath + subPath + code + "_tradedata.csv";
 		
-		/*
 		File file = new File(pathAndfileName);
 		if(!file.exists()){
-			downloadTradeData.go(code);
-		}*/
+			System.out.println(pathAndfileName + " traderecord do NOT exist, download ....");
+			//downloadTradeData.go(code);
+		}
 		
 		//System.out.println(pathAndfileName);
 		List<TradeRecordEntity> records = new LinkedList<TradeRecordEntity>();
@@ -59,7 +62,8 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 		}
 		return records;
 	}
-	
+
+
 	
 
 }

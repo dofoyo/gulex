@@ -1,4 +1,4 @@
-package com.rhb.gulex.download;
+package com.rhb.gulex.repository.financestatement;
 
 import java.util.Map;
 
@@ -9,4 +9,8 @@ public interface DownloadFinancialStatements {
 	public String downloadBalanceSheetUrl(String stockid);
 	public String downloadCashFlowUrl(String stockid);
 	public String downloadProfitStatementUrl(String stockid);
+	
+	public void downloadBalanceSheet(String stockid);
+	public void downloadCashFlow(String stockid);
+	public void downloadProfitStatement(String stockid);
 }

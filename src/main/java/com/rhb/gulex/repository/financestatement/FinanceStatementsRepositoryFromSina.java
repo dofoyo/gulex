@@ -1,8 +1,14 @@
 package com.rhb.gulex.repository.financestatement;
 
+import java.io.File;
+import java.time.Year;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +22,36 @@ import com.rhb.gulex.util.ParseString;
 public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRepository {
 	@Value("${dataPath}")
 	private String dataPath;
-
+	
+	private String subPath = "\\fina\\sina\\";
+	
+	private static final Integer theYear = 2007; //2006年后才有现金流报表
+	
+	private String out = "000527,600840,002710,600631,000522,601206,600005,600263";
+	
+	@Autowired
+	DownloadFinancialStatements downloadFinancialStatements;
+	
+	
 	@Override
 	public Map<String,BalanceSheet> getBalanceSheets(String stockid) {
 		Map<String,BalanceSheet> balancesheets = new TreeMap<String,BalanceSheet>();
 		
-		String pf = dataPath + stockid + "_balancesheet.xls";
+		String pf = dataPath + subPath + stockid + "_balancesheet.xls";
 		
 		if(!FileUtil.isExists(pf)){
 			System.out.println(pf + " do NOT exist!!");
-			return balancesheets;
+			downloadFinancialStatements.downloadBalanceSheet(stockid);
+			System.out.println(pf + " DONW!");
 		}
 		
 		String str = FileUtil.readTextFile(pf);
+		
+		if(str.trim().isEmpty()){
+			System.out.println(pf + " is EMPTY!!");
+			return balancesheets;
+		}
+		
 		String[] lines = str.split("\n");
 		String[] columns = lines[0].split("\t");
 		String[][] cells = new String[columns.length][lines.length];
@@ -55,7 +78,8 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 		
 		for(int m=1; m<j; m++){
 			String period = cells[m][0];
-			if(period.contains("1231")){
+			Integer year = Integer.parseInt(period.substring(0, 4));
+			if(period.contains("1231") && year>=theYear){ //2006年后才有现金流分析
 				BalanceSheet bs = new BalanceSheet();
 				bs.setPeriod(cells[m][0]);
 				if(lines.length>100){
@@ -99,10 +123,19 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 	public Map<String,CashFlow> getCashFlows(String stockid) {
 		Map<String,CashFlow> cashflows = new TreeMap<String,CashFlow>();
 		
-		String pf = dataPath + stockid + "_cashflow.xls";
-		if(!FileUtil.isExists(pf)) return cashflows;
+		String pf = dataPath + subPath + stockid + "_cashflow.xls";
+		if(!FileUtil.isExists(pf)){
+			System.out.println(pf + " do NOT exist!!");
+			downloadFinancialStatements.downloadCashFlow(stockid);
+			System.out.println(pf + " DONW!");
+		}
 		
 		String str = FileUtil.readTextFile(pf);
+		if(str.trim().isEmpty()){
+			System.out.println(pf + " is EMPTY!!");
+			return cashflows;
+		}
+		
 		String[] lines = str.split("\n");
 		String[] columns = lines[0].split("\t");
 		String[][] cells = new String[columns.length][lines.length];
@@ -129,7 +162,8 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 		
 		for(int m=1; m<j; m++){
 			String period = cells[m][0];
-			if(period.contains("1231")){
+			Integer year = Integer.parseInt(period.substring(0, 4));
+			if(period.contains("1231") && year>=theYear){
 				CashFlow fs = new CashFlow();
 				fs.setPeriod(period);
 				if(lines.length>90){
@@ -161,10 +195,20 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 	public Map<String, ProfitStatement> getProfitStatements(String stockid) {
 		Map<String,ProfitStatement> profitstatements = new TreeMap<String,ProfitStatement>();
 		
-		String pf = dataPath + stockid + "_profitstatement.xls";
-		if(!FileUtil.isExists(pf)) return profitstatements;
+		String pf = dataPath + subPath + stockid + "_profitstatement.xls";
+		if(!FileUtil.isExists(pf)){
+			System.out.println(pf + " do NOT exist!!");
+			downloadFinancialStatements.downloadProfitStatement(stockid);
+			System.out.println(pf + " DONW!");
+		}
 		
 		String str = FileUtil.readTextFile(pf);
+		if(str.trim().isEmpty()){
+			System.out.println(pf + " is EMPTY!!");
+			return profitstatements;
+		}
+		
+		
 		String[] lines = str.split("\n");
 		String[] columns = lines[0].split("\t");
 		String[][] cells = new String[columns.length][lines.length];
@@ -191,7 +235,9 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 		
 		for(int m=1; m<j; m++){
 			String period = cells[m][0];
-			if(period.contains("1231")){
+			Integer year = Integer.parseInt(period.substring(0, 4));
+
+			if(period.contains("1231") && year>=theYear){
 				ProfitStatement fs = new ProfitStatement();
 				fs.setPeriod(period);
 				if(lines.length > 50){
@@ -232,6 +278,24 @@ public class FinanceStatementsRepositoryFromSina implements FinanceStatementsRep
 */		
 		return profitstatements;
 		
+	}
+
+	@Override
+	public Set<String> getReportedStockcode() {
+		Set<String> codes = new HashSet<String>();
+		String path = dataPath + subPath;
+	    File[] files = new File(path).listFiles();
+
+	    String filename;
+//		List<File> files  = FileUtil.getFiles(path, ".xls", false);
+		for(File file : files){
+			filename = file.getName().substring(0,6);
+			if(out.indexOf(filename)==-1){
+				codes.add(filename);
+			}
+		}
+		
+		return codes;
 	}
 
 }

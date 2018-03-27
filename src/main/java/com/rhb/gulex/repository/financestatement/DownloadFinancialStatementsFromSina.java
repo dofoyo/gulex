@@ -1,4 +1,4 @@
-package com.rhb.gulex.download;
+package com.rhb.gulex.repository.financestatement;
 
 import java.util.Map;
 
@@ -14,27 +14,29 @@ public class DownloadFinancialStatementsFromSina implements
 	@Value("${dataPath}")
 	private String dataPath;
 	
-	private void downloadBalanceSheet(String stockid) {
+	private String subPath = "\\fina\\sina\\";
+	
+	public void downloadBalanceSheet(String stockid) {
 		//http://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/300022/ctrl/all.phtml
 		String url = "http://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
-		String pathAndfileName = dataPath + stockid + "_balancesheet.xls";
+		String pathAndfileName = dataPath + subPath + stockid + "_balancesheet.xls";
 		HttpDownload.saveToFile(url, pathAndfileName);
 		System.out.println(stockid + "_balancesheet.xls have downloaded!");		
 	}
 
-	private void downloadCashFlow(String stockid) {
+	public void downloadCashFlow(String stockid) {
 		//http://money.finance.sina.com.cn/corp/go.php/vDOWN_CashFlow/displaytype/4/stockid/300022/ctrl/all.phtml
 		String url = "http://money.finance.sina.com.cn/corp/go.php/vDOWN_CashFlow/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
-		String pathAndfileName = dataPath + stockid + "_cashflow.xls";
+		String pathAndfileName = dataPath + subPath + stockid + "_cashflow.xls";
 		HttpDownload.saveToFile(url, pathAndfileName);
 		System.out.println(stockid + "_cashflow.xls have downloaded!");		
 		
 	}
 
-	private void downloadProfitStatement(String stockid) {
+	public void downloadProfitStatement(String stockid) {
 		//http://money.finance.sina.com.cn/corp/go.php/vDOWN_ProfitStatement/displaytype/4/stockid/300022/ctrl/all.phtml
 		String url = "http://money.finance.sina.com.cn/corp/go.php/vDOWN_ProfitStatement/displaytype/4/stockid/"+stockid+"/ctrl/all.phtml";
-		String pathAndfileName = dataPath + stockid + "_profitstatement.xls";
+		String pathAndfileName = dataPath + subPath + stockid + "_profitstatement.xls";
 		HttpDownload.saveToFile(url, pathAndfileName);
 		System.out.println(stockid + "_profitstatement.xls have downloaded!");		
 		
