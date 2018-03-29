@@ -33,10 +33,10 @@ public class DownloadTradeRecordFromDZHByClipboard   extends TimerTask{
 		//ClipboardPicker.clear();
 	}
 	
-	
+/*	
 	public static void main(String[] args){
 		Timer timer = new Timer();
 		DownloadTradeRecordFromDZHByClipboard ck = new DownloadTradeRecordFromDZHByClipboard();
 		timer.schedule(ck, 0, 1*1000);
-	}
+	}*/
 }

@@ -18,7 +18,7 @@ public class ParseStringTest {
 	
 	@Test
 	public void test1(){
-		String path = "D:/stocks/fina/sina/";
+		String path = "D:/workspace/gulex-data/fina/sina/";
 	    File[] files = new File(path).listFiles();
 		
 		//List<File> files  = FileUtil.getFiles(path, ".xls", true);

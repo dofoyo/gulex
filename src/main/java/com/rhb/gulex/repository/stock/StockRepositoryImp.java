@@ -90,6 +90,9 @@ public class StockRepositoryImp implements StockRepository{
 
 		try {
 			stocks = mapper.readValue(new File(dataPath + filename),new TypeReference<Set<StockEntity>>() {});
+			if(stocks == null) {
+				System.out.println(dataPath + filename + "  file do no exist!??");
+			}
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
