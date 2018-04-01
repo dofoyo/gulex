@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -61,7 +59,7 @@ public class FileUtil {
 	}
 
 	public static List<File> getFiles(String path, String suffix,boolean isdepth){
-		List<File> files = new ArrayList();
+		List<File> files = new ArrayList<File>();
 		getListFiles(files,path,suffix,isdepth);
 		System.out.println(files.size());
 		return files;

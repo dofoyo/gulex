@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.rhb.gulex.repository.reportdate.ReportDateEntity;
+import com.rhb.gulex.reportdate.repository.ReportDateEntity;
 
 public class ParseStringTest {
 

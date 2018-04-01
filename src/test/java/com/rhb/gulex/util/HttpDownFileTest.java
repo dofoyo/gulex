@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,11 +35,11 @@ public class HttpDownFileTest {
 		  InputStreamReader isr = null;// 字节流
 		  BufferedReader br = null;
 		  String ip = "www.baidu.com -t";
-		  boolean res = false;// 结果
+		  //boolean res = false;// 结果
 
 		  String file = "d:\\ping.csv";
 		   String regexp = "时间=|ms TTL";
-		   String pingvalue = null;
+		   //String pingvalue = null;
 		   StringBuffer sb = new StringBuffer();
 		  
 		   try {

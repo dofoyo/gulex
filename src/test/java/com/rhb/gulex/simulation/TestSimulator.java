@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.rhb.gulex.simulation.service.Simulator;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class TestSimulator {
@@ -17,9 +19,11 @@ public class TestSimulator {
 	
 	@Test
 	public void test(){
-		Integer[] amounts = {30000,50000,80000,100000,120000,150000,180000,200000};
-		Integer[] upProbabilities = {30,35,40,45,50,55,60,65,70,75,80,85,90,95};
-		LocalDate beginDate = LocalDate.parse("2016-03-01"); 
+		//Integer[] amounts = {30000,50000,80000,100000,120000,150000,180000,200000};
+		Integer[] amounts = {50000};
+		//Integer[] upProbabilities = {30,35,40,45,50,55,60,65,70,75,80,85,90,95};
+		Integer[] upProbabilities = {60};
+		LocalDate beginDate = LocalDate.parse("2010-01-01"); 
 		boolean flag = true;
 		
 		BigDecimal profit;

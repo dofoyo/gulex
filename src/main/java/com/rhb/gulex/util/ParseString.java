@@ -19,7 +19,7 @@ public class ParseString {
 	}
 	
 	public static List<String> subStrings(String source, String regexp){
-		List list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 
 		if(source == null || regexp==null || "".equals(regexp.trim())){
 			return list;
