@@ -21,7 +21,11 @@ public class Stock {
 
 	public Stock(String stockid, String stockname){
 		this.stockId = stockid;
-		this.stockName = stockname;
+		if(stockname.contains("(")) {
+			this.stockName = stockname.substring(0,stockname.indexOf("("));
+		}else {
+			this.stockName = stockname;
+		}
 	}
 	
 	public String getStockName(){

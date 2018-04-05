@@ -1,5 +1,7 @@
 package com.rhb.gulex.traderecord;
 
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,16 @@ public class DownloadTradeRecordTest {
 
 	
 	
-	@Test
+	//@Test
 	public void test() {
 		DownloadTradeRecordFromQt qt = new DownloadTradeRecordFromQt();
 		
 		
-		qt.go("000858");
+		Map<String,String> map = qt.go("002726");
+		
+		System.out.println("code= " + map.get("code"));
+		System.out.println("price= " + map.get("price"));
+		System.out.println("date= " + map.get("date"));
+		
 	}
 }

@@ -28,6 +28,11 @@ public class Account {
 		this.date = date;
 	}
 	
+	public BigDecimal getTotal() {
+		return cash.add(value);
+	}
+	
+	
 	
 	
 }

@@ -14,9 +14,14 @@ import com.rhb.gulex.reportdate.repository.ReportDateEntity;
 public class ParseStringTest {
 
 	
-	
-	
 	@Test
+	public void test3() {
+		String str = "长盈精(300115)";
+		System.out.println(str.substring(0,str.indexOf("(")));
+	}
+	
+	
+	//@Test
 	public void test1(){
 		String path = "D:/workspace/gulex-data/fina/sina/";
 	    File[] files = new File(path).listFiles();

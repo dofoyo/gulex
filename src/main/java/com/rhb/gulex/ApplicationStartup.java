@@ -12,7 +12,6 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		// TODO Auto-generated method stub
 		ReportDateRepository rdr = event.getApplicationContext().getBean(ReportDateRepository.class);
 		rdr.init();
 		

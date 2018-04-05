@@ -1,7 +1,9 @@
 package com.rhb.gulex;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import com.rhb.gulex.simulation.service.BluechipDto;
 import com.rhb.gulex.simulation.service.SimulationService;
 import com.rhb.gulex.stock.service.StockService;
 import com.rhb.gulex.stock.spider.DownloadStockList;
+import com.rhb.gulex.traderecord.service.TradeRecordService;
 import com.rhb.gulex.traderecord.spider.DownloadTradeRecord;
 
 @Component
@@ -75,7 +78,12 @@ public class ScheduledTask {
 	
 	@Autowired
 	@Qualifier("DownloadTradeRecordFrom163")
-	DownloadTradeRecord downloadTradeData;
+	DownloadTradeRecord downloadTradeDataFrom163;
+
+	@Autowired
+	@Qualifier("DownloadTradeRecordFromQt")
+	DownloadTradeRecord downloadTradeDataFromQt;
+
 	
 	@Autowired
 	@Qualifier("BluechipServiceImp")
@@ -88,10 +96,14 @@ public class ScheduledTask {
 	@Autowired
 	@Qualifier("SimulationServiceImp")
 	SimulationService simulationService;
+	
+	@Autowired
+	@Qualifier("TradeRecordServiceImp")
+	TradeRecordService tradeRecordService;
 
 	
 	@Scheduled(cron="0 0 5 ? * *") //每日凌晨5点，下载最新年报
-	//@Scheduled(cron="0 50 * ? * *") //测试
+	//@Scheduled(cron="0 0 12 ? * *") //临时
 	public void getNewReport(){
 		LocalDate today = LocalDate.now();
 		int month = today.getMonthValue();
@@ -127,16 +139,21 @@ public class ScheduledTask {
 
 	
 	@Scheduled(cron="0 0 9 ? * 1-5") //每星期一至五上午9点，下载最新的股票清单，看有无新股
-	//@Scheduled(cron="0 42 * ? * *") //测试
+	//@Scheduled(cron="0 20 12 ? * *") //临时
 	public void getNewStock(){
 		System.out.println(LocalDateTime.now() +  "  " + Thread.currentThread().getName() + ":  下载新股任务开始.............");
+		
+		String out = "000527,600840,002710,600631,000522,601206,600005";
+
 		
 		//生成新股清单
 		Map<String,String> newlist = new HashMap<String,String>();
 		Map<String,String> stocklist = downloadStocklist.go();
+		
 		for(Map.Entry<String, String> entry : stocklist.entrySet()){
-			if(!stockService.isExist(entry.getKey())){
+			if(!stockService.isExist(entry.getKey()) && !out.contains(entry.getKey())){
 				newlist.put(entry.getKey(), entry.getValue());
+				System.out.println(entry.getKey() + "," + entry.getValue());
 			}
 		}
 		
@@ -165,7 +182,8 @@ public class ScheduledTask {
 	}
 	
 
-	@Scheduled(cron="0 10 9 ? * 1-6") //每星期一至五上午9点10分，根据新股和新年报，重新生成blueship
+	@Scheduled(cron="0 10 9 ? * 1-5") //每星期一至五上午9点10分，根据新股和新年报，重新生成blueship
+	//@Scheduled(cron="0 30 12 ? * 1-6")
 	public void generateBluechip() {
 		bluechipService.generateBluechip();
 		bluechipService.init();
@@ -173,8 +191,8 @@ public class ScheduledTask {
 
 
 	
-	@Scheduled(cron="0 30 15 ? * 1-6")  //正式，每周1至5收盘后，3:30点，下载交易数据
-	//@Scheduled(cron="0 0 22 ? * *")  //测试
+	@Scheduled(cron="0 30 16 ? * 1-5")  //正式，每周1至5收盘后，16:30点，下载交易数据
+	//@Scheduled(cron="0 40 12 ? * *")  //临时
 	public void getTradeData(){
 		System.out.println(LocalDateTime.now() +  "   " + Thread.currentThread().getName() + ":  下载交易数据任务开始.............");
 
@@ -189,7 +207,7 @@ public class ScheduledTask {
 			
 			System.out.print(i++ + "/" + dtos.size() + "\r");
 
-			downloadTradeData.go(dto.getCode());
+			downloadTradeDataFrom163.go(dto.getCode());
 
 			//完成数据下载后，完善数据，如：av120, aboveAv120Days, bias等
 			//stockService.setMarketInfo(code);		
@@ -197,22 +215,55 @@ public class ScheduledTask {
 
 		bluechipService.init();
 		
+		simulationService.init();
+		
 		System.out.print("下载了" + dtos.size() + "只股票的交易数据");
 		
 		System.out.println(Thread.currentThread().getName() + ":  下载交易数据任务结束.............");
 
 	}
 	
-	@Scheduled(cron="0 10 * ? * 1-5")  //每10分钟，执行一次模拟
+	@Scheduled(cron="0 30/30 9-15 ? * 1-5")  //每周1-5，9-15点，交易时间，每30分钟，执行一次模拟
 	public void simulate() {   
 		//下载最新的市场行情
 		
+		System.out.println("simulate begin .......");
 		
-		//执行模拟
-		simulationService.trade(LocalDate.now());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		Map<String,String> tradeData = downloadTradeDataFromQt.go("sh000001");  //以上证指数为依据，判断交易日，永不停牌
+		LocalDate date = LocalDate.parse(tradeData.get("date"), formatter);
 		
+		LocalDate now = LocalDate.now();
+		boolean isTradeDay = date.equals(now) ? true : false;
+
+		if(isTradeDay) {
+			BigDecimal price;
+			
+			List<BluechipDto> bluechips = bluechipService.getBluechips(now);
+			
+			for(BluechipDto dto : bluechips) {
+				tradeData = downloadTradeDataFromQt.go(dto.getCode());
+				date = LocalDate.parse(tradeData.get("date"), formatter);
+				price = new BigDecimal(tradeData.get("price"));
+				if(date.equals(now) && price.compareTo(new BigDecimal(0))==1) {  //判断是否停盘
+					tradeRecordService.setTradeRecordEntity(dto.getCode(), now, price);
+				}
+			}
+			
+			//执行模拟
+			simulationService.trade(now);
+			
+		}
+		System.out.println("........simulate end!");
 		
-		
+	}
+	
+	public void doAll() {
+		this.getNewReport();
+		this.getNewStock();
+		this.generateBluechip();
+		this.getTradeData();
+		this.simulate();
 	}
 
 }

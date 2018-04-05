@@ -2,6 +2,7 @@ package com.rhb.gulex.traderecord.spider;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 	private String subPath = "trade/163/";
 	
 	@Override
-	public void go(String code) {
+	public Map<String,String> go(String code) {
 		String ocode = code;
 		String marketCode = code.indexOf("60")==0 ? "0" : "1";
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -35,8 +36,6 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 		String url = "http://quotes.money.163.com/service/chddata.html?code="+marketCode+code+"&start="+start+"&end="+end+"&fields=TCLOSE";
 
 		
-		//System.out.println(url);
-		
 		String pathAndfileName = dataPath + subPath + ocode + "_tradedata.csv";
 
 		//System.out.println("save trade record: " + pathAndfileName);
@@ -49,13 +48,9 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-
-	}
-
-	@Override
-	public void go(String[] codes) {
-		// TODO Auto-generated method stub
 		
+		return null;
+
 	}
 
 }

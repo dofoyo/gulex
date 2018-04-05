@@ -23,7 +23,7 @@ public class TestSimulator {
 		Integer[] amounts = {50000};
 		//Integer[] upProbabilities = {30,35,40,45,50,55,60,65,70,75,80,85,90,95};
 		Integer[] upProbabilities = {60};
-		LocalDate beginDate = LocalDate.parse("2010-01-01"); 
+		LocalDate beginDate = LocalDate.parse("2018-01-01"); 
 		boolean flag = true;
 		
 		BigDecimal profit;

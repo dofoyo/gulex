@@ -34,6 +34,20 @@ public class SimulationController {
 		return new ResponseContent<List<TradeRecordView>>(ResponseEnum.SUCCESS, tradeRecordViews);
 	}
 	
+	@GetMapping("/traderecordplus")
+	public ResponseContent<List<TradeRecordViewPlus>> getTradeRecordViewPlus(){
+		List<TradeRecordViewPlus> tradeRecordViews = simulationService.getTradeRecordViewPlus();
+		Collections.sort(tradeRecordViews, new Comparator<TradeRecordViewPlus>(){
+
+			@Override
+			public int compare(TradeRecordViewPlus arg0, TradeRecordViewPlus arg1) {
+				return arg1.getProfit().compareTo(arg0.getProfit());
+			}
+			
+		});
+		return new ResponseContent<List<TradeRecordViewPlus>>(ResponseEnum.SUCCESS, tradeRecordViews);
+	}
+	
 	@GetMapping("/onhands")
 	public ResponseContent<List<OnHandView>> getOnHands(){
 		List<OnHandView> OnHandViews = simulationService.getOnHandViews();
@@ -50,12 +64,36 @@ public class SimulationController {
 		return new ResponseContent<List<OnHandView>>(ResponseEnum.SUCCESS, OnHandViews);
 	}
 	
-	@GetMapping("/values")
-	public ResponseContent<List<ValueView>> getValues(){
-		List<ValueView> valueViews = simulationService.getValueViews();
+	@GetMapping("/dayvalues")
+	public ResponseContent<List<ValueView>> getDayValues(){
+		List<ValueView> valueViews = simulationService.getDayValueViews();
+		
+		Collections.sort(valueViews, new Comparator<ValueView>() {
+
+			@Override
+			public int compare(ValueView o1, ValueView o2) {
+				return o2.getDate().compareTo(o1.getDate());
+			}
+			
+		});
 		
 		return new ResponseContent<List<ValueView>>(ResponseEnum.SUCCESS, valueViews);
 	}
 
+	@GetMapping("/yearvalues")
+	public ResponseContent<List<ValueView>> getYearValues(){
+		List<ValueView> valueViews = simulationService.getYearValueViews();
+		
+		Collections.sort(valueViews, new Comparator<ValueView>() {
+
+			@Override
+			public int compare(ValueView o1, ValueView o2) {
+				return o2.getDate().compareTo(o1.getDate());
+			}
+			
+		});
+		
+		return new ResponseContent<List<ValueView>>(ResponseEnum.SUCCESS, valueViews);
+	}
 	
 }

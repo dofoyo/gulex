@@ -6,7 +6,29 @@ public class BluechipView {
 	private Integer upProbability = -1;
 	private String okYears;
 	private String date;
+	private Integer aboveAv120Days;
+	private Integer biasOfAv120;
+	private Integer biasOfMidPrice;
+
 	
+	public Integer getAboveAv120Days() {
+		return aboveAv120Days;
+	}
+	public void setAboveAv120Days(Integer aboveAv120Days) {
+		this.aboveAv120Days = aboveAv120Days;
+	}
+	public Integer getBiasOfAv120() {
+		return biasOfAv120;
+	}
+	public void setBiasOfAv120(Integer biasOfAv120) {
+		this.biasOfAv120 = biasOfAv120;
+	}
+	public Integer getBiasOfMidPrice() {
+		return biasOfMidPrice;
+	}
+	public void setBiasOfMidPrice(Integer biasOfMidPrice) {
+		this.biasOfMidPrice = biasOfMidPrice;
+	}
 	public String getCode() {
 		return code;
 	}
@@ -33,7 +55,7 @@ public class BluechipView {
 		this.upProbability = upProbability;
 	}
 	public String getOkYears() {
-		return okYears;
+		return okYears.substring(0,okYears.length()-1); //去除逗号
 	}
 	public void setOkYears(String okYears) {
 		this.okYears = okYears;
@@ -41,8 +63,11 @@ public class BluechipView {
 	@Override
 	public String toString() {
 		return "BluechipView [code=" + code + ", name=" + name + ", upProbability=" + upProbability + ", okYears="
-				+ okYears + ", date=" + date + "]";
+				+ okYears + ", date=" + date + ", aboveAv120Days=" + aboveAv120Days + ", biasOfAv120=" + biasOfAv120
+				+ ", biasOfMidPrice=" + biasOfMidPrice + "]";
 	}
+
+	
 
 
 	

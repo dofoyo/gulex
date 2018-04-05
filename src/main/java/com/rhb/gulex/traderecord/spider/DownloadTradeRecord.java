@@ -1,6 +1,7 @@
 package com.rhb.gulex.traderecord.spider;
 
+import java.util.Map;
+
 public interface DownloadTradeRecord {
-	public void go(String code);
-	public void go(String[] codes);
+	public Map<String,String> go(String code);
 }

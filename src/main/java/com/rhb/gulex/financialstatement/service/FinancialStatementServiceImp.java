@@ -50,7 +50,8 @@ public class FinancialStatementServiceImp implements FinancialStatementService {
 		return flag;
 	}
 	
-	private List<Integer> getPeriods(String stockcode){
+	@Override
+	public List<Integer> getPeriods(String stockcode){
 		if(!financialStatements.containsKey(stockcode)){
 			setFinancialStatement(stockcode);
 		}

@@ -49,6 +49,18 @@ public class Bluechip {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public String getReportDateString() {
+		StringBuffer sb = new StringBuffer();
+		for(Map.Entry<Integer, LocalDate> entry : reportDates.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append("(");
+			sb.append(entry.getValue().toString());
+			sb.append("),");
+		}
+		
+		return sb.toString();
+	}
 
 	public Map<Integer, LocalDate> getReportDates() {
 		return reportDates;
@@ -60,6 +72,15 @@ public class Bluechip {
 
 	public Set<Integer> getOkYears() {
 		return okYears;
+	}
+	
+	public String getOkYearString() {
+		StringBuffer sb = new StringBuffer();
+		for(Integer year : okYears) {
+			sb.append(year);
+			sb.append(",");
+		}
+		return sb.toString();
 	}
 
 	public void setOkYears(Set<Integer> okYears) {

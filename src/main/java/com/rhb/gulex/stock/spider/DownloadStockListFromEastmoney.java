@@ -34,7 +34,7 @@ public class DownloadStockListFromEastmoney implements DownloadStockList {
 			if(code!=null && !code.isEmpty() && code.length()==6){
 				prefix = code.substring(0, 2);
 				if(prefix.equals("60") || prefix.equals("00") || prefix.equals("30")){
-					stocks.put(code, str);
+					stocks.put(code, this.getName(str));
 				}	
 			}
 		}
@@ -49,6 +49,10 @@ public class DownloadStockListFromEastmoney implements DownloadStockList {
 		Pattern p = Pattern.compile(regEx);
 		Matcher m = p.matcher(str);
 		return m.replaceAll("").trim();
+	}
+	
+	private String getName(String str) {
+		return str.substring(0,str.indexOf("("));
 	}
 
 

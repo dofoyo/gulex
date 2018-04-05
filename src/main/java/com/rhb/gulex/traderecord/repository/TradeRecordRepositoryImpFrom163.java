@@ -50,7 +50,7 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 		BigDecimal price = null;
 		String[] columns = null;
 		String[] lines = str.split("\n");
-		for(int i=lines.length-1; i>1; i--){  //文档是倒序，要变成顺序
+		for(int i=lines.length-1; i>0; i--){  //文档是倒序，要变成顺序
 			columns = lines[i].split(",");
 			
 			date = ParseString.toLocalDate(columns[0]);

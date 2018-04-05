@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.rhb.gulex.bluechip.repository.BluechipEntity;
+import com.rhb.gulex.bluechip.repository.BluechipRepository;
+import com.rhb.gulex.traderecord.api.TradeRecordDzh;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 
@@ -28,6 +31,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	@Qualifier("TradeRecordRepositoryImpFrom163")
 	TradeRecordRepository tradeRecordRepositoryFrom163;
 	
+	@Autowired
+	@Qualifier("BluechipRepositoryImp")
+	BluechipRepository bluechipRepository;
 	
 	Map<String,TradeRecordDTO> tradeRecordDtos = new HashMap<String,TradeRecordDTO>();
 
@@ -114,10 +120,14 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	
 	@Override
 	public LocalDate getIpoDate(String stockcode) {
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		
 		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
 
 		if(dto == null){
-			System.out.println("还未有成交记录! 请事先准备好！");
+			System.out.println(stockcode + "还未有成交记录! 请事先准备好！");
 			return null;
 		}else{
 			return dto.getIpoDate();
@@ -128,18 +138,74 @@ public class TradeRecordServiceImp implements TradeRecordService {
 
 	@Override
 	public TradeRecordEntity getTradeRecordEntity(String stockcode, LocalDate date) {
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		
 		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
 		if(dto==null) {
 			return null;
 		}
-		return dto.getTradeRecordEntity(date);
+		return dto.getSimilarTradeRecordEntity(date);
 	}
-/*
-	@Override
-	public BigDecimal getMidPrice(String stockcode, LocalDate date) {
-		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
-		
-		return dto.getMidPrice(date);
-	}*/
 
+	@Override
+	public void setTradeRecordEntity(String stockcode,LocalDate date, BigDecimal price) {
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		
+		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
+		if(dto==null) {
+			System.out.println(stockcode + "还未有成交记录! 请事先准备好！");
+			
+		}else {
+			TradeRecordEntity entity = dto.getTradeRecordEntity(date);
+			
+			if(entity != null) {
+				entity.setPrice(price);
+			}else {
+				entity = new TradeRecordEntity();
+				entity.setDate(date);
+				entity.setPrice(price);
+				dto.add(date, entity);
+			}
+
+			
+			Map<String,Object> total119 = dto.getTotalOf119(date);
+			Integer quantity = (Integer)total119.get("quantity");
+			BigDecimal total = (BigDecimal)total119.get("total");
+			entity.setAv120(total.add(price).divide(new BigDecimal(quantity+1),2,BigDecimal.ROUND_HALF_UP));
+			
+			entity.setMidPrice(dto.getMidPrice(date, price));
+			
+			Integer i = entity.isPriceOnAvarage() ? 1 : 0;
+			entity.setAboveAv120Days(dto.getAboveAv120Days(date) + i);
+		}
+	}
+
+	@Override
+	public List<TradeRecordDzh> getNoDzh() {
+		List<TradeRecordDzh> list = new ArrayList<TradeRecordDzh>();
+		TradeRecordDzh tradeRecordDzh;
+		
+		List<TradeRecordEntity> tradeRecordEntitys;
+		
+		Set<BluechipEntity> bluechipEntities = bluechipRepository.getBluechips();
+		for(BluechipEntity bluechipEntity : bluechipEntities){
+			tradeRecordEntitys = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipEntity.getCode());
+			if(tradeRecordEntitys == null) {
+				tradeRecordDzh = new TradeRecordDzh();
+				tradeRecordDzh.setCode(bluechipEntity.getCode());
+				tradeRecordDzh.setName(bluechipEntity.getName());
+				
+				list.add(tradeRecordDzh);
+			}
+			
+		}
+
+		return list;
+	}
+
+	
 }

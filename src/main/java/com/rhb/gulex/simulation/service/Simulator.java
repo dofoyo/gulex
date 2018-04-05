@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,16 +72,16 @@ public class Simulator {
 		System.out.println("begin simulate......");
 
 		Trader trader = new Trader();
-		trader.setAmount(amount); 
+		//trader.setAmount(amount); 
 		trader.setCash(cash);
-		trader.setOverdraft(overdraft);
+		//trader.setOverdraft(overdraft);
 
 		List<LocalDate> tradeDates = this.getTradeDate(beginDate); 
 		
-		Collection<TradeDetail> onHands;
+		//Collection<TradeDetail> onHands;
 		
-		Iterator<TradeDetail> it;
-		TradeDetail detail;
+		//Iterator<TradeDetail> it;
+		//TradeDetail detail;
 		TradeRecordEntity tradeRecordEntity;
 		
 		int i=0;
@@ -102,7 +103,7 @@ public class Simulator {
 					){ 
 
 					if(!trader.onHand(bluechipDto.getCode())){ 
-						trader.buy(bluechipDto.getCode(),sDate,tradeRecordEntity.getPrice(),bluechipDto.getName());
+						trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice());
 						/*if(bluechipDto.getCode().equals("600971")){
 							System.out.println(bluechipDto);
 						}*/
@@ -110,11 +111,9 @@ public class Simulator {
 				}
 			}
 
-			//卖出操作：卖出低于120日 以上均线的票。最后一天全卖出
-			onHands = trader.getOnHands();
-			it = onHands.iterator();
-			while(it.hasNext()){
-				detail = it.next();
+			//卖出操作：卖出低于120日 以上均线的票。
+			List<TradeDetail> details = trader.getOnHandsList();
+			for(TradeDetail detail : details) {
 				tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
 				boolean inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
 
@@ -124,9 +123,9 @@ public class Simulator {
 				}
 				
 				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAvarage() || i==tradeDates.size()){
-					trader.sell(detail.getCode(), sDate, tradeRecordEntity.getPrice(),"");
+					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice());
 				}else{
-					trader.setPrice(detail.getCode(), tradeRecordEntity.getPrice());
+					trader.setPrice(detail.getSeriesid(), tradeRecordEntity.getPrice());
 				}
 			}
 

@@ -44,7 +44,9 @@ public class DownloadReportedStockListFromSina implements DownloadReportedStockL
 		for(String tr : trs){
 			tds = getTds(tr);
 			if(tds!=null && tds.size()>3 && tds.get(0)!=null && !tds.get(0).equals("null")){
-				codes.put(getCode(tds.get(0)), tds.get(2));
+				if(tds.get(0).indexOf("60")==0 || tds.get(0).indexOf("00")==0 || tds.get(0).indexOf("30")==0) {
+					codes.put(getCode(tds.get(0)), tds.get(2));
+				}
 			}
 		}
 

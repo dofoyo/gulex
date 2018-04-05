@@ -32,6 +32,17 @@ public class StockServiceImp implements StockService{
 		System.out.println("init begin ....");
 		String out = "000527,600840,002710,600631,000522,601206,600005";
 
+		
+		/*
+		 * 002710,慈铭体检
+600631,百联股份
+000522,白云山A
+000527,美的电器
+600840,新湖创业
+600005,武钢股份
+601206,海尔施
+		 */
+		
 		stocks = new HashMap<String,Stock>();
 		int i=0;
 		Set<StockEntity> entities = stockRepository.getStocks();

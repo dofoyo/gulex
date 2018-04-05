@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,15 +16,74 @@ import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 public class TradeRecordDTO {
 	Map<LocalDate,TradeRecordEntity> entities = new HashMap<LocalDate,TradeRecordEntity>();
 	
-	public void add(LocalDate date, TradeRecordEntity entity){
-		entities.put(date, entity);
+	public List<TradeRecordEntity> getTradeRecordEntities(){
+		List<TradeRecordEntity> list = new ArrayList<TradeRecordEntity>();
+		for(Map.Entry<LocalDate,TradeRecordEntity> entry : entities.entrySet()) {
+			list.add(entry.getValue());
+		}
+		
+		Collections.sort(list,new Comparator<TradeRecordEntity>() {
+
+			@Override
+			public int compare(TradeRecordEntity o1, TradeRecordEntity o2) {
+				return o1.getDate().compareTo(o2.getDate());
+			}
+			
+		});
+		
+		return list;
+	}
+
+	public Integer getAboveAv120Days(LocalDate date) {
+		
+		LocalDate minDate = this.getMinDate();
+		date = date.minusDays(1);
+
+		Integer aboveDays = 0;
+		TradeRecordEntity entity;
+		for(int i=0 ;(i<99 && (date.isAfter(minDate) || date.equals(minDate)) );) {
+			entity = entities.get(date);
+			if(entity != null) {
+				i++;
+				if(entity.isPriceOnAvarage()) {
+					aboveDays ++;
+				}
+			}
+			date = date.minusDays(1);
+		}
+		
+		return aboveDays;
 	}
 	
-	@Deprecated
-	public BigDecimal getMidPrice(LocalDate date){
+	public Map<String,Object> getTotalOf119(LocalDate date) {
+		Map<String,Object> map = new HashMap<String,Object>(); 
+		
+		LocalDate minDate = this.getMinDate();
+		date = date.minusDays(1);
+
+		Integer i = 0;
+		BigDecimal total = new BigDecimal(0);
+		TradeRecordEntity entity;
+		for( ;(i<119 && (date.isAfter(minDate) || date.equals(minDate)) );) {
+			entity = entities.get(date);
+			if(entity!=null) {
+				i++;
+				total = total.add(entity.getPrice());
+			}
+			date = date.minusDays(1);
+		}
+		
+		map.put("quantity", i);
+		map.put("total", total);
+		return map;
+	}
+	
+	
+	public BigDecimal getMidPrice(LocalDate date,BigDecimal price) {
 		Set<BigDecimal> prices = new HashSet<BigDecimal>();
-		for(Map.Entry<LocalDate, TradeRecordEntity> entry : entities.entrySet()){
-			if(date.isAfter(entry.getKey())){
+		prices.add(price);
+		for(Map.Entry<LocalDate, TradeRecordEntity> entry : entities.entrySet()) {
+			if(entry.getValue().getDate().isBefore(date)) {
 				prices.add(entry.getValue().getPrice());
 			}
 		}
@@ -33,15 +93,20 @@ public class TradeRecordDTO {
 		Collections.sort(list);
 		
 		return list.get(prices.size()/2);
+
 	}
 	
-	public TradeRecordEntity getTradeRecordEntity(LocalDate date){
-		int i=0;
+	public void add(LocalDate date, TradeRecordEntity entity){
+		entities.put(date, entity);
+	}
+	
+	public TradeRecordEntity getSimilarTradeRecordEntity(LocalDate date){
+		LocalDate minDate = this.getMinDate();
 		TradeRecordEntity entity = entities.get(date);
 		while(entity==null){
 			date = date.minusDays(1);
 			entity = entities.get(date);
-			if(i++ > 1000){
+			if(date.isBefore(minDate)){
 				System.out.println("can NOT find trade record on " + date);
 				break;
 			}
@@ -49,29 +114,38 @@ public class TradeRecordDTO {
 		return entity;
 	}
 	
-	public LocalDate getIpoDate(){
-		return this.getMinKey(entities);
+	public TradeRecordEntity getTradeRecordEntity(LocalDate date) {
+		return entities.get(date);
 	}
 	
-    private LocalDate getMinKey(Map<LocalDate,TradeRecordEntity> map) {
+	
+	public LocalDate getIpoDate(){
+		return this.getMinDate();
+	}
+	
+    private LocalDate getMinDate() {
         LocalDate date = null;
         
-        if (map != null){
-        	for(Map.Entry<LocalDate, TradeRecordEntity> entry : map.entrySet()){
-        		if(date==null){
-        			date = entry.getKey();
-        		}else if(date.isAfter(entry.getKey())){
-        			date = entry.getKey();
-        		}
-        	}
-        }
+    	for(Map.Entry<LocalDate, TradeRecordEntity> entry : entities.entrySet()){
+    		if(date==null){
+    			date = entry.getKey();
+    		}else if(date.isAfter(entry.getKey())){
+    			date = entry.getKey();
+    		}
+    	}
         
         return date;
     }
 
 	@Override
 	public String toString() {
-		return "TradeRecordDTO [entities=" + entities + "]";
+		StringBuffer sb = new StringBuffer();
+		List<TradeRecordEntity> list = this.getTradeRecordEntities();
+		for(TradeRecordEntity entity : list) {
+			sb.append(entity.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 	
 	

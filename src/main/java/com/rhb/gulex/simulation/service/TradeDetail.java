@@ -4,19 +4,19 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class TradeDetail {
-	private LocalDate tradeDate;
+	private String seriesid;
 	private String code;
 	private String name;
 	private Integer quantity;
-	private BigDecimal cost;
-	private BigDecimal price;
-	
-	
-	public LocalDate getTradeDate() {
-		return tradeDate;
+	private LocalDate buyDate;
+	private BigDecimal buyCost;
+	private LocalDate sellDate;
+	private BigDecimal sellPrice;
+	public String getSeriesid() {
+		return seriesid;
 	}
-	public void setTradeDate(LocalDate tradeDate) {
-		this.tradeDate = tradeDate;
+	public void setSeriesid(String seriesid) {
+		this.seriesid = seriesid;
 	}
 	public String getCode() {
 		return code;
@@ -24,30 +24,49 @@ public class TradeDetail {
 	public void setCode(String code) {
 		this.code = code;
 	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	public BigDecimal getCost() {
-		return cost;
+	public Integer getQuantity() {
+		return quantity;
 	}
-	public void setCost(BigDecimal cost) {
-		this.cost = cost;
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
 	}
-	public BigDecimal getPrice() {
-		return price;
+	public LocalDate getBuyDate() {
+		return buyDate;
 	}
-	public void setPrice(BigDecimal price) {
-		this.price = price;
+	public void setBuyDate(LocalDate buyDate) {
+		this.buyDate = buyDate;
 	}
+	public BigDecimal getBuyCost() {
+		return buyCost;
+	}
+	public void setBuyCost(BigDecimal buyCost) {
+		this.buyCost = buyCost;
+	}
+	public LocalDate getSellDate() {
+		return sellDate;
+	}
+	public void setSellDate(LocalDate sellDate) {
+		this.sellDate = sellDate;
+	}
+	public BigDecimal getSellPrice() {
+		return sellPrice;
+	}
+	public void setSellPrice(BigDecimal sellPrice) {
+		this.sellPrice = sellPrice;
+	}
+	@Override
+	public String toString() {
+		return "TradeDetail [seriesid=" + seriesid + ", code=" + code + ", name=" + name + ", quantity=" + quantity
+				+ ", buyDate=" + buyDate + ", buyCost=" + buyCost + ", sellDate=" + sellDate + ", sellPrice="
+				+ sellPrice + "]";
+	}
+	
+	
 	
 }

@@ -13,15 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.rhb.gulex.bluechip.api.BluechipCheck;
 import com.rhb.gulex.bluechip.api.BluechipView;
 import com.rhb.gulex.bluechip.repository.BluechipEntity;
 import com.rhb.gulex.bluechip.repository.BluechipRepository;
+import com.rhb.gulex.financialstatement.service.FinancialStatement;
 import com.rhb.gulex.financialstatement.service.FinancialStatementService;
 import com.rhb.gulex.financialstatement.service.OkfinanceStatementDto;
 import com.rhb.gulex.reportdate.repository.ReportDateRepository;
 import com.rhb.gulex.simulation.service.BluechipDto;
 import com.rhb.gulex.stock.api.StockDTO;
 import com.rhb.gulex.stock.service.StockService;
+import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
+import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 import com.rhb.gulex.traderecord.service.TradeRecordDTO;
 import com.rhb.gulex.traderecord.service.TradeRecordService;
 
@@ -48,6 +52,14 @@ public class BluechipServiceImp implements BluechipService {
 	@Qualifier("StockServiceImp")
 	StockService stockService;
 	
+	@Autowired
+	@Qualifier("TradeRecordRepositoryImpFromDzh")
+	TradeRecordRepository tradeRecordRepositoryFromDzh;
+
+	@Autowired
+	@Qualifier("TradeRecordRepositoryImpFrom163")
+	TradeRecordRepository tradeRecordRepositoryFrom163;
+	
 	private List<Bluechip> bluechips = null;
 	
 	@Override
@@ -68,40 +80,19 @@ public class BluechipServiceImp implements BluechipService {
 			
 			if(bluechips.containsKey(dto.getStockcode())){
 				bluechip = bluechips.get(dto.getStockcode());
-				
-				if(bluechip.getIpoDate()==null){
-					bluechip.addOkYear(dto.getYear());
-				}else{
-					ipoYear = LocalDate.parse(bluechip.getIpoDate()).getYear();
-					okYear =  dto.getYear();
-					if(okYear>=ipoYear){
-						bluechip.addOkYear(dto.getYear());
-					}
-				}
-				
 			}else{
 				stockdto = stockService.getStock(dto.getStockcode());
 				
-				BluechipEntity newBlue = new BluechipEntity();
-				newBlue.setCode(dto.getStockcode());
-				newBlue.setName(stockdto.getName());
-				ipoDate = tradeRecordService.getIpoDate(dto.getStockcode());
-				newBlue.setIpoDate(ipoDate.toString());
-				
-				if(ipoDate == null){
-					newBlue.addOkYear(dto.getYear());
-					newBlue.setReportDates(reportDateRepository.getReportDates(dto.getStockcode()));
-					bluechips.put(dto.getStockcode(), newBlue);
-				}else{
-					ipoYear = ipoDate.getYear();
-					okYear =  dto.getYear();
-					if(okYear>=ipoYear){
-						newBlue.addOkYear(dto.getYear());
-						newBlue.setReportDates(reportDateRepository.getReportDates(dto.getStockcode()));
-						bluechips.put(dto.getStockcode(), newBlue);
-					}
-				}
+				bluechip = new BluechipEntity();
+				bluechip.setCode(dto.getStockcode());
+				bluechip.setName(stockdto.getName());
+
 			}
+			bluechip.addOkYear(dto.getYear());
+			bluechip.setReportDates(reportDateRepository.getReportDates(dto.getStockcode()));
+			
+			bluechips.put(dto.getStockcode(), bluechip);
+
 		}
 		
 		bluechipRepository.save(bluechips.values());
@@ -116,20 +107,35 @@ public class BluechipServiceImp implements BluechipService {
 		System.out.println("init Bluechips begin ....");
 		this.bluechips = new ArrayList<Bluechip>();
 		Set<BluechipEntity> entities = bluechipRepository.getBluechips();
+		LocalDate ipoDate;
+		Bluechip bluechip;
+		Set<Integer> okYears;
 		int i=0;
 		for(BluechipEntity entity : entities){
 			System.out.print(i++ + "/" + entities.size() + "\r");
-			Bluechip bluechip = new Bluechip();
-			bluechip.setCode(entity.getCode());
-			bluechip.setName(entity.getName());
-			bluechip.setIpoDate(LocalDate.parse(entity.getIpoDate()));
-			bluechip.setOkYears(entity.getOkYears());
-			if(entity.getReportDates()!=null) {
-				for(Map.Entry<Integer, String> entry : entity.getReportDates().entrySet()){
-					bluechip.addReportDate(entry.getKey(), LocalDate.parse(entry.getValue()));
+			
+			ipoDate = tradeRecordService.getIpoDate(entity.getCode()); 
+			
+			//如果ipoDate==null，说明该股还未上市，还无法初始化bluechip
+			if(ipoDate!=null) { 
+				okYears = entity.getOkYears(ipoDate.getYear());
+				//如果okYears都在ipoDate之前，入选无意义
+				if(okYears.size()>0) {
+					bluechip = new Bluechip();
+					bluechip.setCode(entity.getCode());
+					bluechip.setName(entity.getName());
+					bluechip.setIpoDate(ipoDate);
+					bluechip.setOkYears(okYears);
+					
+					if(entity.getReportDates()!=null) {
+						for(Map.Entry<Integer, String> entry : entity.getReportDates().entrySet()){
+							bluechip.addReportDate(entry.getKey(), LocalDate.parse(entry.getValue()));
+						}
+					}
+					this.bluechips.add(bluechip);					
 				}
+
 			}
-			this.bluechips.add(bluechip);
 		}
 		
 		System.out.println("there are " + entities.size() + " bluechips.");
@@ -186,7 +192,7 @@ public class BluechipServiceImp implements BluechipService {
 			isgood = false;
 			
 			
-			if(date.isAfter(bluechip.getIpoDate())){
+			if(bluechip.getIpoDate()!=null && date.isAfter(bluechip.getIpoDate())){
 				//判断是否发布年报
 				if(bluechip.hasReported(date)){
 					//if(bluechip.isOk(year) || bluechip.isOk(year-1) || bluechip.isOk(year-2)){
@@ -249,7 +255,7 @@ public class BluechipServiceImp implements BluechipService {
 		BluechipDto dto = new BluechipDto();
 		dto.setCode(bluechip.getCode());
 		dto.setName(bluechip.getName());
-		dto.setIpoDate(bluechip.getIpoDate().toString());
+		dto.setIpoDate(bluechip.getIpoDate()==null ? null : bluechip.getIpoDate().toString());
 		dto.setOkYears(bluechip.getOkYears());
 		//dto.setReportDates(bluechip.getReportDates());
 		for(Map.Entry<Integer, LocalDate> entry : bluechip.getReportDates().entrySet()){
@@ -296,7 +302,10 @@ public class BluechipServiceImp implements BluechipService {
 			
 			tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
 			if(tradeRecordDto != null) {
-				view.setUpProbability(tradeRecordDto.getTradeRecordEntity(date).getUpProbability());
+				view.setUpProbability(tradeRecordDto.getSimilarTradeRecordEntity(date).getUpProbability());
+				view.setAboveAv120Days(tradeRecordDto.getSimilarTradeRecordEntity(date).getAboveAv120Days());
+				view.setBiasOfAv120(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfAv120());
+				view.setBiasOfMidPrice(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfMidPrice());
 			}
 			
 			views.add(view);
@@ -324,4 +333,133 @@ public class BluechipServiceImp implements BluechipService {
 		}
 		return bd;
 	}
+	
+	/*
+	 * 需要解决的问题：
+	 * 1、ipoDate is null
+	 * 2、reportDate is null
+	 * 3、除权后没有及时更新traderecord
+	 * 
+	 * 解决措施
+	 * 1、ipoDate is null
+	 * 主要是新入选的股票，没有完整的traderecord,
+	 * 解决办法是，立即从163直接下载。163的traderecord可以解决ipoDate，ipodate不用保存，每次初始化traderecord时，也就完成了ipodate的初始化
+	 * 
+	 */
+	
+	
+	@Override
+	public List<BluechipCheck> getBluechipChecks() {
+		if(this.bluechips == null){
+			init();
+		}
+		
+		List<BluechipCheck> checks = new ArrayList<BluechipCheck>();
+		
+		
+		BluechipCheck check;
+		LocalDate ipoDate;
+		
+		List<TradeRecordEntity> dzh;
+		List<TradeRecordEntity> e163;
+		TradeRecordEntity tradeRecordEntity;
+		
+		Map<Integer, String> reportdates;
+		List<Integer> years;
+		StringBuffer reportDateError;
+		
+		for(Bluechip chip : bluechips) {
+			check = new BluechipCheck();
+			check.setCode(chip.getCode());
+			check.setName(chip.getName());
+			check.setOkYears(chip.getOkYearString());
+			check.setIpoDate(chip.getIpoDate()==null ? "NULL" : chip.getIpoDate().toString());
+			check.setReportDate(chip.getReportDateString());
+			
+			dzh = tradeRecordRepositoryFromDzh.getTradeRecordEntities(check.getCode());
+			if(dzh!=null) {
+				tradeRecordEntity = dzh.get(dzh.size()-1);
+				check.setDhzDate(tradeRecordEntity.getDate().toString());
+			}
+			
+			e163 = tradeRecordRepositoryFrom163.getTradeRecordEntities(check.getCode()); 
+			tradeRecordEntity = e163.get(e163.size()-1);
+			check.setWyDate(tradeRecordEntity.getDate().toString());
+			
+			reportDateError = new StringBuffer();
+			reportdates = reportDateRepository.getReportDates(check.getCode());
+			years = financialStatementService.getPeriods(check.getCode());
+			for(Integer year : years) {
+				if(year>2008 && !reportdates.containsKey(year)) {
+					reportDateError.append(year);
+					reportDateError.append(",");
+				}
+			}
+			check.setReportDateError(reportDateError.length()>0 ? "no reportDate:" + reportDateError.toString() : "");
+			
+			System.out.println(check);
+			
+			checks.add(check);
+
+		}
+		
+		return checks;
+	}
+	
+
+/*	@Override
+	public List<BluechipCheck> getBluechipChecks() {
+		List<BluechipCheck> checks = new ArrayList<BluechipCheck>();
+		
+		Set<BluechipEntity> entities = bluechipRepository.getBluechips();
+		
+		BluechipCheck check;
+		LocalDate ipoDate;
+		
+		List<TradeRecordEntity> dzh;
+		List<TradeRecordEntity> e163;
+		TradeRecordEntity tradeRecordEntity;
+		
+		Map<Integer, String> reportdates;
+		List<Integer> years;
+		StringBuffer reportDateError;
+		
+		for(BluechipEntity entity : entities) {
+			check = new BluechipCheck();
+			check.setCode(entity.getCode());
+			check.setName(entity.getName());
+			check.setOkYears(entity.getOkYearString());
+			
+			ipoDate = tradeRecordService.getIpoDate(check.getCode());
+			check.setIpoDate(ipoDate==null ? "" : ipoDate.toString());
+			
+			dzh = tradeRecordRepositoryFromDzh.getTradeRecordEntities(check.getCode());
+			if(dzh!=null) {
+				tradeRecordEntity = dzh.get(dzh.size()-1);
+				check.setDhzDate(tradeRecordEntity.getDate().toString());
+			}
+			
+			e163 = tradeRecordRepositoryFrom163.getTradeRecordEntities(check.getCode()); 
+			tradeRecordEntity = e163.get(e163.size()-1);
+			check.setWyDate(tradeRecordEntity.getDate().toString());
+			
+			reportDateError = new StringBuffer("no reportDate:");
+			reportdates = reportDateRepository.getReportDates(check.getCode());
+			years = financialStatementService.getPeriods(check.getCode());
+			for(Integer year : years) {
+				if(year>2008 && !reportdates.containsKey(year)) {
+					reportDateError.append(year);
+					reportDateError.append(",");
+				}
+			}
+			check.setReportDateError(reportDateError.toString());
+			
+			System.out.println(check);
+			
+			checks.add(check);
+
+		}
+		
+		return checks;
+	}*/
 }

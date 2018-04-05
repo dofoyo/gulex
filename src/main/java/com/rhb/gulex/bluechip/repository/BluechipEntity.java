@@ -48,6 +48,25 @@ public class BluechipEntity {
 	public Set<Integer> getOkYears() {
 		return okYears;
 	}
+	
+	public Set<Integer> getOkYears(Integer year){
+		Set<Integer> years = new HashSet<Integer>();
+		for(Integer i : okYears) {
+			if(i>=year) {
+				years.add(i);
+			}
+		}
+		return years;
+	}
+	
+	public String getOkYearString() {
+		StringBuffer sb = new StringBuffer();
+		for(Integer year : this.okYears) {
+			sb.append(year);
+			sb.append(",");
+		}
+		return sb.toString();
+	}
 
 	public void setOkYears(Set<Integer> okYears) {
 		this.okYears = okYears;
