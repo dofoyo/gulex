@@ -102,7 +102,7 @@ public class ScheduledTask {
 	TradeRecordService tradeRecordService;
 
 	
-	@Scheduled(cron="0 0 5 ? * *") //每日凌晨5点，下载最新年报
+	//@Scheduled(cron="0 0 5 ? * *") //每日凌晨5点，下载最新年报
 	//@Scheduled(cron="0 0 12 ? * *") //临时
 	public void getNewReport(){
 		LocalDate today = LocalDate.now();
@@ -138,7 +138,7 @@ public class ScheduledTask {
 	}
 
 	
-	@Scheduled(cron="0 0 9 ? * 1-5") //每星期一至五上午9点，下载最新的股票清单，看有无新股
+	//@Scheduled(cron="0 0 9 ? * 1-5") //每星期一至五上午9点，下载最新的股票清单，看有无新股
 	//@Scheduled(cron="0 20 12 ? * *") //临时
 	public void getNewStock(){
 		System.out.println(LocalDateTime.now() +  "  " + Thread.currentThread().getName() + ":  下载新股任务开始.............");
@@ -182,16 +182,16 @@ public class ScheduledTask {
 	}
 	
 
-	@Scheduled(cron="0 10 9 ? * 1-5") //每星期一至五上午9点10分，根据新股和新年报，重新生成blueship
+	//@Scheduled(cron="0 10 9 ? * 1-5") //每星期一至五上午9点10分，根据新股和新年报，重新生成blueship
 	//@Scheduled(cron="0 30 12 ? * 1-6")
 	public void generateBluechip() {
 		bluechipService.generateBluechip();
-		bluechipService.init();
+		//bluechipService.init();
 	}
 
 
 	
-	@Scheduled(cron="0 30 16 ? * 1-5")  //正式，每周1至5收盘后，16:30点，下载交易数据
+	//@Scheduled(cron="0 30 16 ? * 1-5")  //正式，每周1至5收盘后，16:30点，下载交易数据
 	//@Scheduled(cron="0 40 12 ? * *")  //临时
 	public void getTradeData(){
 		System.out.println(LocalDateTime.now() +  "   " + Thread.currentThread().getName() + ":  下载交易数据任务开始.............");
@@ -213,10 +213,6 @@ public class ScheduledTask {
 			//stockService.setMarketInfo(code);		
 		}
 
-		bluechipService.init();
-		
-		simulationService.init();
-		
 		System.out.print("下载了" + dtos.size() + "只股票的交易数据");
 		
 		System.out.println(Thread.currentThread().getName() + ":  下载交易数据任务结束.............");
@@ -258,12 +254,19 @@ public class ScheduledTask {
 		
 	}
 	
+	@Scheduled(cron="0 0 9,16 ? * 1-5") //每周一至周五，上午9点和下午16点，执行一次
 	public void doAll() {
 		this.getNewReport();
 		this.getNewStock();
 		this.generateBluechip();
 		this.getTradeData();
-		this.simulate();
+		
+    	tradeRecordService.refresh();
+
+		bluechipService.init();
+		
+		simulationService.init();	
+		//this.simulate();
 	}
 
 }

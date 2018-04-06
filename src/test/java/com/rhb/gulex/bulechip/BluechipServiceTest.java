@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.rhb.gulex.bluechip.api.BluechipCheck;
 import com.rhb.gulex.bluechip.api.BluechipView;
 import com.rhb.gulex.bluechip.service.BluechipService;
 import com.rhb.gulex.simulation.service.BluechipDto;
@@ -44,13 +43,5 @@ public class BluechipServiceTest {
 			System.out.println(view);
 		}
 		
-	}
-	
-	@Test
-	public void test4() {
-		 List<BluechipCheck> list =  bluechipService.getBluechipChecks();
-		 for(BluechipCheck check : list) {
-			 System.out.println(check);
-		 }
 	}
 }

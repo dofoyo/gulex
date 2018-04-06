@@ -15,10 +15,15 @@ public class Bluechip {
 	
 	public boolean hasReported(LocalDate date){
 		boolean flag = false;
-		LocalDate reportDate = reportDates.get(date.getYear()-1);
-		if(reportDate!=null && (date.isAfter(reportDate) ||date.equals(reportDate))){
+		if(date.getMonthValue()>4) {  //5月1日后，都已公布年报
 			flag = true;
+		}else {
+			LocalDate reportDate = reportDates.get(date.getYear()-1);
+			if(reportDate!=null && (date.isAfter(reportDate) ||date.equals(reportDate))){
+				flag = true;
+			}			
 		}
+
 		return flag;
 	}
 	

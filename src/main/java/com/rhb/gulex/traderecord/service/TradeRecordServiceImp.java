@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.bluechip.repository.BluechipEntity;
 import com.rhb.gulex.bluechip.repository.BluechipRepository;
+import com.rhb.gulex.bluechip.service.BluechipService;
+import com.rhb.gulex.simulation.service.BluechipDto;
 import com.rhb.gulex.traderecord.api.TradeRecordDzh;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
@@ -35,7 +38,12 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	@Qualifier("BluechipRepositoryImp")
 	BluechipRepository bluechipRepository;
 	
-	Map<String,TradeRecordDTO> tradeRecordDtos = new HashMap<String,TradeRecordDTO>();
+	@Autowired
+	@Qualifier("BluechipServiceImp")
+	BluechipService bluechipService;
+	
+	
+	Map<String,TradeRecordDTO> tradeRecordDtos = new HashMap<String,TradeRecordDTO>(); //stockcode - TradeRecordDTO
 
 	private void init(String stockcode){
 		List<TradeRecordEntity> entities = new ArrayList<TradeRecordEntity>();
@@ -185,26 +193,70 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	}
 
 	@Override
-	public List<TradeRecordDzh> getNoDzh() {
-		List<TradeRecordDzh> list = new ArrayList<TradeRecordDzh>();
+	public List<TradeRecordDzh> getDzhs() {
+		Map<String,TradeRecordDzh> tradeRecordDzhs = new HashMap<String,TradeRecordDzh>();
 		TradeRecordDzh tradeRecordDzh;
 		
-		List<TradeRecordEntity> tradeRecordEntitys;
+		List<TradeRecordEntity> tradeRecordEntities;
 		
 		Set<BluechipEntity> bluechipEntities = bluechipRepository.getBluechips();
 		for(BluechipEntity bluechipEntity : bluechipEntities){
-			tradeRecordEntitys = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipEntity.getCode());
-			if(tradeRecordEntitys == null) {
+			tradeRecordEntities = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipEntity.getCode());
+			if(tradeRecordEntities==null || tradeRecordEntities.size()==0) {
 				tradeRecordDzh = new TradeRecordDzh();
 				tradeRecordDzh.setCode(bluechipEntity.getCode());
 				tradeRecordDzh.setName(bluechipEntity.getName());
+				tradeRecordDzh.setDzhDate("");
+				tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
 				
-				list.add(tradeRecordDzh);
+				//System.out.println(tradeRecordDzh);
 			}
 			
 		}
+		
+		TradeRecordEntity tradeRecordEntity;
+		List<BluechipDto> bluechipDtos = bluechipService.getBluechips(LocalDate.now());
+		for(BluechipDto bluechipDto : bluechipDtos) {
+			if(!tradeRecordDzhs.containsKey(bluechipDto)) {
+				tradeRecordEntities = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipDto.getCode());
+				if(tradeRecordEntities!=null && tradeRecordEntities.size()>=0) {
+					tradeRecordEntity = tradeRecordEntities.get(tradeRecordEntities.size()-1);
+					tradeRecordDzh = new TradeRecordDzh();
+					tradeRecordDzh.setCode(bluechipDto.getCode());
+					tradeRecordDzh.setName(bluechipDto.getName());
+					tradeRecordDzh.setDzhDate(tradeRecordEntity.getDate().toString());
+					
+					tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
+					
+					//System.out.println(tradeRecordDzh);
+
+				}
+			}
+		}
+		
+		List<TradeRecordDzh> list = new ArrayList<TradeRecordDzh>(tradeRecordDzhs.values());
+		Collections.sort(list,new Comparator<TradeRecordDzh>() {
+
+			@Override
+			public int compare(TradeRecordDzh o1, TradeRecordDzh o2) {
+				return o1.getDzhDate().compareTo(o2.getDzhDate());
+			}
+			
+		});
 
 		return list;
+	}
+
+	@Override
+	public void refresh() {
+		System.out.println("TradeRecordService refresh begin......");
+		Set<String> codes = tradeRecordDtos.keySet();
+		int i=0;
+		for(String code : codes) {
+			System.out.print(i++ + "/" + codes.size() + "\r");
+			this.init(code);
+		}
+		System.out.println(".........TradeRecordService refresh end.");
 	}
 
 	

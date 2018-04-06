@@ -1,5 +1,6 @@
 package com.rhb.gulex.traderecord.spider;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 import com.rhb.gulex.util.ClipboardPicker;
@@ -7,7 +8,7 @@ import com.rhb.gulex.util.FileUtil;
 
 public class DownloadTradeRecordFromDZHByClipboard   extends TimerTask{
 	String page_o = null;
-	private static final String path = "D:\\stocks\\trade\\dzh\\";
+	private static final String path = "D:\\workspace\\gulex-data\\trade\\dzh\\";
 	
 	@Override
 	public void run() {
@@ -32,10 +33,10 @@ public class DownloadTradeRecordFromDZHByClipboard   extends TimerTask{
 		//ClipboardPicker.clear();
 	}
 	
-/*	
+	
 	public static void main(String[] args){
 		Timer timer = new Timer();
 		DownloadTradeRecordFromDZHByClipboard ck = new DownloadTradeRecordFromDZHByClipboard();
 		timer.schedule(ck, 0, 1*1000);
-	}*/
+	}
 }

@@ -35,15 +35,5 @@ public class BluechipController {
 		return new ResponseContent<List<BluechipView>>(ResponseEnum.SUCCESS, bluechips);
 	}
 	
-	
-	@GetMapping("/bluechipcheck")
-	public ResponseContent<List<BluechipCheck>> getBluechipChecks(){
-		LocalDate theDate = null;
-		List<BluechipCheck> bluechips = bluechipService.getBluechipChecks();
-		//System.out.println(bluechips.size());
-		return new ResponseContent<List<BluechipCheck>>(ResponseEnum.SUCCESS, bluechips);
-	}
-
-
 
 }

@@ -18,6 +18,8 @@ public interface TradeRecordService {
 	
 	public void setTradeRecordEntity(String stockcode,LocalDate date, BigDecimal price);
 	
-	public List<TradeRecordDzh> getNoDzh();
+	public List<TradeRecordDzh> getDzhs();
+	
+	public void refresh();
 
 }

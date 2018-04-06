@@ -51,8 +51,8 @@ public class TradeRecordServiceTest {
 	}
 	
 	@Test
-	public void testGetNoDzh() {
-		List<TradeRecordDzh> TradeRecordDzhs = tradeRecordService.getNoDzh();
+	public void testGetDzhs() {
+		List<TradeRecordDzh> TradeRecordDzhs = tradeRecordService.getDzhs();
 		for(TradeRecordDzh dzh : TradeRecordDzhs) {
 			System.out.println(dzh);
 		}
