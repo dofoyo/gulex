@@ -2,7 +2,7 @@ package com.rhb.gulex.simulation.api;
 
 import java.math.BigDecimal;
 
-public class TradeRecordViewPlus {
+public class SimulationViewPlus {
 	private String stockcode;
 	private String stockname;
 	private Integer quantity;

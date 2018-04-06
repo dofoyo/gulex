@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.bluechip.service.BluechipService;
 import com.rhb.gulex.simulation.api.OnHandView;
-import com.rhb.gulex.simulation.api.TradeRecordView;
-import com.rhb.gulex.simulation.api.TradeRecordViewPlus;
+import com.rhb.gulex.simulation.api.SimulationView;
+import com.rhb.gulex.simulation.api.SimulationViewPlus;
 import com.rhb.gulex.simulation.api.ValueView;
 import com.rhb.gulex.stock.service.StockService;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
@@ -108,27 +108,29 @@ public class SimulationServiceImp implements SimulationService {
 
 
 	@Override
-	public List<TradeRecordView> getTradeRecordViews() {
+	public List<SimulationView> getTradeRecordViews() {
 		if(trader == null){
 			this.init();
 		}
-		List<TradeRecordView> views = new ArrayList<TradeRecordView>();
+		List<SimulationView> views = new ArrayList<SimulationView>();
 		
 		Map<String,TradeDetail> details = this.trader.getDetails();
 		for(Map.Entry<String, TradeDetail> entry : details.entrySet()) {
 			detail = entry.getValue();
 			
-			TradeRecordView buyView = new TradeRecordView();
+			SimulationView buyView = new SimulationView();
 			buyView.setDate(detail.getBuyDate().toString());
-			buyView.setStockname(detail.getName() + "(" + detail.getCode() + ")");
+			buyView.setStockcode(detail.getCode());
+			buyView.setStockname(detail.getName());
 			buyView.setQuantity(detail.getQuantity());
 			buyView.setBuyorsell("买入");
 			buyView.setPrice(detail.getBuyCost());
 			views.add(buyView);
 			if(detail.getSellDate()!=null){
-				TradeRecordView sellView = new TradeRecordView();
+				SimulationView sellView = new SimulationView();
 				sellView.setDate(detail.getSellDate().toString());
-				sellView.setStockname(detail.getName() + "(" + detail.getCode() + ")");
+				sellView.setStockcode(detail.getCode());
+				sellView.setStockname(detail.getName());
 				sellView.setQuantity(-1*detail.getQuantity());
 				sellView.setBuyorsell("卖出");
 				sellView.setPrice(detail.getSellPrice());
@@ -153,7 +155,7 @@ public class SimulationServiceImp implements SimulationService {
 			OnHandView view = new OnHandView();
 			view.setCode(detail.getCode());
 			view.setTradeDate(detail.getBuyDate().toString());
-			view.setName(detail.getName() + "(" + detail.getCode() + ")");
+			view.setName(detail.getName());
 			view.setQuantity(detail.getQuantity());
 			view.setCost(detail.getBuyCost());
 			view.setPrice(detail.getSellPrice());
@@ -266,18 +268,18 @@ public class SimulationServiceImp implements SimulationService {
 
 
 	@Override
-	public List<TradeRecordViewPlus> getTradeRecordViewPlus() {
+	public List<SimulationViewPlus> getTradeRecordViewPlus() {
 		if(trader == null){
 			this.init();
 		}
-		List<TradeRecordViewPlus> views = new ArrayList<TradeRecordViewPlus>();
+		List<SimulationViewPlus> views = new ArrayList<SimulationViewPlus>();
 		
 		Map<String,TradeDetail> details = this.trader.getDetails();
 		details.putAll(this.trader.getOnHands());
 		
-		TradeRecordViewPlus view;
+		SimulationViewPlus view;
 		for(Map.Entry<String, TradeDetail> entry : details.entrySet()) {
-			view = new TradeRecordViewPlus();
+			view = new SimulationViewPlus();
 			view.setStockcode(entry.getValue().getCode());
 			view.setStockname(entry.getValue().getName());
 			view.setQuantity(entry.getValue().getQuantity());

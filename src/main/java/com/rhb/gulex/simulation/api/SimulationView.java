@@ -2,10 +2,11 @@ package com.rhb.gulex.simulation.api;
 
 import java.math.BigDecimal;
 
-public class TradeRecordView {
+public class SimulationView {
 	private String date;
-	private String buyorsell;
+	private String stockcode;
 	private String stockname;
+	private String buyorsell;
 	private BigDecimal price;
 	private Integer quantity;
 	public String getDate() {
@@ -37,6 +38,12 @@ public class TradeRecordView {
 	}
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
+	}
+	public String getStockcode() {
+		return stockcode;
+	}
+	public void setStockcode(String stockcode) {
+		this.stockcode = stockcode;
 	}
 	
 	

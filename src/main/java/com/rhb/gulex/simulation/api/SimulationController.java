@@ -20,32 +20,32 @@ public class SimulationController {
 	@Qualifier("SimulationServiceImp")
 	SimulationService  simulationService;
 	
-	@GetMapping("/traderecords")
-	public ResponseContent<List<TradeRecordView>> getTradeRecordViews(){
-		List<TradeRecordView> tradeRecordViews = simulationService.getTradeRecordViews();
-		Collections.sort(tradeRecordViews, new Comparator<TradeRecordView>(){
+	@GetMapping("/simulations")
+	public ResponseContent<List<SimulationView>> getTradeRecordViews(){
+		List<SimulationView> tradeRecordViews = simulationService.getTradeRecordViews();
+		Collections.sort(tradeRecordViews, new Comparator<SimulationView>(){
 
 			@Override
-			public int compare(TradeRecordView arg0, TradeRecordView arg1) {
+			public int compare(SimulationView arg0, SimulationView arg1) {
 				return arg1.getDate().compareTo(arg0.getDate());
 			}
 			
 		});
-		return new ResponseContent<List<TradeRecordView>>(ResponseEnum.SUCCESS, tradeRecordViews);
+		return new ResponseContent<List<SimulationView>>(ResponseEnum.SUCCESS, tradeRecordViews);
 	}
 	
-	@GetMapping("/traderecordplus")
-	public ResponseContent<List<TradeRecordViewPlus>> getTradeRecordViewPlus(){
-		List<TradeRecordViewPlus> tradeRecordViews = simulationService.getTradeRecordViewPlus();
-		Collections.sort(tradeRecordViews, new Comparator<TradeRecordViewPlus>(){
+	@GetMapping("/simulationplus")
+	public ResponseContent<List<SimulationViewPlus>> getTradeRecordViewPlus(){
+		List<SimulationViewPlus> tradeRecordViews = simulationService.getTradeRecordViewPlus();
+		Collections.sort(tradeRecordViews, new Comparator<SimulationViewPlus>(){
 
 			@Override
-			public int compare(TradeRecordViewPlus arg0, TradeRecordViewPlus arg1) {
+			public int compare(SimulationViewPlus arg0, SimulationViewPlus arg1) {
 				return arg1.getProfit().compareTo(arg0.getProfit());
 			}
 			
 		});
-		return new ResponseContent<List<TradeRecordViewPlus>>(ResponseEnum.SUCCESS, tradeRecordViews);
+		return new ResponseContent<List<SimulationViewPlus>>(ResponseEnum.SUCCESS, tradeRecordViews);
 	}
 	
 	@GetMapping("/onhands")

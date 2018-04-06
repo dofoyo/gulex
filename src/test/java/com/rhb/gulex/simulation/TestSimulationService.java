@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.rhb.gulex.simulation.api.TradeRecordViewPlus;
+import com.rhb.gulex.simulation.api.SimulationViewPlus;
 import com.rhb.gulex.simulation.service.SimulationService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -20,8 +20,8 @@ public class TestSimulationService {
 	
 	@Test
 	public void test() {
-		List<TradeRecordViewPlus> list = simulationService.getTradeRecordViewPlus();
-		for(TradeRecordViewPlus view : list) {
+		List<SimulationViewPlus> list = simulationService.getTradeRecordViewPlus();
+		for(SimulationViewPlus view : list) {
 			//System.out.println(view);
 		}
 	}
