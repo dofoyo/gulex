@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,7 +50,7 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 		BigDecimal price = null;
 		String[] columns = null;
 		String[] lines = str.split("\n");
-		for(int i=lines.length-1; i>0; i--){  //文档是倒序，要变成顺序
+		for(int i=lines.length-1; i>=0; i--){  //文档是倒序，要变成顺序
 			columns = lines[i].split(",");
 			
 			date = ParseString.toLocalDate(columns[0]);
@@ -68,7 +68,7 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 
 
 	@Override
-	public List<TradeRecordEntity> getTradeRecordEntities(String code, LocalDate sdate) {
+	public List<TradeRecordEntity> getTradeRecordEntities(String code, LocalDate endDate) {
 		String pathAndfileName = dataPath + subPath + code + "_tradedata.csv";
 		
 		File file = new File(pathAndfileName);
@@ -95,7 +95,7 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 			//System.out.println(date);
 			
 			
-			if(date!=null && (date.isBefore(sdate) || date.equals(sdate))) {
+			if(date!=null && (date.isBefore(endDate) || date.equals(endDate))) {
 				break;
 			}
 			
@@ -121,6 +121,15 @@ public class TradeRecordRepositoryImpFrom163 implements TradeRecordRepository {
 		
 		return records;
 	}
+
+
+	@Override
+	public void save(List<Map<String, String>> records) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 
 	

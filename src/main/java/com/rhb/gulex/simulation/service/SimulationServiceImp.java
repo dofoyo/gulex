@@ -1,5 +1,6 @@
 package com.rhb.gulex.simulation.service;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.bluechip.service.BluechipService;
+import com.rhb.gulex.pb.service.PbService;
 import com.rhb.gulex.simulation.api.OnHandView;
 import com.rhb.gulex.simulation.api.SimulationView;
 import com.rhb.gulex.simulation.api.SimulationViewPlus;
@@ -26,6 +28,9 @@ import com.rhb.gulex.stock.service.StockService;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 import com.rhb.gulex.traderecord.service.TradeRecordService;
+import com.rhb.gulex.util.FileUtil;
+import com.rhb.gulex.util.LineChart;
+import com.rhb.gulex.util.LineChartDTO;
 
 /**
  * 
@@ -40,6 +45,8 @@ import com.rhb.gulex.traderecord.service.TradeRecordService;
 public class SimulationServiceImp implements SimulationService {
 	@Value("${dataPath}")
 	private String dataPath;
+	
+	private String imagePath = "simulation/images/";
 	
 	@Autowired
 	@Qualifier("StockServiceImp")
@@ -58,29 +65,33 @@ public class SimulationServiceImp implements SimulationService {
 	BluechipService bluechipService;
 	
 	
-	private  BigDecimal amount = new BigDecimal(50000); //每次买入金额,默认金额为5万
-	private Integer upProbability = 60;   //买入阈值，默认60.    实际操作时，行情好时，阈值低一些，行情不好时，阈值高些
-	private BigDecimal cash = new BigDecimal(1000000); //初始现金,默认为1百万
-	private LocalDate beginDate = LocalDate.parse("2010-01-01");  //能找到的年报发布日期是从2010年开始的
-	private boolean overdraft = true;  //是否允许透支
+	@Autowired
+	@Qualifier("PbServiceImp")
+	PbService pbService;
+	
+	
+	private SimulationSettings settings = new SimulationSettings();
 	
 	private Trader trader = null;
 	
-	//private Collection<TradeDetail> onHands;
-	//private Iterator<TradeDetail> it;
 	private TradeDetail detail;
 	private TradeRecordEntity tradeRecordEntity;
-	
 	
 	@Override
 	public void init(){
 		System.out.println("SimulationService init begin......");
-		trader = new Trader();
-		//trader.setAmount(amount); 
-		trader.setCash(cash); 
-		//trader.setOverdraft(overdraft);
+		Long start = System.currentTimeMillis();
+
+		trader = new Trader(settings.getBeginDate(),settings.getCash());
+		trader.setBuyValvePeriod(settings.getBuyValvePeriod());
 		
-		List<LocalDate> tradeDates = this.getTradeDate(beginDate);
+		trader.setFinancing(settings.isFinancing());
+		trader.setAmountFix(settings.isAmountFix());
+		trader.setFixAmount(settings.getFixAmount());
+		trader.setFixRate(settings.getFixRate());
+		
+		
+		List<LocalDate> tradeDates = tradeRecordService.getTradeDate(settings.getBeginDate());
 		
 		int i=0;
 		for(LocalDate sDate : tradeDates){
@@ -89,23 +100,127 @@ public class SimulationServiceImp implements SimulationService {
 			this.trade(sDate);
 			
 		}
+
+		Long end = System.currentTimeMillis();
+
+		FileUtil.writeTextFile(dataPath + "simulation/simulate_details"+end.toString()+".csv", trader.getDetailString(), false);
+
+		FileUtil.writeTextFile(dataPath + "simulation/simulate_profits"+end.toString()+".csv", trader.getAccountString(), false);
+
 		System.out.println("there are " + tradeDates.size() + " trade dates happened.");
+
+		System.out.println("程序运行时间： "+(end-start)+"ms");
+
 		System.out.println(".......SimulationService init end......");
+		
+	}
+	
+	/**
+	 * 先将onHand的价格赋予最新价格
+	 * 再看看是否有触及卖出条件的，有的话，卖出，腾出资金
+	 * 然后买入
+	 * 买入后，再判断是否有超出持股数量限制，如是，卖出收益垫底的股票
+	 * 
+	 * 最后，日结
+	 */
+	@Override
+	public void trade(LocalDate sDate) {
+		List<BluechipDto> bluechips = bluechipService.getBluechips(sDate);
+
+		Integer buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
+		
+		//将最新值写入onHand
+		List<TradeDetail> onHandDetails = trader.getOnHandsList();
+		for(TradeDetail detail : onHandDetails) {
+			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
+			trader.setPrice(detail.getSeriesid(),tradeRecordEntity.getPrice() );
+
+		}
+		
+		//卖出操作：落选且股价低于60日均线的票，或止损。
+		Integer profitRate;	
+		for(TradeDetail detail : onHandDetails) {
+			boolean doSell = false;
+			String note = "";
+			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
+			boolean inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
+
+			
+			//buyCost = detail.getBuyCost();
+			//nowPrice = tradeRecordEntity.getPrice();
+			//profitRate = nowPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+			//stopLoss =  profitRate<-15 ? true : false; //
+			profitRate = trader.getOnHandProfitRate(detail.getCode());
+			
+			if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
+				note = "落选且股价低于"+settings.getSellLine()+"均线";
+				doSell = true;
+				
+			}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
+				note = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
+				doSell = true;
+			}
+			
+			if(doSell) {
+				trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),note);
+				generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
+			}
+		}
+		
+		//买入操作
+		for(BluechipDto bluechipDto : bluechips){
+			boolean doBuy = false;
+			String note="";
+
+			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
+			
+			if(tradeRecordEntity!=null  
+				&& tradeRecordEntity.getUpProbability()> buyValve
+				&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine())   
+				&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
+				){ 
+
+				note = tradeRecordEntity.getUpProbabilityString();
+				
+				if(!trader.onHand(bluechipDto.getCode())){
+					doBuy = true;
+				}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
+					note = note + "，加仓买入。";
+					doBuy = true;
+				}
+			}
+			
+			if(doBuy) {
+				trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),note);
+				generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
+			}
+		}
+		
+		//限数卖出
+		if(settings.isOnHandsLimit()) {
+			String note = "超出持股数量，卖出表现最差的股票";
+			List<String> outers = trader.getOuters(settings.getOnHandsLimitNumber());
+			for(String seriesid : outers) {
+				trader.sell(seriesid, sDate, note);
+			}		
+		}
+
+
+		//日结
+		trader.dayReport(sDate, buyValve);		
 	}
 	
 	
-	
-	public LocalDate getBeginDate() {
-		return beginDate;
+	private void generateImage(String operation,String stockCode, String stockName,LocalDate date,List<TradeRecordEntity> tradeRecordEntities) {
+		File file = new File(dataPath + imagePath + stockCode +"_"+ date.toString() + ".png");
+		String title = operation + stockCode + "(" + stockName + ")";
+		List<LineChartDTO> datas = new ArrayList<LineChartDTO>();
+		for(TradeRecordEntity tradeRecordEntity : tradeRecordEntities) {
+			datas.add(new LineChartDTO(tradeRecordEntity.getPrice().doubleValue(),"price",tradeRecordEntity.getDate().toString()));
+			datas.add(new LineChartDTO(tradeRecordEntity.getAv120().doubleValue(),"av120",tradeRecordEntity.getDate().toString()));
+		}
+		LineChart.draw(title, file, datas);
 	}
-
-
-
-	public void setBeginDate(LocalDate beginDate) {
-		this.beginDate = beginDate;
-	}
-
-
 
 	@Override
 	public List<SimulationView> getTradeRecordViews() {
@@ -183,90 +298,7 @@ public class SimulationServiceImp implements SimulationService {
 		return views;
 	}
 	
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
-
-
-	public Integer getUpProbability() {
-		return upProbability;
-	}
-
-
-	public void setUpProbability(Integer upProbability) {
-		this.upProbability = upProbability;
-	}
 	
-	private List<LocalDate> getTradeDate(LocalDate beginDate){
-		String code = "sh000001"; //以上证指数的交易日期作为历史交易日历
-		List<LocalDate> codes = new ArrayList<LocalDate>();
-		List<TradeRecordEntity> records = tradeRecordRepositoryFrom163.getTradeRecordEntities(code);
-		for(TradeRecordEntity record : records){
-			//System.out.print(record.getDate());
-			if(record.getDate().isAfter(beginDate)){
-				codes.add(record.getDate());
-				//System.out.println("   y");
-			}
-		}
-		return codes;
-	}
-
-	@Override
-	public void trade(LocalDate sDate) {
-		List<BluechipDto> bluechips = bluechipService.getBluechips(sDate);
-		
-		//买入操作
-		for(BluechipDto bluechipDto : bluechips){
-			
-			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
-			
-			if(tradeRecordEntity!=null  
-				&& tradeRecordEntity.getUpProbability()>upProbability 
-				&& tradeRecordEntity.isPriceOnAvarage()   
-				&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>365   //上市1年后才能购买
-				){ 
-
-				if(!trader.onHand(bluechipDto.getCode())){ 
-					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice());
-
-				}
-			}
-		}
-
-		//卖出操作：卖出低于120日 以上均线的票。
-		List<TradeDetail> details = trader.getOnHandsList();
-		for(TradeDetail detail : details) {
-			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
-			boolean inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
-
-			
-			if(tradeRecordEntity==null){
-				System.out.println("tradeRecordService.getTradeRecordEntity(" + detail.getCode() + "," + sDate + ") = null ");
-			}
-			
-			if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAvarage()){
-				trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice());
-			}else{
-				trader.setPrice(detail.getSeriesid(), tradeRecordEntity.getPrice());
-			}
-		}
-
-
-		trader.dayReport(sDate);		
-	}
-	
-	public void setOverdraft(boolean flag){
-		this.overdraft = flag;
-	}
-
-
-
 	@Override
 	public List<SimulationViewPlus> getTradeRecordViewPlus() {
 		if(trader == null){
@@ -291,12 +323,8 @@ public class SimulationServiceImp implements SimulationService {
 			views.add(view);
 		}
 		
-
-			
 		return views;
 	}
-
-
 
 	@Override
 	public List<ValueView> getYearValueViews() {
@@ -304,11 +332,11 @@ public class SimulationServiceImp implements SimulationService {
 			this.init();
 		}
 		Set<LocalDate> period = new HashSet<LocalDate>();
-		List<LocalDate> tradeDates = this.getTradeDate(beginDate);
+		List<LocalDate> tradeDates = tradeRecordService.getTradeDate(settings.getBeginDate());
 		
 		LocalDate date;
-		LocalDate previousDate = beginDate;
-		Integer previousYear = beginDate.getYear();
+		LocalDate previousDate = settings.getBeginDate();
+		Integer previousYear = settings.getBeginDate().getYear();
 		for(int i=0; i<tradeDates.size(); i++) {
 			date = tradeDates.get(i);
 			if(date.getYear() != previousYear) {
@@ -339,6 +367,55 @@ public class SimulationServiceImp implements SimulationService {
 		}
 		
 		return views;
+	}
+
+
+
+	@Override
+	public BigDecimal getTotal() {
+		return trader.getTotal();
+	}
+
+	@Override
+	public void setAutoBuyValve(boolean autoBuyValve) {
+		this.settings.setAutoBuyValve(autoBuyValve);
+	}
+	
+	public void setBuyValve(Integer buyValve) {
+		this.settings.setBuyValve(buyValve);
+	}
+	
+	public void setOnHandsLimit(boolean onHandsLimit) {
+		this.settings.setOnHandsLimit(onHandsLimit);
+	}
+
+	public void setOnHandsLimitNumber(Integer onHandsLimitNumber) {
+		this.settings.setOnHandsLimitNumber(onHandsLimitNumber);
+	}
+
+	public void setFinancing(boolean financing) {
+		this.settings.setFinancing(financing);
+	}
+	
+	public void setStopLoss(boolean stopLoss) {
+		this.settings.setStopLoss(stopLoss);
+	}
+
+	public void setBuyLinePeriod(Integer period) {
+		this.settings.setBuyValvePeriod(period);
+	}
+
+	public void setStopLossRate(Integer stopLossRate) {
+		this.settings.setStopLossRate(stopLossRate);
+	}
+
+
+	public void setBeginDate(LocalDate beginDate) {
+		this.settings.setBeginDate(beginDate);
+	}
+	
+	public String getSettingString() {
+		return this.settings.toString();
 	}
 
 }

@@ -9,8 +9,16 @@ public class BluechipView {
 	private Integer aboveAv120Days;
 	private Integer biasOfAv120;
 	private Integer biasOfMidPrice;
-
+	private String ipoDate;
 	
+	
+	
+	public String getIpoDate() {
+		return ipoDate;
+	}
+	public void setIpoDate(String ipoDate) {
+		this.ipoDate = ipoDate;
+	}
 	public Integer getAboveAv120Days() {
 		return aboveAv120Days;
 	}

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,14 @@ import org.springframework.stereotype.Component;
 
 import com.rhb.gulex.bluechip.service.BluechipService;
 import com.rhb.gulex.financialstatement.spider.DownloadFinancialStatements;
+import com.rhb.gulex.pb.repository.PbRepository;
 import com.rhb.gulex.reportdate.repository.ReportDateRepository;
 import com.rhb.gulex.reportdate.spider.DownloadReportedStockList;
 import com.rhb.gulex.simulation.service.BluechipDto;
 import com.rhb.gulex.simulation.service.SimulationService;
 import com.rhb.gulex.stock.service.StockService;
 import com.rhb.gulex.stock.spider.DownloadStockList;
+import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 import com.rhb.gulex.traderecord.service.TradeRecordService;
 import com.rhb.gulex.traderecord.spider.DownloadTradeRecord;
 
@@ -84,6 +87,9 @@ public class ScheduledTask {
 	@Qualifier("DownloadTradeRecordFromQt")
 	DownloadTradeRecord downloadTradeDataFromQt;
 
+	@Autowired
+	@Qualifier("TradeRecordRepositoryFromQt")
+	TradeRecordRepository tradeRecordRepository;
 	
 	@Autowired
 	@Qualifier("BluechipServiceImp")
@@ -101,6 +107,11 @@ public class ScheduledTask {
 	@Qualifier("TradeRecordServiceImp")
 	TradeRecordService tradeRecordService;
 
+	
+	@Autowired
+	@Qualifier("PbRepositoryImp")
+	PbRepository pbRepository;
+	
 	
 	//@Scheduled(cron="0 0 5 ? * *") //每日凌晨5点，下载最新年报
 	//@Scheduled(cron="0 0 12 ? * *") //临时
@@ -193,7 +204,7 @@ public class ScheduledTask {
 	
 	//@Scheduled(cron="0 30 16 ? * 1-5")  //正式，每周1至5收盘后，16:30点，下载交易数据
 	//@Scheduled(cron="0 40 12 ? * *")  //临时
-	public void getTradeData(){
+	public void getTradeDataFrom163(){
 		System.out.println(LocalDateTime.now() +  "   " + Thread.currentThread().getName() + ":  下载交易数据任务开始.............");
 
 		List<BluechipDto> dtos = bluechipService.getBluechips();
@@ -221,18 +232,47 @@ public class ScheduledTask {
 	
 	@Scheduled(cron="0 30/30 9-15 ? * 1-5")  //每周1-5，9-15点，交易时间，每30分钟，执行一次模拟
 	public void simulate() {   
-		//下载最新的市场行情
 		
 		System.out.println("simulate begin .......");
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		Map<String,String> tradeData = downloadTradeDataFromQt.go("sh000001");  //以上证指数为依据，判断交易日，永不停牌
-		LocalDate date = LocalDate.parse(tradeData.get("date"), formatter);
+		//下载最新的市场行情
+		this.getTradeDataFromQT();
+			
+		//执行模拟
+		simulationService.trade(LocalDate.now());
+			
+		System.out.println("........simulate end!");
 		
+	}
+	
+	//下载最新的市场行情
+	public void getTradeDataFromQT() {   
+		System.out.println("getTradeDataFromQT begin .......");
+		
+		String code = "sh000001";
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		Map<String,String> tradeData = downloadTradeDataFromQt.go(code);  //以上证指数为依据，判断交易日，永不停牌
+		LocalDate date = LocalDate.parse(tradeData.get("date"), formatter);
+
 		LocalDate now = LocalDate.now();
+		
+		System.out.println("the day is " + tradeData.get("date"));
+		System.out.println("today is " + now.toString());
+		
+		
 		boolean isTradeDay = date.equals(now) ? true : false;
 
 		if(isTradeDay) {
+			System.out.println("it is a trade day!");
+			
+			List<Map<String,String>> records = new ArrayList<Map<String,String>>();
+			Map<String,String> record = new HashMap<String,String>();
+			record.put("date", now.toString());
+			record.put("code", code);
+			record.put("price", tradeData.get("price"));
+			records.add(record);
+
 			BigDecimal price;
 			
 			List<BluechipDto> bluechips = bluechipService.getBluechips(now);
@@ -242,24 +282,36 @@ public class ScheduledTask {
 				date = LocalDate.parse(tradeData.get("date"), formatter);
 				price = new BigDecimal(tradeData.get("price"));
 				if(date.equals(now) && price.compareTo(new BigDecimal(0))==1) {  //判断是否停盘
+					
 					tradeRecordService.setTradeRecordEntity(dto.getCode(), now, price);
+					
+					record = new HashMap<String,String>();
+					record.put("date", now.toString());
+					record.put("code", dto.getCode());
+					record.put("price", price.toString());
+					records.add(record);
 				}
 			}
 			
-			//执行模拟
-			simulationService.trade(now);
-			
+			tradeRecordRepository.save(records);
+		}else {
+			System.out.println("it is NOT a trade day!");
+
 		}
-		System.out.println("........simulate end!");
+		System.out.println("........getTradeDataFromQT end!");
 		
 	}
 	
-	@Scheduled(cron="0 0 9,16 ? * 1-5") //每周一至周五，上午9点和下午16点，执行一次
+	@Scheduled(cron="0 15 9,15 ? * 1-5") //每周一至周五，上午9：15和下午15：15，执行一次
+	//@Scheduled(cron="0 55 23 ? * 1-5") //每周一至周五，下午15：05，执行一次
 	public void doAll() {
 		this.getNewReport();
 		this.getNewStock();
 		this.generateBluechip();
-		this.getTradeData();
+		//this.getTradeDataFrom163();
+		this.getTradeDataFromQT();
+		
+		pbRepository.download();
 		
     	tradeRecordService.refresh();
 

@@ -45,7 +45,7 @@ public class TradeRecordDTO {
 			entity = entities.get(date);
 			if(entity != null) {
 				i++;
-				if(entity.isPriceOnAvarage()) {
+				if(entity.isPriceOnAv(120)) {
 					aboveDays ++;
 				}
 			}
@@ -116,6 +116,21 @@ public class TradeRecordDTO {
 	
 	public TradeRecordEntity getTradeRecordEntity(LocalDate date) {
 		return entities.get(date);
+	}
+	
+	public List<LocalDate> getDates(LocalDate beginDate){
+		List<LocalDate> list = new ArrayList<LocalDate>();
+		
+		Set<LocalDate> dates = entities.keySet();
+		for(LocalDate date : dates) {
+			if(date.isAfter(beginDate) || date.isEqual(beginDate)) {
+				list.add(date);
+			}
+		}
+		
+		Collections.sort(list);
+		
+		return list;
 	}
 	
 	

@@ -23,6 +23,7 @@ public class DownloadTradeRecordFromQt implements DownloadTradeRecord {
 		
 		String url = "http://qt.gtimg.cn/q=" + marketCode + code;
 		String result = HttpDownload.getResult(url);
+		
 		//System.out.println(result);
 		
 		String[] ss = result.split("~");

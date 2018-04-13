@@ -15,6 +15,8 @@ public interface BluechipService {
 	
 	public List<BluechipView> getBluechipViews(LocalDate date);
 	
+	public List<BluechipView> getBluechipViews();
+	
 	public boolean inGoodPeriod(String stockcode, LocalDate date);
 	
 	public void generateBluechip();

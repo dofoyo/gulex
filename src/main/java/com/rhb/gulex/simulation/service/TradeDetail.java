@@ -12,6 +12,50 @@ public class TradeDetail {
 	private BigDecimal buyCost;
 	private LocalDate sellDate;
 	private BigDecimal sellPrice;
+	
+	private BigDecimal lowestPrice = new BigDecimal(1000);
+	private BigDecimal highestPrice = new BigDecimal(0);
+	
+	private String note = "";
+	
+	
+	public String getNote() {
+		return note;
+	}
+	public void setNote(String note) {
+		this.note = this.note + note;
+	} 
+	public BigDecimal getLowestPrice() {
+		return lowestPrice;
+	}
+	public void setLowestPrice(BigDecimal lowestPrice) {
+		this.lowestPrice = lowestPrice;
+	}
+	public BigDecimal getHighestPrice() {
+		return highestPrice;
+	}
+	public void setHighestPrice(BigDecimal highestPrice) {
+		this.highestPrice = highestPrice;
+	}
+	
+	public Integer getProfitRate() {
+		Integer rate = sellPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+
+		return rate;
+	}
+	
+	public Integer getLowestRate() {
+		Integer rate = lowestPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+
+		return rate;
+	}
+
+	public Integer getHighestRate() {
+		Integer rate = highestPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+
+		return rate;
+	}
+
 	public String getSeriesid() {
 		return seriesid;
 	}
@@ -59,13 +103,25 @@ public class TradeDetail {
 	}
 	public void setSellPrice(BigDecimal sellPrice) {
 		this.sellPrice = sellPrice;
+
+		if(sellPrice.compareTo(lowestPrice) == -1) {
+			lowestPrice = sellPrice;
+		}
+		
+		if(sellPrice.compareTo(highestPrice) == 1) {
+			highestPrice = sellPrice;
+		}
+		
 	}
 	@Override
 	public String toString() {
 		return "TradeDetail [seriesid=" + seriesid + ", code=" + code + ", name=" + name + ", quantity=" + quantity
 				+ ", buyDate=" + buyDate + ", buyCost=" + buyCost + ", sellDate=" + sellDate + ", sellPrice="
-				+ sellPrice + "]";
+				+ sellPrice + ", lowestPrice=" + lowestPrice + ", highestPrice=" + highestPrice + ", note=" + note
+				+ "]";
 	}
+
+	
 	
 	
 	

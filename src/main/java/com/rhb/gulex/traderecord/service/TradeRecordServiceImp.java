@@ -31,8 +31,12 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	TradeRecordRepository tradeRecordRepositoryFromDzh;
 
 	@Autowired
+	@Qualifier("TradeRecordRepositoryFromQt")
+	TradeRecordRepository tradeRecordRepositoryFromQt;
+/*	
+	@Autowired
 	@Qualifier("TradeRecordRepositoryImpFrom163")
-	TradeRecordRepository tradeRecordRepositoryFrom163;
+	TradeRecordRepository tradeRecordRepositoryFrom163;*/
 	
 	@Autowired
 	@Qualifier("BluechipRepositoryImp")
@@ -52,10 +56,10 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(dzh);
 		}
 		if(entities.size()>0) {
-			List<TradeRecordEntity> e163 = tradeRecordRepositoryFrom163.getTradeRecordEntities(stockcode,entities.get(entities.size()-1).getDate()); 
+			List<TradeRecordEntity> e163 = tradeRecordRepositoryFromQt.getTradeRecordEntities(stockcode,entities.get(entities.size()-1).getDate()); 
 			entities.addAll(e163);
 		}else {
-			List<TradeRecordEntity> e163 = tradeRecordRepositoryFrom163.getTradeRecordEntities(stockcode); 
+			List<TradeRecordEntity> e163 = tradeRecordRepositoryFromQt.getTradeRecordEntities(stockcode); 
 			entities.addAll(e163);
 		}
 		
@@ -64,7 +68,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		for(int i=0; i<entities.size(); i++) {
 			entity = entities.get(i);
 
-			entity.setAv120(calAv120(entities.subList(0, i),entity.getPrice()));
+			entity.setAv120(calAvaragePrice(entities.subList(0, i),entity.getPrice(),120));
+			entity.setAv60(calAvaragePrice(entities.subList(0, i),entity.getPrice(),60));
+			entity.setAv30(calAvaragePrice(entities.subList(0, i),entity.getPrice(),30));
 			entity.setAboveAv120Days(calAboveAv120Days(entities.subList(0, i)));
 			entity.setMidPrice(calMidPrice(entities.subList(0, i),entity.getPrice()));
 
@@ -78,11 +84,12 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		
 		tradeRecordDtos.put(stockcode, dto);
 	}
+
 	
-	private BigDecimal calAv120(List<TradeRecordEntity> records, BigDecimal price){
+	private BigDecimal calAvaragePrice(List<TradeRecordEntity> records, BigDecimal price, Integer days){
 		
 		BigDecimal total = price;
-		int start = records.size()>120 ? records.size()-120 : 0;
+		int start = records.size()>days ? records.size()-days : 0;
 		List<TradeRecordEntity> list = records.subList(start, records.size());
 		for(TradeRecordEntity tr : list){
 			total = total.add(tr.getPrice());
@@ -97,7 +104,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		int start = records.size()>100 ? records.size()-100 : 0;
 		List<TradeRecordEntity> list = records.subList(start, records.size());
 		for(TradeRecordEntity tr : list){
-			if(tr.isPriceOnAvarage()){
+			if(tr.isPriceOnAv(120)){
 				above++;
 			}
 		}
@@ -116,6 +123,22 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		Collections.sort(list);
 		
 		return list.get(prices.size()/2);
+	}
+
+	@Override
+	public List<TradeRecordEntity> getTradeRecords(String stockcode, LocalDate endDate) {
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		List<TradeRecordEntity> list = new ArrayList<TradeRecordEntity>();
+		List<TradeRecordEntity> entities = tradeRecordDtos.get(stockcode).getTradeRecordEntities();
+		for(TradeRecordEntity entity : entities) {
+			if(entity.getDate().isBefore(endDate) || entity.getDate().isEqual(endDate)) {
+				list.add(entity);
+			}
+		}
+		
+		return list;
 	}
 	
 	@Override
@@ -187,7 +210,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			
 			entity.setMidPrice(dto.getMidPrice(date, price));
 			
-			Integer i = entity.isPriceOnAvarage() ? 1 : 0;
+			Integer i = entity.isPriceOnAv(120) ? 1 : 0;
 			entity.setAboveAv120Days(dto.getAboveAv120Days(date) + i);
 		}
 	}
@@ -198,24 +221,29 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		TradeRecordDzh tradeRecordDzh;
 		
 		List<TradeRecordEntity> tradeRecordEntities;
+		TradeRecordEntity tradeRecordEntity;
 		
 		Set<BluechipEntity> bluechipEntities = bluechipRepository.getBluechips();
 		for(BluechipEntity bluechipEntity : bluechipEntities){
 			tradeRecordEntities = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipEntity.getCode());
+			tradeRecordDzh = new TradeRecordDzh();
+			tradeRecordDzh.setCode(bluechipEntity.getCode());
+			tradeRecordDzh.setName(bluechipEntity.getName());
+
 			if(tradeRecordEntities==null || tradeRecordEntities.size()==0) {
-				tradeRecordDzh = new TradeRecordDzh();
-				tradeRecordDzh.setCode(bluechipEntity.getCode());
-				tradeRecordDzh.setName(bluechipEntity.getName());
 				tradeRecordDzh.setDzhDate("");
-				tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
 				
 				//System.out.println(tradeRecordDzh);
+			}else {
+				tradeRecordEntity = tradeRecordEntities.get(tradeRecordEntities.size()-1);
+				tradeRecordDzh.setDzhDate(tradeRecordEntity.getDate().toString());
 			}
+			
+			tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
 			
 		}
 		
-		TradeRecordEntity tradeRecordEntity;
-		List<BluechipDto> bluechipDtos = bluechipService.getBluechips(LocalDate.now());
+/*		List<BluechipDto> bluechipDtos = bluechipService.getBluechips(LocalDate.now());
 		for(BluechipDto bluechipDto : bluechipDtos) {
 			if(!tradeRecordDzhs.containsKey(bluechipDto)) {
 				tradeRecordEntities = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipDto.getCode());
@@ -232,7 +260,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 
 				}
 			}
-		}
+		}*/
 		
 		List<TradeRecordDzh> list = new ArrayList<TradeRecordDzh>(tradeRecordDzhs.values());
 		Collections.sort(list,new Comparator<TradeRecordDzh>() {
@@ -257,6 +285,22 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			this.init(code);
 		}
 		System.out.println(".........TradeRecordService refresh end.");
+	}
+
+
+	@Override
+	public List<LocalDate> getTradeDate(LocalDate beginDate) {
+		String stockcode = "sh000001"; //以上证指数的交易日期作为历史交易日历
+		
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		
+		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
+
+		List<LocalDate> dates = dto.getDates(beginDate);
+		
+		return dates;
 	}
 
 	

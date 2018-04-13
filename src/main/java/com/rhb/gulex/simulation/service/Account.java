@@ -7,6 +7,7 @@ public class Account {
 	private LocalDate date;
 	private BigDecimal cash;
 	private BigDecimal value;
+	private Integer buyValve;
 	
 	
 	public BigDecimal getCash() {
@@ -31,6 +32,13 @@ public class Account {
 	public BigDecimal getTotal() {
 		return cash.add(value);
 	}
+	public Integer getBuyValve() {
+		return buyValve;
+	}
+	public void setBuyValve(Integer buyValve) {
+		this.buyValve = buyValve;
+	}
+
 	
 	
 	

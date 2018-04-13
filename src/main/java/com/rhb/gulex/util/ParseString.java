@@ -25,11 +25,15 @@ public class ParseString {
 			return list;
 		}
 		String findRegexp = regexp.replace("|", ".*?");
+		
+		
 		boolean replace = regexp.indexOf("|")==-1 ? false : true;
 		
 		Pattern pt = Pattern.compile(findRegexp);
 		Matcher mt = pt.matcher(source);
+		
 		//System.out.println(mt.group());
+		
 		while (mt.find()){
 			if(replace){
 				list.add(mt.group().replaceAll(regexp, ""));				

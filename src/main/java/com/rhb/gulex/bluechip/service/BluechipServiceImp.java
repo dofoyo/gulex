@@ -125,6 +125,7 @@ public class BluechipServiceImp implements BluechipService {
 					bluechip.setName(entity.getName());
 					bluechip.setIpoDate(ipoDate);
 					bluechip.setOkYears(okYears);
+					bluechip.setIpoDate(ipoDate);
 					
 					if(entity.getReportDates()!=null) {
 						for(Map.Entry<Integer, String> entry : entity.getReportDates().entrySet()){
@@ -298,6 +299,7 @@ public class BluechipServiceImp implements BluechipService {
 			view.setName(bluechipDto.getName());
 			view.setOkYears(bluechipDto.getOkYearString());
 			view.setDate(date.toString());
+			view.setIpoDate(bluechipDto.getIpoDate());
 			
 			tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
 			if(tradeRecordDto != null) {
@@ -331,6 +333,48 @@ public class BluechipServiceImp implements BluechipService {
 			}
 		}
 		return bd;
+	}
+
+	@Override
+	public List<BluechipView> getBluechipViews() {
+		//System.out.println("getBluechipViews(" + date.toString() + ")");
+		List<BluechipView> views = new ArrayList<BluechipView>();
+		TradeRecordDTO tradeRecordDto;
+
+		//System.out.println("getBluechipDtos start ...");  
+		//long startTime = System.currentTimeMillis(); // 获取开始时间  
+		List<BluechipDto> bluechips = this.getBluechips();
+		//long endTime = System.currentTimeMillis(); // 获取结束时间  
+	    //System.out.println("getBluechipDtos over. 程序运行时间： " + (endTime - startTime) + "ms");  
+
+		for(BluechipDto bluechipDto : bluechips){
+			BluechipView view = new BluechipView();
+			view.setCode(bluechipDto.getCode());
+			view.setName(bluechipDto.getName());
+			view.setOkYears(bluechipDto.getOkYearString());
+			//view.setDate(date.toString());
+			view.setIpoDate(bluechipDto.getIpoDate());
+			
+/*			tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
+			if(tradeRecordDto != null) {
+				view.setUpProbability(tradeRecordDto.getSimilarTradeRecordEntity(date).getUpProbability());
+				view.setAboveAv120Days(tradeRecordDto.getSimilarTradeRecordEntity(date).getAboveAv120Days());
+				view.setBiasOfAv120(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfAv120());
+				view.setBiasOfMidPrice(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfMidPrice());
+			}*/
+			
+			views.add(view);
+		}
+		
+		Collections.sort(views, new Comparator<BluechipView>(){
+
+			@Override
+			public int compare(BluechipView arg0, BluechipView arg1) {
+				return arg1.getUpProbability().compareTo(arg0.getUpProbability());
+			}
+			
+		});
+		return views;
 	}
 
 }

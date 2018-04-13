@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,17 @@ public class TradeRecordRepositoryImpFromDzh implements TradeRecordRepository {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+
+	@Override
+	public void save(List<Map<String, String>> records) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
 	
 	
 

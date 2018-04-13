@@ -21,5 +21,10 @@ public interface TradeRecordService {
 	public List<TradeRecordDzh> getDzhs();
 	
 	public void refresh();
+	
+	public List<TradeRecordEntity> getTradeRecords(String stockcode, LocalDate endDate);
+	
+	public List<LocalDate> getTradeDate(LocalDate beginDate);
+
 
 }
