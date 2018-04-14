@@ -95,8 +95,8 @@ public class SimulationServiceImp implements SimulationService {
 		
 		int i=0;
 		for(LocalDate sDate : tradeDates){
+			//System.out.println(sDate.toString());
 			System.out.print(i++ + "/" + tradeDates.size() + "\r");
-			
 			this.trade(sDate);
 			
 		}

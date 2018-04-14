@@ -97,7 +97,7 @@ public class TradeRecordRepositoryFromQt implements TradeRecordRepository {
 	}
 
 	@Override
-	public List<TradeRecordEntity> getTradeRecordEntities(String code, LocalDate endDate) {
+	public List<TradeRecordEntity> getTradeRecordEntities(String code, LocalDate beginDate) {
 		if(codeDatePrices == null) {
 			this.init();
 		}
@@ -110,7 +110,7 @@ public class TradeRecordRepositoryFromQt implements TradeRecordRepository {
 			LocalDate date;
 			for(Map.Entry<String, String> entry : datePrices.entrySet()) {
 				date = LocalDate.parse(entry.getKey());
-				if(date!=null && (date.isBefore(endDate) || date.equals(endDate))) {
+				if(date!=null && date.isAfter(beginDate)) {
 					entity = new TradeRecordEntity();
 					entity.setCode(code);
 					entity.setDate(date);

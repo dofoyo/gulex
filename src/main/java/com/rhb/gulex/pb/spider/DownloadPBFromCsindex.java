@@ -99,6 +99,7 @@ public class DownloadPBFromCsindex implements DownloadPB {
 	@Override
 	public PbEntity download(String date) {
 		String url = "http://www.csindex.com.cn/zh-CN/downloads/industry-price-earnings-ratio?date="+date+"&type=zy3";
+		System.out.println(url);
 		String result = HttpDownload.getResult(url);
 		result = result.replaceAll("[\\t\\n\\r]", "").replaceAll(" ", "");
 		String body = this.getTbody(result);
@@ -113,7 +114,7 @@ public class DownloadPBFromCsindex implements DownloadPB {
 		entity.setZxb(getPb(trs.get(4)));
 		entity.setCyb(getPb(trs.get(5)));
 		
-		//System.out.println(entity);
+		System.out.println(entity);
 		
 		return entity;
 	}

@@ -242,7 +242,7 @@ public class Trader {
 		
 		accounts.put(date,account);
 		
-		//System.out.println(date.toString() + " " + " cash = " + cash.toString() + " value = " + account.getValue().toString());
+		//System.out.println("dayReport: " + date.toString() + " " + " cash = " + cash.toString() + " value = " + account.getValue().toString());
 
 	}
 	

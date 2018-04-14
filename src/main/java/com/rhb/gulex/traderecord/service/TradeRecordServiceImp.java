@@ -55,6 +55,11 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		if(dzh != null && dzh.size()>0) {
 			entities.addAll(dzh);
 		}
+		
+		if(stockcode.equals("sh000001")) {
+			System.out.println("last date in dzh is " + entities.get(entities.size()-1).getDate());
+		}
+		
 		if(entities.size()>0) {
 			List<TradeRecordEntity> e163 = tradeRecordRepositoryFromQt.getTradeRecordEntities(stockcode,entities.get(entities.size()-1).getDate()); 
 			entities.addAll(e163);
@@ -63,20 +68,21 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(e163);
 		}
 		
+		if(stockcode.equals("sh000001")) {
+			System.out.println("last date in qt is " + entities.get(entities.size()-1).getDate());
+		}
+		
 		TradeRecordDTO dto = new TradeRecordDTO();
 		TradeRecordEntity entity;
 		for(int i=0; i<entities.size(); i++) {
 			entity = entities.get(i);
-
 			entity.setAv120(calAvaragePrice(entities.subList(0, i),entity.getPrice(),120));
 			entity.setAv60(calAvaragePrice(entities.subList(0, i),entity.getPrice(),60));
 			entity.setAv30(calAvaragePrice(entities.subList(0, i),entity.getPrice(),30));
 			entity.setAboveAv120Days(calAboveAv120Days(entities.subList(0, i)));
 			entity.setMidPrice(calMidPrice(entities.subList(0, i),entity.getPrice()));
 
-			//System.out.println(entity);
 			dto.add(entity.getDate(), entity);
-			
 		}
 
 		//System.out.println("trade records after change");
@@ -279,11 +285,14 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	public void refresh() {
 		System.out.println("TradeRecordService refresh begin......");
 		Set<String> codes = tradeRecordDtos.keySet();
+		codes.add("sh000001");
 		int i=0;
 		for(String code : codes) {
 			System.out.print(i++ + "/" + codes.size() + "\r");
 			this.init(code);
 		}
+		System.out.println("there are " + i + " stocks' trade records inited.");
+		
 		System.out.println(".........TradeRecordService refresh end.");
 	}
 

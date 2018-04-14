@@ -29,7 +29,7 @@ public class StockServiceImp implements StockService{
 	
 	@Override
 	public void init() {
-		System.out.println("init begin ....");
+		System.out.println("StockServiceImp init begin ....");
 		String out = "000527,600840,002710,600631,000522,601206,600005";
 
 		
@@ -61,7 +61,7 @@ public class StockServiceImp implements StockService{
 			}
 		}
 		System.out.println("there are " + i + " stocks.");
-		System.out.println("init end ....");
+		System.out.println("................StockServiceImp init end.");
 		
 	}
 

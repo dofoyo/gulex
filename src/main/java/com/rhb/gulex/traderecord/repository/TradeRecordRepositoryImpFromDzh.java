@@ -44,6 +44,7 @@ public class TradeRecordRepositoryImpFromDzh implements TradeRecordRepository {
 			
 			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 			TradeRecordEntity tre = new TradeRecordEntity();
+			tre.setCode(code);
 			tre.setDate(LocalDate.parse(cells[0],df));
 			tre.setPrice(ParseString.toBigDecimal(cells[4]));
 			
