@@ -34,7 +34,7 @@ public class TestSimulationService {
 		BigDecimal total;
 		StringBuffer sb = new StringBuffer();
 
-		//simulationService.setBeginDate(LocalDate.parse("2010-01-01"));
+		simulationService.setBeginDate(LocalDate.parse("2016-01-01"));
 		simulationService.init();
 		
 		total = simulationService.getTotal();

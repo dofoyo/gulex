@@ -74,24 +74,25 @@ public class TradeRecordRepositoryFromQt implements TradeRecordRepository {
 		List<TradeRecordEntity> list = new ArrayList<TradeRecordEntity>();
 		
 		Map<String,String> datePrices = codeDatePrices.get(code);
-		TradeRecordEntity entity;
-		for(Map.Entry<String, String> entry : datePrices.entrySet()) {
-			entity = new TradeRecordEntity();
-			entity.setCode(code);
-			entity.setDate(LocalDate.parse(entry.getKey()));
-			entity.setPrice(new BigDecimal(entry.getValue()));
-			
-			list.add(entity);
-		}
-		
-		Collections.sort(list,new Comparator<TradeRecordEntity>() {
-
-			@Override
-			public int compare(TradeRecordEntity o1, TradeRecordEntity o2) {
-				return o1.getDate().compareTo(o2.getDate());
+		if(datePrices != null) {
+			TradeRecordEntity entity;
+			for(Map.Entry<String, String> entry : datePrices.entrySet()) {
+				entity = new TradeRecordEntity();
+				entity.setCode(code);
+				entity.setDate(LocalDate.parse(entry.getKey()));
+				entity.setPrice(new BigDecimal(entry.getValue()));
+				
+				list.add(entity);
 			}
 			
-		});
+			Collections.sort(list,new Comparator<TradeRecordEntity>() {
+
+				@Override
+				public int compare(TradeRecordEntity o1, TradeRecordEntity o2) {
+					return o1.getDate().compareTo(o2.getDate());
+				}
+			});			
+		}
 		
 		return list;
 	}

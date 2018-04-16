@@ -331,7 +331,7 @@ public class SimulationServiceImp implements SimulationService {
 		if(trader == null){
 			this.init();
 		}
-		Set<LocalDate> period = new HashSet<LocalDate>();
+/*		Set<LocalDate> period = new HashSet<LocalDate>();
 		List<LocalDate> tradeDates = tradeRecordService.getTradeDate(settings.getBeginDate());
 		
 		LocalDate date;
@@ -345,25 +345,33 @@ public class SimulationServiceImp implements SimulationService {
 			previousDate = date;
 			previousYear = date.getYear();
 			
-			if(i==tradeDates.size()-1) {
-				period.add(previousDate);
-			}
-			
-		}
+		}*/
 		
 		//Integer now = LocalDate.now().getYear();
+		Integer previousYear = settings.getBeginDate().getYear();
+		Account previousAccount=null;
+
 		List<ValueView> views = new ArrayList<ValueView>();
 		List<Account> accounts = trader.getAccounts();
 		for(Account account : accounts) {
-			if(period.contains(account.getDate())) {
+			if(previousAccount != null && account.getDate().getYear() != previousYear) {
 				ValueView view = new ValueView();
-				view.setDate(account.getDate().toString());
-				view.setValue(account.getValue());
-				view.setCash(account.getCash());
-				
+				view.setDate(previousAccount.getDate().toString());
+				view.setValue(previousAccount.getValue());
+				view.setCash(previousAccount.getCash());
 				views.add(view);				
 			}
-
+			previousAccount = account;
+			previousYear = account.getDate().getYear();
+			
+		}
+		
+		if(previousAccount != null) {
+			ValueView view = new ValueView();
+			view.setDate(previousAccount.getDate().toString());
+			view.setValue(previousAccount.getValue());
+			view.setCash(previousAccount.getCash());		
+			views.add(view);				
 		}
 		
 		return views;
