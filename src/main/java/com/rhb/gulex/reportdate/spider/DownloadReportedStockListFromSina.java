@@ -25,10 +25,11 @@ public class DownloadReportedStockListFromSina implements DownloadReportedStockL
 		for(int i=2; i<=pages; i++){
 			url =  "http://finance.sina.com.cn/realstock/income_statement/"+year+"-12-31/issued_pdate_de_"+Integer.toString(i)+".html";
 			result = HttpDownload.getResult(url);
+			//System.out.println(i);
 			codes.putAll(getCodes(result));
 		}
 		
-		//System.out.println(pages);
+		System.out.println("there are " + pages + " pages, "+ codes.size() +" reported stocks.");
 		
 		return codes;
 		
@@ -37,15 +38,21 @@ public class DownloadReportedStockListFromSina implements DownloadReportedStockL
 	
 	private Map<String,String> getCodes(String result){
 		Map<String,String> codes = new HashMap<String,String>();
-
+		
+		String code;
+		String reportDate;
+		
 		List<String> tds;
 		List<String> trs = getTrs1(result);
 		trs.addAll(getTrs2(result));
 		for(String tr : trs){
 			tds = getTds(tr);
-			if(tds!=null && tds.size()>3 && tds.get(0)!=null && !tds.get(0).equals("null")){
-				if(tds.get(0).indexOf("60")==0 || tds.get(0).indexOf("00")==0 || tds.get(0).indexOf("30")==0) {
-					codes.put(getCode(tds.get(0)), tds.get(2));
+			if(tds!=null && tds.size()>3 && tds.get(0)!=null && !tds.get(0).equals("null")){			
+				code = getCode(tds.get(0));
+				reportDate = tds.get(2);
+				//System.out.println(code + "," + reportDate + "," + code.indexOf("60"));
+				if(code.indexOf("60")==0 || code.indexOf("00")==0 || code.indexOf("30")==0) {
+					codes.put(code, reportDate);
 				}
 			}
 		}
@@ -78,11 +85,16 @@ public class DownloadReportedStockListFromSina implements DownloadReportedStockL
 	private List<String> getTrs2(String str){
 		String regexp = "<tr style='background:#F1F6FC;'>|</tr>";
 		List<String> list = ParseString.subStrings(str,regexp);
+/*		for(String code : list) {
+			System.out.println(code);
+		}*/
+		
 		return list;
 	}
 
 	
 	private List<String> getTrs1(String str){
+		//System.out.println(str);
 		String regexp = "<tr>|</tr>";
 		List<String> list = ParseString.subStrings(str,regexp);
 		return list;
