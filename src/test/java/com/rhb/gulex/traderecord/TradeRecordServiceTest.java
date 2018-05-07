@@ -26,7 +26,7 @@ public class TradeRecordServiceTest {
 	public void test(){
 		String stockcode="603871";
 		LocalDate date = LocalDate.parse("2017-04-11");
-		TradeRecordEntity tradeRecordEntity = tradeRecordService.getTradeRecordEntity(stockcode, date);
+		TradeRecordEntity tradeRecordEntity = tradeRecordService.getSimilarTradeRecordEntity(stockcode, date);
 		System.out.println(tradeRecordEntity);
 	}
 	

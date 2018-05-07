@@ -96,4 +96,12 @@ public class SimulationController {
 		return new ResponseContent<List<ValueView>>(ResponseEnum.SUCCESS, valueViews);
 	}
 	
+	@GetMapping("/buyvalue")
+	public ResponseContent<String> getBuyValue(){
+		String buyValue = simulationService.getBuyValue();
+		
+		
+		return new ResponseContent<String>(ResponseEnum.SUCCESS, buyValue);
+	}
+	
 }

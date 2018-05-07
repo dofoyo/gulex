@@ -32,6 +32,7 @@ public class DownloadTradeRecordFromQt implements DownloadTradeRecord {
 		map.put("code", ss[2]);
 		map.put("price", ss[3]);
 		map.put("date", ss[30].substring(0, 8));
+		map.put("quantity", ss[6]);
 		
 		return map;
 		

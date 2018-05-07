@@ -77,6 +77,8 @@ public class SimulationServiceImp implements SimulationService {
 	private TradeDetail detail;
 	private TradeRecordEntity tradeRecordEntity;
 	
+	private Integer buyValve = null;
+	
 	@Override
 	public void init(){
 		System.out.println("SimulationService init begin......");
@@ -109,7 +111,7 @@ public class SimulationServiceImp implements SimulationService {
 
 		System.out.println("there are " + tradeDates.size() + " trade dates happened.");
 
-		System.out.println("程序运行时间： "+(end-start)+"ms");
+		System.out.println("simulate 运行时间： "+(end-start)+"ms");
 
 		System.out.println(".......SimulationService init end......");
 		
@@ -127,81 +129,92 @@ public class SimulationServiceImp implements SimulationService {
 	public void trade(LocalDate sDate) {
 		List<BluechipDto> bluechips = bluechipService.getBluechips(sDate);
 
-		Integer buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
+		this.buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
 		
 		//将最新值写入onHand
 		List<TradeDetail> onHandDetails = trader.getOnHandsList();
 		for(TradeDetail detail : onHandDetails) {
-			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
+			tradeRecordEntity = tradeRecordService.getSimilarTradeRecordEntity(detail.getCode(),sDate);
 			trader.setPrice(detail.getSeriesid(),tradeRecordEntity.getPrice() );
 
 		}
 		
 		//卖出操作：落选且股价低于60日均线的票，或止损。
 		Integer profitRate;	
+		boolean doSell = false;
+		boolean inGoodPeriod;
 		for(TradeDetail detail : onHandDetails) {
-			boolean doSell = false;
-			String note = "";
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
-			boolean inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
-
 			
-			//buyCost = detail.getBuyCost();
-			//nowPrice = tradeRecordEntity.getPrice();
-			//profitRate = nowPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
-			//stopLoss =  profitRate<-15 ? true : false; //
-			profitRate = trader.getOnHandProfitRate(detail.getCode());
-			
-			if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
-				note = "落选且股价低于"+settings.getSellLine()+"均线";
-				doSell = true;
-				
-			}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
-				note = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
-				doSell = true;
+			if(detail.getCode().equals("002437") && sDate.equals(LocalDate.parse("2018-04-26"))) {
+				System.out.println(tradeRecordEntity);
 			}
 			
-			if(doSell) {
-				trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),note);
-				generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
+			if(tradeRecordEntity!=null) {   //停牌期间不能卖出
+				doSell = false;
+				String note = "";
+				inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
+
+				profitRate = trader.getOnHandProfitRate(detail.getCode());
+				
+				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
+					note = "落选且股价低于"+settings.getSellLine()+"均线";
+					doSell = true;
+					
+				}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
+					note = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
+					doSell = true;
+				}
+				
+				if(doSell) { 
+					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),note);
+					generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
+				}				
 			}
 		}
 		
 		//买入操作
 		for(BluechipDto bluechipDto : bluechips){
-			boolean doBuy = false;
-			String note="";
-
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
-			
-			if(tradeRecordEntity!=null  
-				&& tradeRecordEntity.getUpProbability()> buyValve
-				&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine())   
-				&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
-				){ 
-
-				note = tradeRecordEntity.getUpProbabilityString();
+			if(tradeRecordEntity!=null) {   //停牌期间不能买入
+				boolean doBuy = false;
+				String note="";
 				
-				if(!trader.onHand(bluechipDto.getCode())){
-					doBuy = true;
-				}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
-					note = note + "，加仓买入。";
-					doBuy = true;
+				if(tradeRecordEntity!=null  
+					&& tradeRecordEntity.getUpProbability()> buyValve
+					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine())   
+					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
+					){ 
+
+					note = tradeRecordEntity.getUpProbabilityString();
+					
+					if(!trader.onHand(bluechipDto.getCode())){
+						doBuy = true;
+					}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
+						note = note + "，加仓买入。";
+						doBuy = true;
+					}
 				}
-			}
-			
-			if(doBuy) {
-				trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),note);
-				generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
+				
+				if(doBuy) { 
+					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),note);
+					generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
+				}			
 			}
 		}
 		
 		//限数卖出
+		TradeDetail tradeDetail;
 		if(settings.isOnHandsLimit()) {
 			String note = "超出持股数量，卖出表现最差的股票";
 			List<String> outers = trader.getOuters(settings.getOnHandsLimitNumber());
+			
 			for(String seriesid : outers) {
-				trader.sell(seriesid, sDate, note);
+				tradeDetail = trader.getOnHandTradeDetail(seriesid);
+				tradeRecordEntity = tradeRecordService.getTradeRecordEntity(tradeDetail.getCode(),sDate);
+				if(tradeRecordEntity != null) {
+					trader.sell(seriesid, sDate, note);
+				}
 			}		
 		}
 
@@ -229,10 +242,11 @@ public class SimulationServiceImp implements SimulationService {
 		}
 		List<SimulationView> views = new ArrayList<SimulationView>();
 		
-		Map<String,TradeDetail> details = this.trader.getDetails();
-		for(Map.Entry<String, TradeDetail> entry : details.entrySet()) {
-			detail = entry.getValue();
-			
+		List<TradeDetail> details = this.trader.getSimulationDetails();
+		
+		//details.putAll(this.trader.getOnHands());
+		
+		for(TradeDetail detail : details) {
 			SimulationView buyView = new SimulationView();
 			buyView.setDate(detail.getBuyDate().toString());
 			buyView.setStockcode(detail.getCode());
@@ -241,6 +255,7 @@ public class SimulationServiceImp implements SimulationService {
 			buyView.setBuyorsell("买入");
 			buyView.setPrice(detail.getBuyCost());
 			views.add(buyView);
+			
 			if(detail.getSellDate()!=null){
 				SimulationView sellView = new SimulationView();
 				sellView.setDate(detail.getSellDate().toString());
@@ -306,19 +321,18 @@ public class SimulationServiceImp implements SimulationService {
 		}
 		List<SimulationViewPlus> views = new ArrayList<SimulationViewPlus>();
 		
-		Map<String,TradeDetail> details = this.trader.getDetails();
-		details.putAll(this.trader.getOnHands());
+		List<TradeDetail> details = this.trader.getSimulationDetails();
 		
 		SimulationViewPlus view;
-		for(Map.Entry<String, TradeDetail> entry : details.entrySet()) {
+		for(TradeDetail detail : details) {
 			view = new SimulationViewPlus();
-			view.setStockcode(entry.getValue().getCode());
-			view.setStockname(entry.getValue().getName());
-			view.setQuantity(entry.getValue().getQuantity());
-			view.setBuyDate(entry.getValue().getBuyDate().toString());
-			view.setBuyPrice(entry.getValue().getBuyCost());
-			view.setSellDate(entry.getValue().getSellDate()==null ? "" : entry.getValue().getSellDate().toString());
-			view.setSellPrice(entry.getValue().getSellPrice());
+			view.setStockcode(detail.getCode());
+			view.setStockname(detail.getName());
+			view.setQuantity(detail.getQuantity());
+			view.setBuyDate(detail.getBuyDate().toString());
+			view.setBuyPrice(detail.getBuyCost());
+			view.setSellDate(detail.getSellDate()==null ? "" : detail.getSellDate().toString());
+			view.setSellPrice(detail.getSellPrice());
 			
 			views.add(view);
 		}
@@ -424,6 +438,11 @@ public class SimulationServiceImp implements SimulationService {
 	
 	public String getSettingString() {
 		return this.settings.toString();
+	}
+
+	@Override
+	public String getBuyValue() {
+		return this.buyValve.toString();
 	}
 
 }

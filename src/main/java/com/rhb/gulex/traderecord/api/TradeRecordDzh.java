@@ -4,6 +4,16 @@ public class TradeRecordDzh {
 	private String code;
 	private String name;
 	private String dzhDate;
+	private String okYears;
+	
+	
+	
+	public String getOkYears() {
+		return okYears;
+	}
+	public void setOkYears(String okYears) {
+		this.okYears = okYears;
+	}
 	public String getCode() {
 		return code;
 	}
@@ -24,9 +34,7 @@ public class TradeRecordDzh {
 	}
 	@Override
 	public String toString() {
-		return "TradeRecordDzh [code=" + code + ", name=" + name + ", dzhDate=" + dzhDate + "]";
+		return "TradeRecordDzh [code=" + code + ", name=" + name + ", dzhDate=" + dzhDate + ", okYears=" + okYears
+				+ "]";
 	}
-	
-	
-	
 }

@@ -23,6 +23,7 @@ public interface SimulationService {
 	public List<ValueView> getDayValueViews();
 	
 	public List<ValueView> getYearValueViews();
+	public String getBuyValue();
 	
 	
 	public void setBuyLinePeriod(Integer count);

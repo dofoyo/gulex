@@ -26,7 +26,9 @@ public class Trader {
 	private Integer fixRate;  //表示百分之几
 	
 	
-	
+	public TradeDetail getOnHandTradeDetail(String seriesid) {
+		return onHands.get(seriesid);
+	}
 	
 	public void setAmountFix(boolean amountfix) {
 		this.amountFix = amountfix;
@@ -346,6 +348,12 @@ public class Trader {
 	
 	public Map<String,TradeDetail> getDetails(){
 		return this.details;
+	}
+	
+	public List<TradeDetail> getSimulationDetails(){
+		List<TradeDetail> list = new ArrayList<TradeDetail>(this.details.values());
+		list.addAll(this.onHands.values());
+		return list;
 	}
 	
 	public String getDetailString(){

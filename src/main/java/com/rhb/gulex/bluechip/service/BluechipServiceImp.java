@@ -200,6 +200,14 @@ public class BluechipServiceImp implements BluechipService {
 					//if(bluechip.isOk(year)){
 						//选中
 						isgood = true;
+						
+/*						if(bluechip.getCode().equals("002713") && date.getMonthValue()==4 && date.getYear()==2018) {
+							System.out.print("hasReported,");
+							System.out.print("bluechip.isOk(" + year +")=" + bluechip.isOk(year));
+							System.out.print(",(bluechip.isOk(" + (year-1) +")&&bluechip.isOk(" + (year-2) + "))=" + (bluechip.isOk(year-1) && bluechip.isOk(year-2)));
+							System.out.println("," + bluechip);
+						}*/
+						
 /*						str = "已发布"+year+"年报";
 						if(bluechip.isOk(year)){
 							str = str + "以" + Integer.toString(year) + "年报入选";
@@ -213,6 +221,14 @@ public class BluechipServiceImp implements BluechipService {
 					//if(bluechip.isOk(year-1)){
 						//选中
 						isgood = true;
+						
+/*						if(bluechip.getCode().equals("002713") && date.getMonthValue()==4 && date.getYear()==2018) {
+							System.out.print("bluechip.isOk(" + (year-1) +")=" + bluechip.isOk(year-1));
+							System.out.print(",(bluechip.isOk(" + (year-2) +")&&bluechip.isOk(" + (year-3) + "))=" + (bluechip.isOk(year-2) && bluechip.isOk(year-3)));
+							System.out.println("," + bluechip);
+						}*/
+
+						
 /*						str = "还未发布"+year+"年报";
 						if(bluechip.isOk(year-1)){
 							str = str + "以" + Integer.toString(year-1) + "年报入选";
@@ -270,9 +286,9 @@ public class BluechipServiceImp implements BluechipService {
 		boolean flag = false;
 		
 		List<BluechipDto> dtos = getBluechipDtos(date);
+		
 		for(BluechipDto dto : dtos){
 			if(dto.getCode().equals(stockcode)){
-
 				flag = true;
 				break;
 			}

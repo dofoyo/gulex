@@ -271,9 +271,11 @@ public class ScheduledTask {
 			record.put("date", now.toString());
 			record.put("code", code);
 			record.put("price", tradeData.get("price"));
+			record.put("quantity", tradeData.get("quantity"));
 			records.add(record);
 
 			BigDecimal price;
+			Integer quantity;
 			
 			List<BluechipDto> bluechips = bluechipService.getBluechips(now);
 			
@@ -281,7 +283,8 @@ public class ScheduledTask {
 				tradeData = downloadTradeDataFromQt.go(dto.getCode());
 				date = LocalDate.parse(tradeData.get("date"), formatter);
 				price = new BigDecimal(tradeData.get("price"));
-				if(date.equals(now) && price.compareTo(new BigDecimal(0))==1) {  //判断是否停盘
+				quantity = new Integer(tradeData.get("quantity"));
+				if(date.equals(now) && quantity>0) {  //判断是否停盘
 					
 					tradeRecordService.setTradeRecordEntity(dto.getCode(), now, price);
 					
@@ -289,6 +292,7 @@ public class ScheduledTask {
 					record.put("date", now.toString());
 					record.put("code", dto.getCode());
 					record.put("price", price.toString());
+					record.put("quantity",tradeData.get("quantity"));
 					records.add(record);
 				}
 			}
@@ -306,19 +310,24 @@ public class ScheduledTask {
 	//@Scheduled(cron="0 55 23 ? * 1-5") //每周一至周五，下午15：05，执行一次
 	public void doAll() {
 		this.getNewReport();
+		
 		this.getNewStock();
+		
 		this.generateBluechip();
-		//this.getTradeDataFrom163();
+		
 		this.getTradeDataFromQT();
 		
 		pbRepository.download();
 		
     	tradeRecordService.refresh();
 
+    	reportDateRepository.init();
+    	
+    	stockService.init();
+    	
 		bluechipService.init();
 		
 		simulationService.init();	
-		//this.simulate();
 	}
 
 }

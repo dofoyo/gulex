@@ -14,6 +14,7 @@ public interface TradeRecordService {
 	
 	//public BigDecimal getMidPrice(String stockcode, LocalDate date);
 	
+	public TradeRecordEntity getSimilarTradeRecordEntity(String stockcode, LocalDate date);
 	public TradeRecordEntity getTradeRecordEntity(String stockcode, LocalDate date);
 	
 	public void setTradeRecordEntity(String stockcode,LocalDate date, BigDecimal price);

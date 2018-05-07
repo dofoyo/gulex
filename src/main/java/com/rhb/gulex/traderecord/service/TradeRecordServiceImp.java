@@ -174,7 +174,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 
 
 	@Override
-	public TradeRecordEntity getTradeRecordEntity(String stockcode, LocalDate date) {
+	public TradeRecordEntity getSimilarTradeRecordEntity(String stockcode, LocalDate date) {
 		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
 			init(stockcode);
 		}
@@ -184,6 +184,19 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			return null;
 		}
 		return dto.getSimilarTradeRecordEntity(date);
+	}
+	
+	@Override
+	public TradeRecordEntity getTradeRecordEntity(String stockcode, LocalDate date) {
+		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
+			init(stockcode);
+		}
+		
+		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
+		if(dto==null) {
+			return null;
+		}
+		return dto.getTradeRecordEntity(date);
 	}
 
 	@Override
@@ -235,6 +248,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			tradeRecordDzh = new TradeRecordDzh();
 			tradeRecordDzh.setCode(bluechipEntity.getCode());
 			tradeRecordDzh.setName(bluechipEntity.getName());
+			tradeRecordDzh.setOkYears(bluechipEntity.getOkYearString());
 
 			if(tradeRecordEntities==null || tradeRecordEntities.size()==0) {
 				tradeRecordDzh.setDzhDate("");
@@ -248,25 +262,6 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
 			
 		}
-		
-/*		List<BluechipDto> bluechipDtos = bluechipService.getBluechips(LocalDate.now());
-		for(BluechipDto bluechipDto : bluechipDtos) {
-			if(!tradeRecordDzhs.containsKey(bluechipDto)) {
-				tradeRecordEntities = tradeRecordRepositoryFromDzh.getTradeRecordEntities(bluechipDto.getCode());
-				if(tradeRecordEntities!=null && tradeRecordEntities.size()>=0) {
-					tradeRecordEntity = tradeRecordEntities.get(tradeRecordEntities.size()-1);
-					tradeRecordDzh = new TradeRecordDzh();
-					tradeRecordDzh.setCode(bluechipDto.getCode());
-					tradeRecordDzh.setName(bluechipDto.getName());
-					tradeRecordDzh.setDzhDate(tradeRecordEntity.getDate().toString());
-					
-					tradeRecordDzhs.put(tradeRecordDzh.getCode(),tradeRecordDzh);
-					
-					//System.out.println(tradeRecordDzh);
-
-				}
-			}
-		}*/
 		
 		List<TradeRecordDzh> list = new ArrayList<TradeRecordDzh>(tradeRecordDzhs.values());
 		Collections.sort(list,new Comparator<TradeRecordDzh>() {
@@ -284,14 +279,14 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	@Override
 	public void refresh() {
 		System.out.println("TradeRecordService refresh begin......");
-		Set<String> codes = tradeRecordDtos.keySet();
+		Set<String> codes = new HashSet<String>(tradeRecordDtos.keySet());
 		codes.add("sh000001");
 		int i=0;
 		for(String code : codes) {
 			System.out.print(i++ + "/" + codes.size() + "\r");
 			this.init(code);
 		}
-		System.out.println("there are " + i + " stocks' trade records inited.");
+		System.out.println("there are " + i + " stocks' trade records refreshed.");
 		
 		System.out.println(".........TradeRecordService refresh end.");
 	}
