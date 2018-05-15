@@ -143,16 +143,14 @@ public class SimulationServiceImp implements SimulationService {
 		Integer profitRate;	
 		boolean doSell = false;
 		boolean inGoodPeriod;
+		String note = null;
+		
 		for(TradeDetail detail : onHandDetails) {
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
-			
-			if(detail.getCode().equals("002437") && sDate.equals(LocalDate.parse("2018-04-26"))) {
-				System.out.println(tradeRecordEntity);
-			}
-			
+					
 			if(tradeRecordEntity!=null) {   //停牌期间不能卖出
 				doSell = false;
-				String note = "";
+				note = "";
 				inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
 
 				profitRate = trader.getOnHandProfitRate(detail.getCode());
@@ -171,14 +169,22 @@ public class SimulationServiceImp implements SimulationService {
 					generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
 				}				
 			}
+			
+/*			if(sDate.equals(LocalDate.parse("2018-05-14"))) {
+				System.out.println(detail.getCode());
+				System.out.println(tradeRecordEntity);
+				System.out.println(note);
+			}*/
+			
 		}
 		
 		//买入操作
+		boolean doBuy = false;
 		for(BluechipDto bluechipDto : bluechips){
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
 			if(tradeRecordEntity!=null) {   //停牌期间不能买入
-				boolean doBuy = false;
-				String note="";
+				doBuy = false;
+				note="";
 				
 				if(tradeRecordEntity!=null  
 					&& tradeRecordEntity.getUpProbability()> buyValve
@@ -206,7 +212,7 @@ public class SimulationServiceImp implements SimulationService {
 		//限数卖出
 		TradeDetail tradeDetail;
 		if(settings.isOnHandsLimit()) {
-			String note = "超出持股数量，卖出表现最差的股票";
+			note = "超出持股数量，卖出表现最差的股票";
 			List<String> outers = trader.getOuters(settings.getOnHandsLimitNumber());
 			
 			for(String seriesid : outers) {

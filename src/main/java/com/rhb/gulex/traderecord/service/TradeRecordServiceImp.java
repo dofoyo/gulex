@@ -56,9 +56,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(dzh);
 		}
 		
-		if(stockcode.equals("sh000001")) {
+/*		if(stockcode.equals("002726")) {
 			System.out.println("last date in dzh is " + entities.get(entities.size()-1).getDate());
-		}
+		}*/
 		
 		if(entities.size()>0) {
 			List<TradeRecordEntity> e163 = tradeRecordRepositoryFromQt.getTradeRecordEntities(stockcode,entities.get(entities.size()-1).getDate()); 
@@ -68,9 +68,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(e163);
 		}
 		
-		if(stockcode.equals("sh000001")) {
+/*		if(stockcode.equals("002726")) {
 			System.out.println("last date in qt is " + entities.get(entities.size()-1).getDate());
-		}
+		}*/
 		
 		TradeRecordDTO dto = new TradeRecordDTO();
 		TradeRecordEntity entity;
@@ -193,6 +193,10 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		}
 		
 		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
+/*		if(date.equals(LocalDate.parse("2018-05-14")) && stockcode.equals("002726")){
+			System.out.println(dto);			
+		}
+*/		
 		if(dto==null) {
 			return null;
 		}

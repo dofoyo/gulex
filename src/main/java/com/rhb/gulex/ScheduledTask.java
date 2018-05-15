@@ -277,7 +277,8 @@ public class ScheduledTask {
 			BigDecimal price;
 			Integer quantity;
 			
-			List<BluechipDto> bluechips = bluechipService.getBluechips(now);
+			//List<BluechipDto> bluechips = bluechipService.getBluechips(now);
+			List<BluechipDto> bluechips = bluechipService.getBluechips();
 			
 			for(BluechipDto dto : bluechips) {
 				tradeData = downloadTradeDataFromQt.go(dto.getCode());
