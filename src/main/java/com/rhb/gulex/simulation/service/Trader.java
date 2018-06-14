@@ -152,9 +152,9 @@ public class Trader {
 
 
 
-
+/*
 	public Integer getOnHandLowestProfitRate(String code) {
-		Integer profitRate = 100;
+		Integer profitRate = 0;
 		
 		BigDecimal buyPrice;
 		BigDecimal nowPrice;
@@ -167,18 +167,48 @@ public class Trader {
 				buyPrice = entry.getValue().getBuyCost();
 				nowPrice = entry.getValue().getSellPrice();
 				tRate = nowPrice.subtract(buyPrice).divide(buyPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
-				if(tRate < profitRate) {
-					profitRate = tRate;
-				}
+				//if(tRate < profitRate) {
+					profitRate = Math.abs(tRate);
+				//}
 				
 			}
 		}
 		
-		profitRate = profitRate==100 ? 0 : profitRate;
+		//profitRate = profitRate==100 ? 0 : profitRate;
 		
 		return profitRate;
 		
 	}
+	*/
+	
+	public Integer getOnHandLowestProfitRate(String code) {
+		TradeDetail td = null;
+		
+		Integer profitRate = 0;
+		
+		BigDecimal buyPrice;
+		BigDecimal nowPrice;
+		
+		Integer tRate;
+		
+		BigDecimal value = new BigDecimal(0);
+		for(Map.Entry<String, TradeDetail> entry : onHands.entrySet()) {
+			if(entry.getValue().getCode().equals(code)) {
+				if(td==null || td.getBuyDate().isBefore(entry.getValue().getBuyDate())){
+					td = entry.getValue();
+				}
+			}
+		}
+		
+		buyPrice = td.getBuyCost();
+		nowPrice = td.getSellPrice();
+		tRate = nowPrice.subtract(buyPrice).divide(buyPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+		profitRate = Math.abs(tRate);
+		
+		return profitRate;
+		
+	}
+	
 	
 	public Integer getOnHandProfitRate(String code) {
 		Integer profitRate = 0;
@@ -280,7 +310,7 @@ public class Trader {
 				detail.setBuyCost(price);
 				detail.setSellPrice(price); // 买入时就要赋值，不然无法日结
 				detail.setQuantity(quantity); 
-				detail.setNote(note);
+				detail.setBuynote(note);
 				
 				cash = cash.subtract(price.multiply(new BigDecimal(detail.getQuantity())));  //因为数量增加，现金减少
 				
@@ -295,7 +325,7 @@ public class Trader {
 		
 		detail.setSellDate(date);
 		detail.setSellPrice(price);
-		detail.setNote(note);
+		detail.setSellnote(note);
 		
 		details.put(seriesid,detail);
 		
@@ -310,7 +340,7 @@ public class Trader {
 		
 		detail.setSellDate(date);
 		//detail.setSellPrice(price);//
-		detail.setNote(note);
+		detail.setSellnote(note);
 		
 		details.put(seriesid,detail);
 		
@@ -386,7 +416,9 @@ public class Trader {
 		sb.append(",");
 		sb.append("lowestRate");
 		sb.append(",");
-		sb.append("note");
+		sb.append("buynote");		
+		sb.append(",");
+		sb.append("sellnote");
 		sb.append("\n");
 		
 		List<TradeDetail> list = new ArrayList<TradeDetail>(this.getDetails().values());
@@ -429,7 +461,9 @@ public class Trader {
 			sb.append(",");
 			sb.append(d.getLowestRate());
 			sb.append(",");
-			sb.append(d.getNote());
+			sb.append(d.getBuynote());			
+			sb.append(",");
+			sb.append(d.getSellnote());
 			sb.append("\n");
 		}
 		return sb.toString();

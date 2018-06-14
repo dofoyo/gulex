@@ -13,4 +13,9 @@ public interface PbService {
 	public BigDecimal getHsagRate(LocalDate date);
 	
 	public Integer getBuyValve(LocalDate date);
+	
+	public List<String> getHsagPbsList();
+	
+	public Integer getBuyValve(String pb);
+
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.rhb.gulex.bluechip.service.BluechipService;
 import com.rhb.gulex.financialstatement.spider.DownloadFinancialStatements;
 import com.rhb.gulex.pb.repository.PbRepository;
+import com.rhb.gulex.pb.service.PbService;
 import com.rhb.gulex.reportdate.repository.ReportDateRepository;
 import com.rhb.gulex.reportdate.spider.DownloadReportedStockList;
 import com.rhb.gulex.simulation.service.BluechipDto;
@@ -111,6 +112,10 @@ public class ScheduledTask {
 	@Autowired
 	@Qualifier("PbRepositoryImp")
 	PbRepository pbRepository;
+	
+	@Autowired
+	@Qualifier("PbServiceImp")
+	PbService pbService;
 	
 	
 	//@Scheduled(cron="0 0 5 ? * *") //每日凌晨5点，下载最新年报
@@ -308,7 +313,7 @@ public class ScheduledTask {
 	}
 	
 	@Scheduled(cron="0 15 9,15 ? * 1-5") //每周一至周五，上午9：15和下午15：15，执行一次
-	//@Scheduled(cron="0 55 23 ? * 1-5") //每周一至周五，下午15：05，执行一次
+	//@Scheduled(cron="0 55 17 ? * 1-5") //每周一至周五，下午17：55，执行一次
 	public void doAll() {
 		this.getNewReport();
 		
@@ -319,6 +324,8 @@ public class ScheduledTask {
 		this.getTradeDataFromQT();
 		
 		pbRepository.download();
+		
+		pbService.init();
 		
     	tradeRecordService.refresh();
 

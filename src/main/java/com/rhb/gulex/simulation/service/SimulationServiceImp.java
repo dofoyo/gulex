@@ -143,29 +143,30 @@ public class SimulationServiceImp implements SimulationService {
 		Integer profitRate;	
 		boolean doSell = false;
 		boolean inGoodPeriod;
-		String note = null;
+		String buynote = null;
+		String sellnote = null;
 		
 		for(TradeDetail detail : onHandDetails) {
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
 					
 			if(tradeRecordEntity!=null) {   //停牌期间不能卖出
 				doSell = false;
-				note = "";
+				sellnote = "";
 				inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
 
 				profitRate = trader.getOnHandProfitRate(detail.getCode());
 				
 				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
-					note = "落选且股价低于"+settings.getSellLine()+"均线";
+					sellnote = "落选且股价低于"+settings.getSellLine()+"均线";
 					doSell = true;
 					
 				}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
-					note = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
+					sellnote = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
 					doSell = true;
 				}
 				
 				if(doSell) { 
-					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),note);
+					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),sellnote);
 					generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
 				}				
 			}
@@ -184,7 +185,7 @@ public class SimulationServiceImp implements SimulationService {
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
 			if(tradeRecordEntity!=null) {   //停牌期间不能买入
 				doBuy = false;
-				note="";
+				buynote= "ipo=" + bluechipDto.getIpoDate().toString() + " ";
 				
 				if(tradeRecordEntity!=null  
 					&& tradeRecordEntity.getUpProbability()> buyValve
@@ -192,18 +193,18 @@ public class SimulationServiceImp implements SimulationService {
 					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
 					){ 
 
-					note = tradeRecordEntity.getUpProbabilityString();
+					buynote = buynote +  tradeRecordEntity.getUpProbabilityString();
 					
 					if(!trader.onHand(bluechipDto.getCode())){
 						doBuy = true;
 					}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
-						note = note + "，加仓买入。";
+						buynote = buynote + " 加仓买入。";
 						doBuy = true;
 					}
 				}
 				
 				if(doBuy) { 
-					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),note);
+					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),buynote);
 					generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
 				}			
 			}
@@ -212,14 +213,14 @@ public class SimulationServiceImp implements SimulationService {
 		//限数卖出
 		TradeDetail tradeDetail;
 		if(settings.isOnHandsLimit()) {
-			note = "超出持股数量，卖出表现最差的股票";
+			sellnote = "超出持股数量，卖出表现最差的股票";
 			List<String> outers = trader.getOuters(settings.getOnHandsLimitNumber());
 			
 			for(String seriesid : outers) {
 				tradeDetail = trader.getOnHandTradeDetail(seriesid);
 				tradeRecordEntity = tradeRecordService.getTradeRecordEntity(tradeDetail.getCode(),sDate);
 				if(tradeRecordEntity != null) {
-					trader.sell(seriesid, sDate, note);
+					trader.sell(seriesid, sDate, sellnote);
 				}
 			}		
 		}

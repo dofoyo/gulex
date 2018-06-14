@@ -19,7 +19,7 @@ public class BluechipServiceTest {
 	@Autowired
 	BluechipService bluechipService;
 	
-	//@Test
+	@Test
 	public void test1(){
 		bluechipService.generateBluechip();
 	}

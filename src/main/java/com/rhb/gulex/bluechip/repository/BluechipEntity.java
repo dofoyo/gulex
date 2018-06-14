@@ -49,10 +49,10 @@ public class BluechipEntity {
 		return okYears;
 	}
 	
-	public Set<Integer> getOkYears(Integer year){
+	public Set<Integer> getOkYears(Integer ipoyear){
 		Set<Integer> years = new HashSet<Integer>();
 		for(Integer i : okYears) {
-			if(i>=year) {
+			if(i>=ipoyear+1) {    //ip二年后的年报才有意义。如2017年上市时，出的是2016年的年报，至少是2018年的年报才有意义（那时已是2019年了）
 				years.add(i);
 			}
 		}

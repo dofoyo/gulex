@@ -5,9 +5,15 @@ public class TradeRecordDzh {
 	private String name;
 	private String dzhDate;
 	private String okYears;
+	private String ipoDate;
 	
 	
-	
+	public String getIpoDate() {
+		return ipoDate;
+	}
+	public void setIpoDate(String ipoDate) {
+		this.ipoDate = ipoDate;
+	}
 	public String getOkYears() {
 		return okYears;
 	}
@@ -35,6 +41,7 @@ public class TradeRecordDzh {
 	@Override
 	public String toString() {
 		return "TradeRecordDzh [code=" + code + ", name=" + name + ", dzhDate=" + dzhDate + ", okYears=" + okYears
-				+ "]";
+				+ ", ipoDate=" + ipoDate + "]";
 	}
+
 }

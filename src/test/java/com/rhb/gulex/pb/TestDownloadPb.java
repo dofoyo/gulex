@@ -19,7 +19,7 @@ public class TestDownloadPb {
 	
 	@Test
 	public void test() {
-		downloadPB.downloadAll();
+		//downloadPB.downloadAll();
 	}
 
 }

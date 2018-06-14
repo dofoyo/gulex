@@ -27,7 +27,7 @@ public class TradeRecordRepositoryImpFromDzh implements TradeRecordRepository {
 		
 		File file = new File(pathAndfileName);
 		if(!file.exists()){
-			//System.out.println(pathAndfileName + " do NOT exist.");
+			System.out.println(pathAndfileName + " do NOT exist.");
 			return null;
 		}
 		

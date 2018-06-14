@@ -16,15 +16,23 @@ public class TradeDetail {
 	private BigDecimal lowestPrice = new BigDecimal(1000);
 	private BigDecimal highestPrice = new BigDecimal(0);
 	
-	private String note = "";
+	private String buynote = "";
+	private String sellnote = "";
 	
 	
-	public String getNote() {
-		return note;
+
+	public String getBuynote() {
+		return buynote;
 	}
-	public void setNote(String note) {
-		this.note = this.note + note;
-	} 
+	public void setBuynote(String buynote) {
+		this.buynote = buynote;
+	}
+	public String getSellnote() {
+		return sellnote;
+	}
+	public void setSellnote(String sellnote) {
+		this.sellnote = sellnote;
+	}
 	public BigDecimal getLowestPrice() {
 		return lowestPrice;
 	}
@@ -117,7 +125,7 @@ public class TradeDetail {
 	public String toString() {
 		return "TradeDetail [seriesid=" + seriesid + ", code=" + code + ", name=" + name + ", quantity=" + quantity
 				+ ", buyDate=" + buyDate + ", buyCost=" + buyCost + ", sellDate=" + sellDate + ", sellPrice="
-				+ sellPrice + ", lowestPrice=" + lowestPrice + ", highestPrice=" + highestPrice + ", note=" + note
+				+ sellPrice + ", lowestPrice=" + lowestPrice + ", highestPrice=" + highestPrice + ", buynote=" + buynote + ", sellnote=" + sellnote
 				+ "]";
 	}
 

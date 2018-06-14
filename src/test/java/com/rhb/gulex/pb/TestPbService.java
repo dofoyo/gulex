@@ -1,5 +1,6 @@
 package com.rhb.gulex.pb;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,14 @@ public class TestPbService {
 	
 	@Test
 	public void test2() {
-		LocalDate date = LocalDate.parse("2014-05-05");
-		System.out.println(pbService.getHsagRate(date));
+		List<String> list = pbService.getHsagPbsList();
+		
+		BigDecimal total = new BigDecimal(list.size());
+		int i = 0;
+		for(String str : list) {
+			System.out.println(str + ", " + new BigDecimal(i++).divide(total,2,BigDecimal.ROUND_HALF_UP) + ", " + pbService.getBuyValve(str));
+		}
+		LocalDate date = LocalDate.parse("2011-01-17");
+		System.out.println("buy value = " + pbService.getBuyValve(date));
 	}
 }

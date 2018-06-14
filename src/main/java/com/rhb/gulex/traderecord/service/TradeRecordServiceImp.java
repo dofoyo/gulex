@@ -56,9 +56,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(dzh);
 		}
 		
-/*		if(stockcode.equals("002726")) {
+		if(stockcode.equals("sh000001") && entities.size()>1) {
 			System.out.println("last date in dzh is " + entities.get(entities.size()-1).getDate());
-		}*/
+		}
 		
 		if(entities.size()>0) {
 			List<TradeRecordEntity> e163 = tradeRecordRepositoryFromQt.getTradeRecordEntities(stockcode,entities.get(entities.size()-1).getDate()); 
@@ -68,9 +68,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entities.addAll(e163);
 		}
 		
-/*		if(stockcode.equals("002726")) {
+		if(stockcode.equals("sh000001") && entities.size()>1) {
 			System.out.println("last date in qt is " + entities.get(entities.size()-1).getDate());
-		}*/
+		}
 		
 		TradeRecordDTO dto = new TradeRecordDTO();
 		TradeRecordEntity entity;
@@ -253,6 +253,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			tradeRecordDzh.setCode(bluechipEntity.getCode());
 			tradeRecordDzh.setName(bluechipEntity.getName());
 			tradeRecordDzh.setOkYears(bluechipEntity.getOkYearString());
+			tradeRecordDzh.setIpoDate(bluechipEntity.getIpoDate());
 
 			if(tradeRecordEntities==null || tradeRecordEntities.size()==0) {
 				tradeRecordDzh.setDzhDate("");

@@ -68,8 +68,6 @@ public class BluechipServiceImp implements BluechipService {
 		Map<String,BluechipEntity>bluechips = new HashMap<String,BluechipEntity>();
 		BluechipEntity bluechip;
 		LocalDate ipoDate;
-		Integer ipoYear;
-		Integer okYear;
 		StockDTO stockdto;
 		
 		int i=0;
@@ -85,7 +83,11 @@ public class BluechipServiceImp implements BluechipService {
 				bluechip = new BluechipEntity();
 				bluechip.setCode(dto.getStockcode());
 				bluechip.setName(stockdto.getName());
-
+				
+				ipoDate = tradeRecordService.getIpoDate(dto.getStockcode());
+				if(ipoDate != null) {
+					bluechip.setIpoDate(ipoDate.toString());
+				}
 			}
 			bluechip.addOkYear(dto.getYear());
 			bluechip.setReportDates(reportDateRepository.getReportDates(dto.getStockcode()));
@@ -114,6 +116,7 @@ public class BluechipServiceImp implements BluechipService {
 			System.out.print(i++ + "/" + entities.size() + "\r");
 			
 			ipoDate = tradeRecordService.getIpoDate(entity.getCode()); 
+			//ipoDate = LocalDate.parse(entity.getIpoDate());
 			
 			//如果ipoDate==null，说明该股还未上市，还无法初始化bluechip
 			if(ipoDate!=null) { 

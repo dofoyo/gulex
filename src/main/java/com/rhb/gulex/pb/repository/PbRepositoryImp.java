@@ -3,7 +3,6 @@ package com.rhb.gulex.pb.repository;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rhb.gulex.pb.spider.DownloadPB;
 import com.rhb.gulex.pb.spider.PbEntity;
-import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
-import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 
 @Service("PbRepositoryImp")
 public class PbRepositoryImp implements PbRepository {
@@ -31,10 +28,6 @@ public class PbRepositoryImp implements PbRepository {
 	@Autowired
 	@Qualifier("DownloadPBFromCsindex")
 	DownloadPB sownloadPB;
-	
-	@Autowired
-	@Qualifier("TradeRecordRepositoryImpFrom163")
-	TradeRecordRepository tradeRecordRepositoryFrom163;
 	
 	private List<PbEntity> entities = null;
 	
@@ -68,19 +61,18 @@ public class PbRepositoryImp implements PbRepository {
 			this.init();
 		}
 		
-		LocalDate lastDate = this.getLastDate();
+		LocalDate lastDate = this.getLastDate().plusDays(1);
+		LocalDate now = LocalDate.now();
 		
-		List<LocalDate> dates = this.getTradeDate();
-		
-		for(LocalDate date : dates) {
-			//System.out.println(date.toString());
-			if(date.isAfter(lastDate)) {
-				PbEntity entity =  sownloadPB.download(date.toString());
-				//System.out.println(entity);
-				entities.add(entity);
+		while(lastDate.isBefore(now)) {
+			PbEntity entity =  sownloadPB.download(lastDate.toString());
+			//System.out.println(entity);
+			if(entity != null) {
+				entities.add(entity);			
 			}
+			lastDate = lastDate.plusDays(1);
 		}
-		
+
 		writeToFile(dataPath+filename, entities);
 		
 	}
@@ -98,20 +90,6 @@ public class PbRepositoryImp implements PbRepository {
 		}
 	}
 	
-	private List<LocalDate> getTradeDate(){
-		LocalDate beginDate = LocalDate.parse("2018-04-04");
-		String code = "sh000001"; //以上证指数的交易日期作为历史交易日历
-		List<LocalDate> dates = new ArrayList<LocalDate>();
-		List<TradeRecordEntity> records = tradeRecordRepositoryFrom163.getTradeRecordEntities(code);
-		for(TradeRecordEntity record : records){
-			//System.out.print(record.getDate());
-			if(record.getDate().isAfter(beginDate)){
-				dates.add(record.getDate());
-				//System.out.println("   y");
-			}
-		}
-		return dates;
-	}
 	
 	private LocalDate getLastDate() {
 		String date = this.entities.get(this.entities.size()-1).getDate();

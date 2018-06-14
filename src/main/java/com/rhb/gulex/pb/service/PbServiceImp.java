@@ -25,9 +25,18 @@ public class PbServiceImp implements PbService {
 	@Qualifier("PbRepositoryImp")
 	PbRepository pbRepository;
 	
-	private Map<String,String> hsagPbsMap = null;
+	private Map<String,String> hsagPbsMap = null;  // hsag表示沪深A股
 	private List<String> hsagPbsList = null;
 	
+	public List<String> getHsagPbsList() {
+		if(hsagPbsList == null) {
+			this.init();
+		}		
+		return hsagPbsList;
+	}
+
+
+
 	@Override
 	public List<Map<String, String>> getHsagPbs() {
 		List<Map<String,String>> list = new ArrayList();
@@ -44,6 +53,35 @@ public class PbServiceImp implements PbService {
 	
 	
 
+/*	@Override
+	public BigDecimal getHsagRate(LocalDate date) {
+		if(hsagPbsMap == null) {
+			this.init();
+		}
+		
+		String hsag = hsagPbsMap.get(date.toString());
+		for(int i=0; i<hsagPbsMap.size() && hsag==null; i++) {
+			date = date.minusDays(1);
+			hsag = hsagPbsMap.get(date.toString());
+		}
+		
+		System.out.println(date + "'s hsag = " + hsag);
+		BigDecimal location;
+		if(hsagPbsList.contains(hsag)) {
+			location = new BigDecimal(hsagPbsList.indexOf(hsag));
+		}else {
+			location = new BigDecimal(hsagPbsList.size()-1);
+		}
+		
+		
+		System.out.println("location = " + location);
+		BigDecimal rate = location.divide(new BigDecimal(hsagPbsList.size()),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+		
+		System.out.println("rate = " + rate);
+		
+		return rate;
+	}*/
+	
 	@Override
 	public BigDecimal getHsagRate(LocalDate date) {
 		if(hsagPbsMap == null) {
@@ -53,22 +91,40 @@ public class PbServiceImp implements PbService {
 		String hsag = hsagPbsMap.get(date.toString());
 		for(int i=0; i<hsagPbsMap.size() && hsag==null; i++) {
 			date = date.minusDays(1);
-			 hsag = hsagPbsMap.get(date.toString());
+			hsag = hsagPbsMap.get(date.toString());
 		}
 		
-		//System.out.println(date + "'s hsag = " + hsag);
+		//System.out.println(date + "'s hsagpb = " + hsag);
+		
+		if(hsag == null) {
+			return new BigDecimal(50);
+		}else {
+			return this.getHsagRate(hsag);
+		}
+		
+	}
+	
+	
+	private BigDecimal getHsagRate(String pb) {
+		if(hsagPbsMap == null) {
+			this.init();
+		}
+		
 		BigDecimal location;
-		if(hsagPbsList.contains(hsag)) {
-			location = new BigDecimal(hsagPbsList.indexOf(hsag));
+		if(hsagPbsList.contains(pb)) {
+			location = new BigDecimal(hsagPbsList.indexOf(pb));
 		}else {
 			location = new BigDecimal(hsagPbsList.size()-1);
+			System.out.println("can NOT fine the pb of " + pb + ", maybe something ERROR.");
 		}
 		
 		
-		//System.out.println("location = " + location);
-		//Integer rate = location.divide(new BigDecimal(hsagPbsList.size()),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+		//System.out.println("location = " + location + "/" + hsagPbsList.size());
+		BigDecimal rate = location.divide(new BigDecimal(hsagPbsList.size()),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
 		
-		return location.divide(new BigDecimal(hsagPbsList.size()),2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100));
+		//System.out.println("rate = " + rate);
+		
+		return rate;
 	}
 
 	@Override
@@ -110,6 +166,14 @@ public class PbServiceImp implements PbService {
 	public Integer getBuyValve(LocalDate date) {
 		BigDecimal coefficient = new BigDecimal(2.8);
 		Integer valve =this.getHsagRate(date).multiply(coefficient).intValue();
+		
+		return valve>85 ? 85 : (valve<50 ? 50 : valve);
+	}
+	
+	@Override
+	public Integer getBuyValve(String pb) {
+		BigDecimal coefficient = new BigDecimal(2.8);
+		Integer valve =this.getHsagRate(pb).multiply(coefficient).intValue();
 		
 		return valve>85 ? 85 : (valve<50 ? 50 : valve);
 	}

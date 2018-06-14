@@ -121,6 +121,10 @@ public class StockServiceImp implements StockService{
 
 	@Override
 	public StockDTO getStock(String code) {
+		if(stocks == null) {
+			this.init();
+		}
+		
 		Stock stock = stocks.get(code);
 		
 		StockDTO dto = new StockDTO();

@@ -13,16 +13,19 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		ReportDateRepository rdr = event.getApplicationContext().getBean(ReportDateRepository.class);
-		rdr.init();
 		
 		StockService ss = event.getApplicationContext().getBean(StockService.class);
-		ss.init();
 		
 		BluechipService bs =  event.getApplicationContext().getBean(BluechipService.class);
-		bs.init();
 		
 		SimulationService simu =  event.getApplicationContext().getBean(SimulationService.class);
+	
+		rdr.init();
+		ss.init();
+		bs.init();
 		simu.init();
+
+	
 	}
 
 }

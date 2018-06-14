@@ -11,17 +11,7 @@ public class SimulationSettings {
 	private boolean autoBuyValveByWinLossRatio = false;
 	private Integer buyValvePeriodOfWinLossRatio = 5;
 	private Integer buyLine = 120; //股价再120均线上，才可买入
-	private Integer noBuyDays = 300; //新股禁入期间，再此期间内不买入。  400表示上市1年后，该股票原始股的中小股东的解禁后才能购买
-	
-	
-	
-	public boolean isAutoValveByPb() {
-		return autoValveByPb;
-	}
-
-	public void setAutoValveByPb(boolean autoValveByPb) {
-		this.autoValveByPb = autoValveByPb;
-	}
+	private Integer noBuyDays = 300; //新股禁入期间，再此期间内不买入。  300表示上市1年后，该股票原始股的中小股东的解禁后才能购买
 
 	//（买入）融资设置：
 	private boolean financing = true;
@@ -33,7 +23,7 @@ public class SimulationSettings {
 
 	//（买入）加仓设置：
 	private boolean addMore = true;
-	private Integer addMoreThan = 20; //最近一次买入上涨20%以上，再次出现买点，可以加仓
+	private Integer addMoreThan = 10; //最近一次买入上涨10%以上，再次出现买点，可以加仓
 
 	//（卖出）止盈设置
 	private Integer sellLine = 60; //落选后，股价跌破60日均线，即卖出；可选项为20，30，60，120
@@ -58,6 +48,17 @@ public class SimulationSettings {
 		this.buyValve = this.buyValve>85? 85 : (this.buyValve<50 ? 50 : this.buyValve);
 		
 		return this.buyValve;
+	}
+	
+	
+	
+	
+	public boolean isAutoValveByPb() {
+		return autoValveByPb;
+	}
+
+	public void setAutoValveByPb(boolean autoValveByPb) {
+		this.autoValveByPb = autoValveByPb;
 	}
 	
 	public Integer getBuyValve() {
