@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +45,8 @@ import com.rhb.gulex.util.LineChartDTO;
 
 @Service("SimulationServiceImp")
 public class SimulationServiceImp implements SimulationService {
+	protected static final Logger logger = LoggerFactory.getLogger(SimulationServiceImp.class);
+	
 	@Value("${dataPath}")
 	private String dataPath;
 	
@@ -127,6 +131,8 @@ public class SimulationServiceImp implements SimulationService {
 	 */
 	@Override
 	public void trade(LocalDate sDate) {
+		//System.out.print(sDate.toString()+ ", ");
+		
 		List<BluechipDto> bluechips = bluechipService.getBluechips(sDate);
 
 		this.buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
@@ -156,9 +162,14 @@ public class SimulationServiceImp implements SimulationService {
 
 				profitRate = trader.getOnHandProfitRate(detail.getCode());
 				
+				
 				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
-					sellnote = "落选且股价低于"+settings.getSellLine()+"均线";
+					sellnote = "落选，且股价低于"+settings.getSellLine()+"均线";
 					doSell = true;
+					
+/*				}else if(inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine()) && profitRate >= 5){
+					sellnote = "选中期间，买入后股价低于"+settings.getSellLine()+"均线，且盈利";
+					doSell = true;*/
 					
 				}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
 					sellnote = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
@@ -171,11 +182,6 @@ public class SimulationServiceImp implements SimulationService {
 				}				
 			}
 			
-/*			if(sDate.equals(LocalDate.parse("2018-05-14"))) {
-				System.out.println(detail.getCode());
-				System.out.println(tradeRecordEntity);
-				System.out.println(note);
-			}*/
 			
 		}
 		
@@ -184,25 +190,44 @@ public class SimulationServiceImp implements SimulationService {
 		for(BluechipDto bluechipDto : bluechips){
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
 			if(tradeRecordEntity!=null) {   //停牌期间不能买入
-				doBuy = false;
-				buynote= "ipo=" + bluechipDto.getIpoDate().toString() + " ";
 				
+				doBuy = false;
+				
+				//根据气球模型（120均线上堆积成交越多，股价上涨的概率越大）
 				if(tradeRecordEntity!=null  
 					&& tradeRecordEntity.getUpProbability()> buyValve
-					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine())   
+					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine()) //120日均线   
 					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
 					){ 
 
-					buynote = buynote +  tradeRecordEntity.getUpProbabilityString();
+					buynote = tradeRecordEntity.getUpProbabilityString();
 					
 					if(!trader.onHand(bluechipDto.getCode())){
 						doBuy = true;
 					}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
-						buynote = buynote + " 加仓买入。";
+						buynote = buynote + " ，加仓";
 						doBuy = true;
 					}
 				}
 				
+				
+/*				//按均线操作
+				if(tradeRecordEntity.getBuyDay()>0 
+					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays()) {
+					//int i = trader.countOnHands(bluechipDto.getCode());
+					doBuy = true;
+					
+					
+					if(tradeRecordEntity.getBuyDay()==1) {
+						buynote = "60日线上穿120线，买入";
+					}else{
+						buynote = "120日线上穿250线，加仓";
+					}
+
+					logger.info(buynote + ", " +tradeRecordEntity.toString());
+					
+				}
+*/				
 				if(doBuy) { 
 					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),buynote);
 					generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
@@ -255,22 +280,24 @@ public class SimulationServiceImp implements SimulationService {
 		
 		for(TradeDetail detail : details) {
 			SimulationView buyView = new SimulationView();
-			buyView.setDate(detail.getBuyDate().toString());
+			buyView.setDate(detail.getBuyDate());
 			buyView.setStockcode(detail.getCode());
 			buyView.setStockname(detail.getName());
 			buyView.setQuantity(detail.getQuantity());
 			buyView.setBuyorsell("买入");
 			buyView.setPrice(detail.getBuyCost());
+			buyView.setNote(detail.getBuynote());
 			views.add(buyView);
 			
 			if(detail.getSellDate()!=null){
 				SimulationView sellView = new SimulationView();
-				sellView.setDate(detail.getSellDate().toString());
+				sellView.setDate(detail.getSellDate());
 				sellView.setStockcode(detail.getCode());
 				sellView.setStockname(detail.getName());
 				sellView.setQuantity(-1*detail.getQuantity());
 				sellView.setBuyorsell("卖出");
 				sellView.setPrice(detail.getSellPrice());
+				sellView.setNote(detail.getSellnote());
 				views.add(sellView);				
 			}
 			

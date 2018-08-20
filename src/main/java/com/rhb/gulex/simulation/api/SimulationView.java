@@ -1,18 +1,25 @@
 package com.rhb.gulex.simulation.api;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class SimulationView {
-	private String date;
+	private LocalDate date;
 	private String stockcode;
 	private String stockname;
 	private String buyorsell;
 	private BigDecimal price;
 	private Integer quantity;
-	public String getDate() {
+	private String note;
+	
+	
+	public LocalDate getDate() {
 		return date;
 	}
-	public void setDate(String date) {
+	public String getDateString() {
+		return date.toString();
+	}
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 	public String getBuyorsell() {
@@ -44,6 +51,12 @@ public class SimulationView {
 	}
 	public void setStockcode(String stockcode) {
 		this.stockcode = stockcode;
+	}
+	public String getNote() {
+		return note;
+	}
+	public void setNote(String note) {
+		this.note = note;
 	}
 	
 	

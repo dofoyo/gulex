@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.rhb.gulex.traderecord.api.TradeRecordDzh;
+import com.rhb.gulex.traderecord.api.TradeRecordJdh;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 
 public interface TradeRecordService {
@@ -20,6 +21,8 @@ public interface TradeRecordService {
 	public void setTradeRecordEntity(String stockcode,LocalDate date, BigDecimal price);
 	
 	public List<TradeRecordDzh> getDzhs();
+	public List<TradeRecordJdh> getJdhs();
+
 	
 	public void refresh();
 	

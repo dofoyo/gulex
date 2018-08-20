@@ -73,14 +73,22 @@ public class TradeRecordController {
 		
 	}
 	
+	@GetMapping("/jdh")
+	public ResponseContent<List<TradeRecordJdh>> getDzhs(){
+		
+		List<TradeRecordJdh> tradeRecordJdhs = tradeRecordService.getJdhs();
+
+		return new ResponseContent<List<TradeRecordJdh>>(ResponseEnum.SUCCESS, tradeRecordJdhs);
+	}
+
+	
 	@GetMapping("/dzh")
-	public ResponseContent<List<TradeRecordDzh>> getDzhs(){
+	public ResponseContent<List<TradeRecordDzh>> getJdhs(){
 		
 		List<TradeRecordDzh> tradeRecordDzhs = tradeRecordService.getDzhs();
 
 		return new ResponseContent<List<TradeRecordDzh>>(ResponseEnum.SUCCESS, tradeRecordDzhs);
 	}
-
 	
     @PostMapping("/updzh")
     public ResponseContent<String> updzh(@RequestParam("file") MultipartFile[] files) {

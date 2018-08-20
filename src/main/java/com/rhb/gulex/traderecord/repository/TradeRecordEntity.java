@@ -9,23 +9,30 @@ public class TradeRecordEntity {
 	private BigDecimal price;
 	private BigDecimal av120;
 	private BigDecimal av60;
-	private BigDecimal av30;
+	private BigDecimal av250;
 	private Integer aboveAv120Days;
 	private BigDecimal midPrice;
+	private Integer buyDay = 0;
 	
 	
 	
+	public Integer getBuyDay() {
+		return buyDay;
+	}
+	public void setBuyDay(Integer buyDay) {
+		this.buyDay = buyDay;
+	}
 	public String getCode() {
 		return code;
 	}
 	public void setCode(String code) {
 		this.code = code;
 	}
-	public BigDecimal getAv30() {
-		return av30;
+	public BigDecimal getAv250() {
+		return av250;
 	}
-	public void setAv30(BigDecimal av30) {
-		this.av30 = av30;
+	public void setAv250(BigDecimal av250) {
+		this.av250 = av250;
 	}
 	public BigDecimal getAv60() {
 		return av60;
@@ -68,25 +75,33 @@ public class TradeRecordEntity {
 	public boolean isPriceOnAv(Integer av) {
 		boolean flag = false;
 		switch(av) {
-			case 30: flag = isPriceOnAv30(); break;
 			case 60: flag =  isPriceOnAv60(); break;
 			case 120: flag = isPriceOnAv120(); break;
+			case 250: flag = isPriceOnAv250(); break;
 			default: flag =  isPriceOnAv60();
 		}
 		
 		return flag;
 	}
+
+	public boolean is120On250() {
+		return (av250!=null && av120!=null && av120.compareTo(av250)==1) ? true : false;
+	}
+	
+	public boolean is60On120() {
+		return (av60!=null && av120!=null && av60.compareTo(av120)==1) ? true : false;
+	}
 	
 	private boolean isPriceOnAv120(){
-		return (price!=null && av120!=null && price.compareTo(av120)==-1) ? false : true;
+		return (price!=null && av120!=null && price.compareTo(av120)==1) ? true : false;
 	}
 	
 	private boolean isPriceOnAv60() {
-		return (price!=null && av60!=null && price.compareTo(av60)==-1) ? false : true;
+		return (price!=null && av60!=null && price.compareTo(av60)==1) ? true : false;
 	}
 	
-	private boolean isPriceOnAv30() {
-		return (price!=null && av30!=null && price.compareTo(av30)==-1) ? false : true;
+	private boolean isPriceOnAv250() {
+		return (price!=null && av250!=null && price.compareTo(av250)==1) ? true : false;
 	}
 	
 	public Integer getBiasOfAv120(){
@@ -145,14 +160,15 @@ public class TradeRecordEntity {
 	}
 	
 	public String getUpProbabilityString() {
-		return  "upProbability=" + this.aboveAv120Days.toString() +"-"+ this.getBiasOfAv120().toString() +"-"+ this.getBiasOfMidPrice().toString() + "=" + getUpProbability().toString();
+		return  "上涨概率大（" + getUpProbability().toString()+")";
 	}
 	@Override
 	public String toString() {
 		return "TradeRecordEntity [code=" + code + ", date=" + date + ", price=" + price + ", av120=" + av120
-				+ ", av60=" + av60 + ", av30=" + av30 + ", aboveAv120Days=" + aboveAv120Days + ", midPrice=" + midPrice
-				+ "]";
+				+ ", av60=" + av60 + ", av250=" + av250 + ", aboveAv120Days=" + aboveAv120Days + ", midPrice="
+				+ midPrice + ", buyDay=" + buyDay + "]";
 	}
+
 	
 
 

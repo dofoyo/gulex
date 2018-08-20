@@ -11,20 +11,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.rhb.gulex.bluechip.api.BluechipView;
 import com.rhb.gulex.bluechip.repository.BluechipEntity;
 import com.rhb.gulex.bluechip.repository.BluechipRepository;
 import com.rhb.gulex.bluechip.service.BluechipService;
-import com.rhb.gulex.simulation.service.BluechipDto;
 import com.rhb.gulex.traderecord.api.TradeRecordDzh;
+import com.rhb.gulex.traderecord.api.TradeRecordJdh;
 import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 
 @Service("TradeRecordServiceImp")
 public class TradeRecordServiceImp implements TradeRecordService {
+	protected static final Logger logger = LoggerFactory.getLogger(TradeRecordServiceImp.class);
 
 	@Autowired
 	@Qualifier("TradeRecordRepositoryImpFromDzh")
@@ -33,10 +37,6 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	@Autowired
 	@Qualifier("TradeRecordRepositoryFromQt")
 	TradeRecordRepository tradeRecordRepositoryFromQt;
-/*	
-	@Autowired
-	@Qualifier("TradeRecordRepositoryImpFrom163")
-	TradeRecordRepository tradeRecordRepositoryFrom163;*/
 	
 	@Autowired
 	@Qualifier("BluechipRepositoryImp")
@@ -45,6 +45,12 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	@Autowired
 	@Qualifier("BluechipServiceImp")
 	BluechipService bluechipService;
+	
+	
+	@Autowired
+	@Qualifier("TradeRecordServiceImp")
+	TradeRecordService tradeRecordService;
+	
 	
 	
 	Map<String,TradeRecordDTO> tradeRecordDtos = new HashMap<String,TradeRecordDTO>(); //stockcode - TradeRecordDTO
@@ -73,15 +79,36 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		}
 		
 		TradeRecordDTO dto = new TradeRecordDTO();
-		TradeRecordEntity entity;
+		TradeRecordEntity entity = null;
+		TradeRecordEntity previous = null;
 		for(int i=0; i<entities.size(); i++) {
+			if(i==0) {
+				previous = entities.get(i);
+			}else{
+				previous = entities.get(i-1);
+			}
 			entity = entities.get(i);
 			entity.setAv120(calAvaragePrice(entities.subList(0, i),entity.getPrice(),120));
 			entity.setAv60(calAvaragePrice(entities.subList(0, i),entity.getPrice(),60));
-			entity.setAv30(calAvaragePrice(entities.subList(0, i),entity.getPrice(),30));
+			entity.setAv250(calAvaragePrice(entities.subList(0, i),entity.getPrice(),250));
 			entity.setAboveAv120Days(calAboveAv120Days(entities.subList(0, i)));
 			entity.setMidPrice(calMidPrice(entities.subList(0, i),entity.getPrice()));
 
+			
+			if(!previous.is60On120() && entity.is60On120() && !entity.is120On250()) {
+/*				if(entity.getCode().equals("300015")) {
+					System.out.println(stockcode + "," + previous.getDate().toString() + ",av60=" + entity.getAv60() + ",av120=" + entity.getAv120() + ",setBuyDay(1)");
+				}*/
+				entity.setBuyDay(1);
+			}else if(!previous.is120On250() && entity.is60On120() && entity.is120On250()) {
+/*				if(entity.getCode().equals("300015")) {
+					System.out.println(stockcode + "," + previous.getDate().toString() + ",av120=" + entity.getAv120() + ",av250=" + entity.getAv250() + ",setBuyDay(2)");
+				}*/
+				entity.setBuyDay(2);
+			}else {
+				entity.setBuyDay(0);
+			}
+			
 			dto.add(entity.getDate(), entity);
 		}
 
@@ -89,6 +116,9 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		//System.out.println(entities.size());
 		
 		tradeRecordDtos.put(stockcode, dto);
+		
+		
+		
 	}
 
 	
@@ -190,6 +220,8 @@ public class TradeRecordServiceImp implements TradeRecordService {
 	public TradeRecordEntity getTradeRecordEntity(String stockcode, LocalDate date) {
 		if(tradeRecordDtos==null || !tradeRecordDtos.containsKey(stockcode)){
 			init(stockcode);
+			
+			
 		}
 		
 		TradeRecordDTO dto = this.getTradeRecordsDTO(stockcode);
@@ -310,6 +342,35 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		List<LocalDate> dates = dto.getDates(beginDate);
 		
 		return dates;
+	}
+
+
+	@Override
+	public List<TradeRecordJdh> getJdhs() {
+		List<TradeRecordJdh> jdhs = new ArrayList<TradeRecordJdh>();
+
+		TradeRecordDTO tradeRecordDTO;
+		List<TradeRecordEntity> entities;
+		List<BluechipView> bluechips = bluechipService.getBluechipViews(LocalDate.now());
+		
+		for(BluechipView view : bluechips) {
+			tradeRecordDTO = tradeRecordService.getTradeRecordsDTO(view.getCode());
+			entities = tradeRecordDTO.getBuyDays();
+			for(TradeRecordEntity entity : entities) {
+				jdhs.add(new TradeRecordJdh(view.getCode(),view.getName(),entity.getDate(),entity.getBuyDay()==1 ? "60日线上穿120线" : "120日线上穿250线"));
+			}
+		}
+		
+		Collections.sort(jdhs,new Comparator<TradeRecordJdh>() {
+
+			@Override
+			public int compare(TradeRecordJdh o1, TradeRecordJdh o2) {
+				return o2.getDate().compareTo(o1.getDate());
+			}
+			
+		});
+		
+		return jdhs;
 	}
 
 	

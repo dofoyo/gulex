@@ -34,6 +34,17 @@ public class TradeRecordDTO {
 		return list;
 	}
 
+	public List<TradeRecordEntity> getBuyDays(){
+		List<TradeRecordEntity> list = new ArrayList<TradeRecordEntity>();
+		for(Map.Entry<LocalDate,TradeRecordEntity> entry : entities.entrySet()) {
+			if(entry.getValue().getBuyDay()>0 && entry.getValue().isPriceOnAv(250)) {
+				list.add(entry.getValue());
+			}
+		}
+		
+		return list;
+	}
+	
 	public Integer getAboveAv120Days(LocalDate date) {
 		
 		LocalDate minDate = this.getMinDate();

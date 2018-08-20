@@ -10,7 +10,7 @@ public class SimulationSettings {
 	private boolean autoValveByPb = true;  //经过测试，根据PB进行阀值控制，在收益率影响不大的情况下，可以有效的控制仓位，即控制风险
 	private boolean autoBuyValveByWinLossRatio = false;
 	private Integer buyValvePeriodOfWinLossRatio = 5;
-	private Integer buyLine = 120; //股价再120均线上，才可买入
+	private Integer buyLine = 120; //股价再250均线上，才可买入
 	private Integer noBuyDays = 300; //新股禁入期间，再此期间内不买入。  300表示上市1年后，该股票原始股的中小股东的解禁后才能购买
 
 	//（买入）融资设置：

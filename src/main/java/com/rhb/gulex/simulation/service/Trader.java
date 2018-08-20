@@ -367,6 +367,17 @@ public class Trader {
 		return flag;
 	}
 	
+	public int countOnHands(String code) {
+		int flag = 0;
+		for(Map.Entry<String,TradeDetail> entry : onHands.entrySet()) {
+			if(code.equals(entry.getValue().getCode())) {
+				flag++;
+			}
+		}
+		
+		return flag;	
+	}
+	
 	public List<TradeDetail> getOnHandsList(){
 
 		return new ArrayList<TradeDetail>(this.onHands.values());
