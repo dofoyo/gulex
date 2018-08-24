@@ -135,7 +135,9 @@ public class SimulationServiceImp implements SimulationService {
 		
 		List<BluechipDto> bluechips = bluechipService.getBluechips(sDate);
 
-		this.buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
+		//this.buyValve = settings.isAutoValveByPb() ? pbService.getBuyValve(sDate) : settings.getBuyValve(trader.getWinLossRatio());
+		this.buyValve  = 45;  //*************
+		
 		
 		//将最新值写入onHand
 		List<TradeDetail> onHandDetails = trader.getOnHandsList();
@@ -162,23 +164,32 @@ public class SimulationServiceImp implements SimulationService {
 
 				profitRate = trader.getOnHandProfitRate(detail.getCode());
 				
-				
+
 				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
 					sellnote = "落选，且股价低于"+settings.getSellLine()+"均线";
 					doSell = true;
+
+				}else if(tradeRecordEntity.getBelowAv60Days()>=10){
+					sellnote = "连续10个交易日股价低于60均线";
+					doSell = true;
+					/*				
 					
-/*				}else if(inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine()) && profitRate >= 5){
-					sellnote = "选中期间，买入后股价低于"+settings.getSellLine()+"均线，且盈利";
-					doSell = true;*/
+				}else if(!tradeRecordEntity.isPriceOnAv(settings.getSellLine()) && tradeRecordEntity.getRateOfPriceOn250()>40){
+					sellnote = "股价低于"+settings.getSellLine()+"均线，且股价距离250日均线超过40%";
+					doSell = true;
+
+				}else if(!tradeRecordEntity.isPriceOnAv(250)){
+					sellnote = "股价低于250均线";
+					doSell = true;
 					
 				}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
 					sellnote = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
-					doSell = true;
+					doSell = true;*/
 				}
 				
 				if(doSell) { 
 					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),sellnote);
-					generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
+					//generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
 				}				
 			}
 			
@@ -189,18 +200,21 @@ public class SimulationServiceImp implements SimulationService {
 		boolean doBuy = false;
 		for(BluechipDto bluechipDto : bluechips){
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
-			if(tradeRecordEntity!=null) {   //停牌期间不能买入
+			if(tradeRecordEntity!=null  //停牌期间不能买入
+					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()),sDate)>settings.getNoBuyDays()  //才上市的新股不能买入
+					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine()) //股价低于于120日均线不能买  
+					//&& tradeRecordEntity.isPriceOnAv(250) //股价低于于250日均线不能买  
+					//&& tradeRecordEntity.isPriceOnAv(60) //股价低于于60日均线不能买  
+					) {   
 				
 				doBuy = false;
 				
-				//根据气球模型（120均线上堆积成交越多，股价上涨的概率越大）
-				if(tradeRecordEntity!=null  
-					&& tradeRecordEntity.getUpProbability()> buyValve
-					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine()) //120日均线   
-					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays() 
-					){ 
+				//1. 根据气球模型（60均线上堆积成交越多，股价上涨的概率越大）
+				if(tradeRecordEntity.getUpProbability()> buyValve
+						&& tradeRecordEntity.getBelowAv60Days()<5  //买入期间，股价可能会快速穿过60日均线，接近120或250线
+						){ 
 
-					buynote = tradeRecordEntity.getUpProbabilityString();
+					buynote = "上涨概率大（" + tradeRecordEntity.getUpProbability() +")，买入";
 					
 					if(!trader.onHand(bluechipDto.getCode())){
 						doBuy = true;
@@ -211,7 +225,7 @@ public class SimulationServiceImp implements SimulationService {
 				}
 				
 				
-/*				//按均线操作
+/*				//2. 按均线操作
 				if(tradeRecordEntity.getBuyDay()>0 
 					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays()) {
 					//int i = trader.countOnHands(bluechipDto.getCode());
@@ -226,11 +240,20 @@ public class SimulationServiceImp implements SimulationService {
 
 					logger.info(buynote + ", " +tradeRecordEntity.toString());
 					
-				}
-*/				
+				}*/
+				
+/*				//3. 按均线和气球模型操作
+				// 第一次买入：60日线上穿120日线
+				// 加仓买入：120日线上穿250日线，且盈利
+				// 加仓买入：气球模型，且盈利
+
+				
+				buynote = this.getBuynote(tradeRecordEntity);
+				doBuy = buynote==null ? false : true;*/
+				
 				if(doBuy) { 
 					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),buynote);
-					generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
+					//generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
 				}			
 			}
 		}
@@ -255,8 +278,24 @@ public class SimulationServiceImp implements SimulationService {
 		trader.dayReport(sDate, buyValve);		
 	}
 	
+	private String getBuynote(TradeRecordEntity tradeRecordEntity) {
+		String buynote = null;
+		if(tradeRecordEntity.getBuyDay() == 1) {
+			buynote = "60日线上穿120线，买入";
+		}else if(trader.onHand(tradeRecordEntity.getCode()) && trader.getOnHandLowestProfitRate(tradeRecordEntity.getCode())>settings.getAddMoreThan()) {
+			
+			if(tradeRecordEntity.getBuyDay() == 2) {
+				buynote = "120日线上穿250线，加仓";
+			}else if(tradeRecordEntity.getUpProbability()> buyValve	) {
+				buynote = "上涨概率大（" + tradeRecordEntity.getUpProbability() +")"  + "，加仓";
+			}
+		}
+		
+		return buynote;
+	}
 	
-	private void generateImage(String operation,String stockCode, String stockName,LocalDate date,List<TradeRecordEntity> tradeRecordEntities) {
+	
+/*	private void generateImage(String operation,String stockCode, String stockName,LocalDate date,List<TradeRecordEntity> tradeRecordEntities) {
 		File file = new File(dataPath + imagePath + stockCode +"_"+ date.toString() + ".png");
 		String title = operation + stockCode + "(" + stockName + ")";
 		List<LineChartDTO> datas = new ArrayList<LineChartDTO>();
@@ -266,7 +305,7 @@ public class SimulationServiceImp implements SimulationService {
 		}
 		LineChart.draw(title, file, datas);
 	}
-
+*/
 	@Override
 	public List<SimulationView> getTradeRecordViews() {
 		if(trader == null){

@@ -11,11 +11,25 @@ public class TradeRecordEntity {
 	private BigDecimal av60;
 	private BigDecimal av250;
 	private Integer aboveAv120Days;
+	private Integer aboveAv60Days;
+	private Integer belowAv60Days;
 	private BigDecimal midPrice;
 	private Integer buyDay = 0;
 	
 	
 	
+	public Integer getAboveAv60Days() {
+		return aboveAv60Days;
+	}
+	public void setAboveAv60Days(Integer aboveAv60Days) {
+		this.aboveAv60Days = aboveAv60Days;
+	}
+	public Integer getBelowAv60Days() {
+		return belowAv60Days;
+	}
+	public void setBelowAv60Days(Integer belowAv60Days) {
+		this.belowAv60Days = belowAv60Days;
+	}
 	public Integer getBuyDay() {
 		return buyDay;
 	}
@@ -72,6 +86,11 @@ public class TradeRecordEntity {
 		this.aboveAv120Days = aboveAv120Days;
 	}
 	
+	public Integer getRateOfPriceOn250() {
+		return price.subtract(av250).divide(av250,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+	}
+	
+	
 	public boolean isPriceOnAv(Integer av) {
 		boolean flag = false;
 		switch(av) {
@@ -107,23 +126,14 @@ public class TradeRecordEntity {
 	public Integer getBiasOfAv120(){
 		BigDecimal i = new BigDecimal(0);
 		if(price!=null && av120!=null){
-			//i = ((price.subtract(av120)).divide(av120,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
 			i = ((price.subtract(av120)).divide(av120,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs());
 		}
 		int bias = i.intValue();
-
-/*		if(i.intValue()>10 && i.intValue()<= 20){
-			bias = i.multiply(new BigDecimal(1.5)).intValue();
-		}else if(i.intValue()>20 && i.intValue()<=30){
-			bias = i.multiply(new BigDecimal(2)).intValue();
-		}else if(i.intValue()>30){
-			bias = i.multiply(new BigDecimal(2.5)).intValue();
-		}*/
 		
 		return bias;
 	}
 	
-	
+		
 	public Integer getBiasOfMidPrice(){
 		BigDecimal i = new BigDecimal(0);
 		if(price!=null && midPrice!=null){
@@ -132,14 +142,6 @@ public class TradeRecordEntity {
 		}
 		int bias = i.intValue()/2;  //经测试，取中位数的半值结果最好
 
-/*		if(i.intValue()>10 && i.intValue()<= 20){
-			bias = i.multiply(new BigDecimal(1.5)).intValue();
-		}else if(i.intValue()>20 && i.intValue()<=30){
-			bias = i.multiply(new BigDecimal(2)).intValue();
-		}else if(i.intValue()>30){
-			bias = i.multiply(new BigDecimal(2.5)).intValue();
-		}*/
-		
 		return bias;
 	}
 	
@@ -152,22 +154,22 @@ public class TradeRecordEntity {
 	 */
 	
 	public Integer getUpProbability(){
-		Integer upProbability = this.aboveAv120Days;
+		//Integer upProbability = this.aboveAv120Days;
+		Integer upProbability = this.aboveAv60Days;
 		upProbability = upProbability - this.getBiasOfAv120() - this.getBiasOfMidPrice();
+		//upProbability = upProbability - this.getBiasOfAv120();
 		return upProbability>0 ? upProbability : 0;
 		//return this.aboveAv120Days;
 		
 	}
-	
-	public String getUpProbabilityString() {
-		return  "上涨概率大（" + getUpProbability().toString()+")";
-	}
 	@Override
 	public String toString() {
 		return "TradeRecordEntity [code=" + code + ", date=" + date + ", price=" + price + ", av120=" + av120
-				+ ", av60=" + av60 + ", av250=" + av250 + ", aboveAv120Days=" + aboveAv120Days + ", midPrice="
-				+ midPrice + ", buyDay=" + buyDay + "]";
+				+ ", av60=" + av60 + ", av250=" + av250 + ", aboveAv120Days=" + aboveAv120Days + ", aboveAv60Days="
+				+ aboveAv60Days + ", belowAv60Days=" + belowAv60Days + ", midPrice=" + midPrice + ", buyDay=" + buyDay
+				+ "]";
 	}
+	
 
 	
 

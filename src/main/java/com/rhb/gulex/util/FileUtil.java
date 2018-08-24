@@ -26,12 +26,12 @@ public class FileUtil {
 				FileWriter filewriter = new FileWriter(file, append);
 				BufferedWriter bufwriter = new BufferedWriter(filewriter);
 				filewriter.write(content);
-				filewriter.flush();
+				filewriter.close();
 			} else {
 				FileWriter filewriter = new FileWriter(file, append);
 				BufferedWriter bufwriter = new BufferedWriter(filewriter);
 				filewriter.write(content);
-				filewriter.flush();
+				filewriter.close();
 			}
 
 		} catch (Exception d) {

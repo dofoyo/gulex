@@ -201,6 +201,7 @@ public class BluechipServiceImp implements BluechipService {
 					//if(bluechip.isOk(year) || bluechip.isOk(year-1) || bluechip.isOk(year-2)){
 					if(bluechip.isOk(year) || (bluechip.isOk(year-1) && bluechip.isOk(year-2))){
 					//if(bluechip.isOk(year)){
+					//if(bluechip.isOk(year)){
 						//选中
 						isgood = true;
 						
@@ -221,6 +222,7 @@ public class BluechipServiceImp implements BluechipService {
 				}else{
 					//if(bluechip.isOk(year-1) || bluechip.isOk(year-2) || bluechip.isOk(year-3)){
 					if(bluechip.isOk(year-1) || (bluechip.isOk(year-2) && bluechip.isOk(year-3))){
+					//if(bluechip.isOk(year-1)){
 					//if(bluechip.isOk(year-1)){
 						//选中
 						isgood = true;

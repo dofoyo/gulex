@@ -48,7 +48,6 @@ public class TradeDetail {
 	
 	public Integer getProfitRate() {
 		Integer rate = sellPrice.subtract(buyCost).divide(buyCost,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
-
 		return rate;
 	}
 	

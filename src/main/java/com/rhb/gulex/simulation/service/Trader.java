@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.emory.mathcs.backport.java.util.Collections;
 
 public class Trader {
+	protected static final Logger logger = LoggerFactory.getLogger(Trader.class);
+
+	
 	private Map<String,TradeDetail> details = new HashMap<String,TradeDetail>(); // seriesId - tradedetail
 	private Map<String,TradeDetail> onHands = new HashMap<String,TradeDetail>(); // seriesId - tradedetail
 	private Map<LocalDate,Account> accounts = new HashMap<LocalDate,Account>();
@@ -181,6 +187,19 @@ public class Trader {
 	}
 	*/
 	
+	
+	public boolean onHand(String code){
+		boolean flag = false;
+		for(Map.Entry<String,TradeDetail> entry : onHands.entrySet()) {
+			if(code.equals(entry.getValue().getCode())) {
+				flag = true;
+				break;
+			}
+		}
+		
+		return flag;
+	}
+	
 	public Integer getOnHandLowestProfitRate(String code) {
 		TradeDetail td = null;
 		
@@ -193,17 +212,25 @@ public class Trader {
 		
 		BigDecimal value = new BigDecimal(0);
 		for(Map.Entry<String, TradeDetail> entry : onHands.entrySet()) {
-			if(entry.getValue().getCode().equals(code)) {
+			if(code.equals(entry.getValue().getCode())) {
 				if(td==null || td.getBuyDate().isBefore(entry.getValue().getBuyDate())){
 					td = entry.getValue();
 				}
 			}
 		}
 		
-		buyPrice = td.getBuyCost();
-		nowPrice = td.getSellPrice();
-		tRate = nowPrice.subtract(buyPrice).divide(buyPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
-		profitRate = Math.abs(tRate);
+		//buyPrice = td.getBuyCost();
+		//nowPrice = td.getSellPrice();
+		//tRate = nowPrice.subtract(buyPrice).divide(buyPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).intValue();
+		
+		//if(td!=null && td.getProfitRate())
+		
+		if(td != null) {
+			profitRate = Math.abs(td.getProfitRate());
+			//logger.info(code + "'s profitRate = " + profitRate);
+		}else {
+			//logger.info(code + " is null!");
+		}
 		
 		return profitRate;
 		
@@ -354,18 +381,7 @@ public class Trader {
 		
 		detail.setSellPrice(price);
 	}
-	
-	public boolean onHand(String code){
-		boolean flag = false;
-		for(Map.Entry<String,TradeDetail> entry : onHands.entrySet()) {
-			if(code.equals(entry.getValue().getCode())) {
-				flag = true;
-				break;
-			}
-		}
-		
-		return flag;
-	}
+
 	
 	public int countOnHands(String code) {
 		int flag = 0;

@@ -3,7 +3,9 @@ package com.rhb.gulex.fingerpost.api;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,7 +36,7 @@ public class FingerpostController {
 	public ResponseContent<List<Fingerpost>> getDzhs(
 			@RequestParam(value="keyword", defaultValue="") String keyword){
 		
-		List<Fingerpost> fingerposts = new ArrayList<Fingerpost>();
+		Set<Fingerpost> fingerposts = new HashSet<Fingerpost>();
 		
 		List<TradeRecordJdh> tradeRecordJdhs = tradeRecordService.getJdhs();
 
@@ -42,7 +44,7 @@ public class FingerpostController {
 		
 		for(TradeRecordJdh jdh : tradeRecordJdhs) {
 			if(jdh.getCode().contains(keyword) || jdh.getName().contains(keyword)) {
-				fingerposts.add(new Fingerpost(jdh.getCode(),jdh.getName(),jdh.getDate(),"买入",jdh.getDescript()));
+				fingerposts.add(new Fingerpost(jdh.getCode(),jdh.getName(),jdh.getDate(),"关注",jdh.getDescript()));
 			}
 		}
 		
@@ -54,7 +56,8 @@ public class FingerpostController {
 		}
 		
 		
-		Collections.sort(fingerposts, new Comparator<Fingerpost>(){
+		List<Fingerpost> fs = new ArrayList<Fingerpost>(fingerposts);
+		Collections.sort(fs, new Comparator<Fingerpost>(){
 
 			@Override
 			public int compare(Fingerpost arg0, Fingerpost arg1) {
@@ -63,10 +66,10 @@ public class FingerpostController {
 			
 		});
 
-		fingerposts = fingerposts.subList(0, fingerposts.size()>200 ? 200 : fingerposts.size());
+		fs = fs.subList(0, fs.size()>200 ? 200 : fs.size());
 
 		
-		return new ResponseContent<List<Fingerpost>>(ResponseEnum.SUCCESS, fingerposts);
+		return new ResponseContent<List<Fingerpost>>(ResponseEnum.SUCCESS, fs);
 	}
 
 }

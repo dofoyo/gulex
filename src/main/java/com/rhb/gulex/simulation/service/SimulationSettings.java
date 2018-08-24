@@ -14,12 +14,12 @@ public class SimulationSettings {
 	private Integer noBuyDays = 300; //新股禁入期间，再此期间内不买入。  300表示上市1年后，该股票原始股的中小股东的解禁后才能购买
 
 	//（买入）融资设置：
-	private boolean financing = true;
+	private boolean financing = true;    //******************
 	
 	//（买入）金额设置：
 	private boolean amountFix = false; //true表示固定值，false表示固定比率
 	private Integer fixAmount  = 50000;  //表示5万
-	private Integer fixRate = 5;  //表示百分之几
+	private Integer fixRate = 30;  //表示百分之几   ******************
 
 	//（买入）加仓设置：
 	private boolean addMore = true;
