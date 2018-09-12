@@ -7,9 +7,14 @@ public class ValueView {
 	private BigDecimal value;
 	private BigDecimal cash;
 	private Integer sse; //  Shanghai Stock Exchange Composite Index 上证指数
+	private Integer rate;
 	
-	
-	
+	public Integer getRate() {
+		return rate;
+	}
+	public void setRate(Integer rate) {
+		this.rate = rate;
+	}
 	public String getDate() {
 		return date;
 	}
@@ -38,9 +43,5 @@ public class ValueView {
 	public BigDecimal getTotal() {
 		return cash.add(value);
 	}
-	
-
-	
-
 	
 }

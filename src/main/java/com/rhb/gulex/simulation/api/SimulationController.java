@@ -1,5 +1,6 @@
 package com.rhb.gulex.simulation.api;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -88,10 +89,25 @@ public class SimulationController {
 
 			@Override
 			public int compare(ValueView o1, ValueView o2) {
-				return o2.getDate().compareTo(o1.getDate());
+				return o1.getDate().compareTo(o2.getDate());
 			}
 			
 		});
+		
+		Double rate = new Double(0.0);
+		BigDecimal total = null;
+		int i = 0;
+		for(ValueView view : valueViews) {
+			if(i == 0) {
+				total = view.getTotal();
+			}else {
+				rate = (Math.pow(view.getTotal().divide(total).doubleValue(), 1.0/i)-1.0) * 100;
+				view.setRate(Integer.parseInt(new java.text.DecimalFormat("0").format(rate)));
+			}
+			i++;
+		}
+		
+		
 		
 		return new ResponseContent<List<ValueView>>(ResponseEnum.SUCCESS, valueViews);
 	}

@@ -11,8 +11,8 @@ public class TradeRecordEntity {
 	private BigDecimal av60;
 	private BigDecimal av250;
 	private Integer aboveAv120Days;
-	private Integer aboveAv60Days;
-	private Integer belowAv60Days;
+	private Integer aboveAv60Days = 0;
+	private Integer belowAv60Days = 0;
 	private BigDecimal midPrice;
 	private Integer buyDay = 0;
 	
