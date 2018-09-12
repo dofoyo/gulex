@@ -1,5 +1,6 @@
 package com.rhb.gulex.traderecord.api;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class TradeRecordJdh {
@@ -7,15 +8,25 @@ public class TradeRecordJdh {
 	private String name;
 	private LocalDate date;
 	private String descript;
+	private BigDecimal price;
 
-	public TradeRecordJdh(String code, String name, LocalDate date, String descript) {
+	public TradeRecordJdh(String code, String name, LocalDate date, String descript,BigDecimal price) {
 		this.code = code;
 		this.name = name;
 		this.date = date;
 		this.descript = descript;
+		this.price = price;
 		
 	}
 	
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
 	public String getCode() {
 		return code;
 	}
@@ -43,10 +54,13 @@ public class TradeRecordJdh {
 	public void setDescript(String descript) {
 		this.descript = descript;
 	}
+
 	@Override
 	public String toString() {
-		return "TradeRecordJdh [code=" + code + ", name=" + name + ", date=" + date + ", descript=" + descript + "]";
+		return "TradeRecordJdh [code=" + code + ", name=" + name + ", date=" + date + ", descript=" + descript
+				+ ", price=" + price + "]";
 	}
+
 
 
 

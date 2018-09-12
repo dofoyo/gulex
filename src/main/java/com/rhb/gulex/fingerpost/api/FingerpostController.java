@@ -44,13 +44,13 @@ public class FingerpostController {
 		
 		for(TradeRecordJdh jdh : tradeRecordJdhs) {
 			if(jdh.getCode().contains(keyword) || jdh.getName().contains(keyword)) {
-				fingerposts.add(new Fingerpost(jdh.getCode(),jdh.getName(),jdh.getDate(),"关注",jdh.getDescript()));
+				fingerposts.add(new Fingerpost(jdh.getCode(),jdh.getName(),jdh.getDate(),"关注",jdh.getDescript(),jdh.getPrice()));
 			}
 		}
 		
 		for(SimulationView view : tradeRecordViews) {
 			if(view.getStockcode().contains(keyword) || view.getStockname().contains(keyword)) {
-				fingerposts.add(new Fingerpost(view.getStockcode(),view.getStockname(),view.getDate(),view.getBuyorsell(),view.getNote()));
+				fingerposts.add(new Fingerpost(view.getStockcode(),view.getStockname(),view.getDate(),view.getBuyorsell(),view.getNote(),view.getPrice()));
 			}
 			
 		}

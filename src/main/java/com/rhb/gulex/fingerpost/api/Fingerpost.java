@@ -1,5 +1,6 @@
 package com.rhb.gulex.fingerpost.api;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class Fingerpost {
@@ -8,16 +9,32 @@ public class Fingerpost {
 	private LocalDate date;
 	private String buysell;
 	private String descript;
+	private BigDecimal price;
 
-	public Fingerpost(String code, String name, LocalDate date,String buysell, String descript) {
+	public Fingerpost(String code, String name, LocalDate date,String buysell, String descript,BigDecimal price) {
 		this.code = code;
 		this.name = name;
 		this.date = date;
 		this.buysell = buysell;
 		this.descript = descript;
+		this.price = price;
 		
 	}
 	
+	
+	
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+
+
 	public String getCode() {
 		return code;
 	}
@@ -54,11 +71,15 @@ public class Fingerpost {
 		this.buysell = buysell;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Fingerpost [code=" + code + ", name=" + name + ", date=" + date + ", buysell=" + buysell + ", descript="
-				+ descript + "]";
+				+ descript + ", price=" + price + "]";
 	}
+
+
 
 	@Override
 	public int hashCode() {
@@ -69,8 +90,11 @@ public class Fingerpost {
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((descript == null) ? 0 : descript.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((price == null) ? 0 : price.hashCode());
 		return result;
 	}
+
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -106,10 +130,13 @@ public class Fingerpost {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
+		if (price == null) {
+			if (other.price != null)
+				return false;
+		} else if (!price.equals(other.price))
+			return false;
 		return true;
 	}
 
-
-
-
+	
 }

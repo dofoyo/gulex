@@ -387,7 +387,7 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			tradeRecordDTO = tradeRecordService.getTradeRecordsDTO(view.getCode());
 			entities = tradeRecordDTO.getBuyDays();
 			for(TradeRecordEntity entity : entities) {
-				jdhs.add(new TradeRecordJdh(view.getCode(),view.getName(),entity.getDate(),entity.getBuyDay()==1 ? "60日线上穿120线" : "120日线上穿250线"));
+				jdhs.add(new TradeRecordJdh(view.getCode(),view.getName(),entity.getDate(),entity.getBuyDay()==1 ? "60日线上穿120线" : "120日线上穿250线",entity.getPrice()));
 			}
 		}
 		
