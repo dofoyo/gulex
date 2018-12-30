@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class TestLineChart {
 
-	@Test
+	//@Test
 	public void test() {
     	List<LineChartDTO> datas = new ArrayList<LineChartDTO>();
     	LineChartDTO dto1 = new LineChartDTO(100, "price", "2018-04-01");
@@ -42,5 +42,13 @@ public class TestLineChart {
     		System.out.println("success!");
     	}
     	
+	}
+	
+	@Test
+	public void test1() {
+		int a=0;
+		int b=0;
+		System.out.println("a++: " + a++);
+		System.out.println("++b: " + ++b);
 	}
 }

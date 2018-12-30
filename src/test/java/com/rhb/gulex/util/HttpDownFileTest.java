@@ -14,13 +14,17 @@ import org.junit.Test;
 public class HttpDownFileTest {
 
 	//@Test
-	public void downloadBalanceSheet(){
-		String stockNo = "601398";
+	public void testSaveToFile(){
+		String destUrl;
+		String fileName;
+		for(int i=1; i<=134; i++) {
+			destUrl = "https://www.52shuku8.com/xiandaidushi/0316/8192_"+i+".html";
+			System.out.println(destUrl);
+			fileName = "d:/mydocs/rhb/ccll/"+i+".html";
+			
+			HttpDownload.saveToFile(destUrl, fileName);			
+		}
 
-		String destUrl = "http://money.finance.sina.com.cn/corp/go.php/vDOWN_BalanceSheet/displaytype/4/stockid/"+stockNo+"/ctrl/all.phtml";
-		System.out.println(destUrl);
-		String fileName = "C:\\" + stockNo + ".xls";
-		HttpDownload.saveToFile(destUrl, fileName);
 		System.out.println("test done!");
 
 	}
