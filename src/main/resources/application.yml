@@ -12,3 +12,8 @@ logging:
     org.springfromework: error
   #采用相对路径方式将日志文件输出到【log\myspringboot.log】
   file: log\myspringboot.log
+  
+  
+ #weixin配置
+appid: wx5d29b4bb9737500f
+secret: ce80393c07ee43825a96e44a4a0ec124
