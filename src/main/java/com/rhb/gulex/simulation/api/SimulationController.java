@@ -102,7 +102,7 @@ public class SimulationController {
 				total = view.getTotal();
 			}else {
 				rate = (Math.pow(view.getTotal().divide(total).doubleValue(), 1.0/i)-1.0) * 100;
-				view.setRate(Integer.parseInt(new java.text.DecimalFormat("0").format(rate)));
+				view.setRate(rate.intValue());
 			}
 			i++;
 		}

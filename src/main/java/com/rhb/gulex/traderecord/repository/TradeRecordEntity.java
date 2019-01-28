@@ -154,12 +154,9 @@ public class TradeRecordEntity {
 	 */
 	
 	public Integer getUpProbability(){
-		//Integer upProbability = this.aboveAv120Days;
 		Integer upProbability = this.aboveAv60Days;
 		upProbability = upProbability - this.getBiasOfAv120() - this.getBiasOfMidPrice();
-		//upProbability = upProbability - this.getBiasOfAv120();
 		return upProbability>0 ? upProbability : 0;
-		//return this.aboveAv120Days;
 		
 	}
 	@Override

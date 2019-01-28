@@ -1,20 +1,14 @@
-1、如何执行年报下载任务
-(1)通过同花顺导出股票清单，保存为：d:\stocks\tables.xls
-(2)执行test目录下的com.rhb.gulex.service.downloadFinancialStatementsFromTHS()
-
-或者
-   执行test目录下的com.rhb.gulex.service.downloadFinancialStatementsFromEastmoney()
-
-
-2、如何选股
-执行test目录下的com.rhb.gulex.service.selectGoodStocks()
-
-
-
 系统架构：
 
 domain
 service
 repository
 
+如何通过大智慧导出股票日行情数据
 
+第一步
+java -jar downloaddzh.jar
+
+第二步
+打开大智慧
+选择股票，进入日线，复制数据
