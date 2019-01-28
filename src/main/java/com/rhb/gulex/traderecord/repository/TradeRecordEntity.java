@@ -126,7 +126,7 @@ public class TradeRecordEntity {
 	public Integer getBiasOfAv120(){
 		BigDecimal i = new BigDecimal(0);
 		if(price!=null && av120!=null){
-			i = ((price.subtract(av120)).divide(av120,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs());
+			i = (price.subtract(av120)).divide(av120,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs();
 		}
 		int bias = i.intValue();
 		
@@ -138,7 +138,7 @@ public class TradeRecordEntity {
 		BigDecimal i = new BigDecimal(0);
 		if(price!=null && midPrice!=null){
 			//i = ((price.subtract(midPrice)).divide(midPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
-			i = ((price.subtract(midPrice)).divide(midPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs());
+			i = (price.subtract(midPrice)).divide(midPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs();
 		}
 		int bias = i.intValue()/2;  //经测试，取中位数的半值结果最好
 
@@ -154,8 +154,8 @@ public class TradeRecordEntity {
 	 */
 	
 	public Integer getUpProbability(){
-		//Integer upProbability = this.aboveAv120Days;
-		Integer upProbability = this.aboveAv60Days;
+		Integer upProbability = this.aboveAv120Days;
+		//Integer upProbability = this.aboveAv60Days;
 		upProbability = upProbability - this.getBiasOfAv120() - this.getBiasOfMidPrice();
 		//upProbability = upProbability - this.getBiasOfAv120();
 		return upProbability>0 ? upProbability : 0;
