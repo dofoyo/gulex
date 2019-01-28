@@ -325,7 +325,7 @@ public class BluechipServiceImp implements BluechipService {
 			tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
 			if(tradeRecordDto != null) {
 				view.setUpProbability(tradeRecordDto.getSimilarTradeRecordEntity(date).getUpProbability());
-				view.setAboveAv120Days(tradeRecordDto.getSimilarTradeRecordEntity(date).getAboveAv120Days());
+				view.setAboveAv60Days(tradeRecordDto.getSimilarTradeRecordEntity(date).getAboveAv60Days());
 				view.setBiasOfAv120(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfAv120());
 				view.setBiasOfMidPrice(tradeRecordDto.getSimilarTradeRecordEntity(date).getBiasOfMidPrice());
 			}

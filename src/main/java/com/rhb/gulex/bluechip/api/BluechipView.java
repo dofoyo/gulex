@@ -6,7 +6,7 @@ public class BluechipView {
 	private Integer upProbability = -1;
 	private String okYears;
 	private String date;
-	private Integer aboveAv120Days;
+	private Integer aboveAv60Days;
 	private Integer biasOfAv120;
 	private Integer biasOfMidPrice;
 	private String ipoDate;
@@ -19,11 +19,11 @@ public class BluechipView {
 	public void setIpoDate(String ipoDate) {
 		this.ipoDate = ipoDate;
 	}
-	public Integer getAboveAv120Days() {
-		return aboveAv120Days;
+	public Integer getAboveAv60Days() {
+		return aboveAv60Days;
 	}
-	public void setAboveAv120Days(Integer aboveAv120Days) {
-		this.aboveAv120Days = aboveAv120Days;
+	public void setAboveAv60Days(Integer aboveAv60Days) {
+		this.aboveAv60Days = aboveAv60Days;
 	}
 	public Integer getBiasOfAv120() {
 		return biasOfAv120;
@@ -71,7 +71,7 @@ public class BluechipView {
 	@Override
 	public String toString() {
 		return "BluechipView [code=" + code + ", name=" + name + ", upProbability=" + upProbability + ", okYears="
-				+ okYears + ", date=" + date + ", aboveAv120Days=" + aboveAv120Days + ", biasOfAv120=" + biasOfAv120
+				+ okYears + ", date=" + date + ", aboveAv120Days=" + aboveAv60Days + ", biasOfAv120=" + biasOfAv120
 				+ ", biasOfMidPrice=" + biasOfMidPrice + "]";
 	}
 
