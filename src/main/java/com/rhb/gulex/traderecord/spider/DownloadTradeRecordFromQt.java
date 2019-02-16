@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.util.HttpDownload;
 
+/*
+ * 腾讯股票数据接口
+ */
 
 @Service("DownloadTradeRecordFromQt")
 public class DownloadTradeRecordFromQt implements DownloadTradeRecord {

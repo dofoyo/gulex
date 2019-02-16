@@ -32,7 +32,7 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 		String start = "20060101";
 		String end = today.format(df);
 		
-		//http://quotes.money.163.com/service/chddata.html?code=0000001&start=20160101&end=20180316&fields=TCLOSE
+		//http://quotes.money.163.com/service/chddata.html?code=1300384&start=20181001&end=20190211&fields=TCLOSE
 		String url = "http://quotes.money.163.com/service/chddata.html?code="+marketCode+code+"&start="+start+"&end="+end+"&fields=TCLOSE";
 
 		

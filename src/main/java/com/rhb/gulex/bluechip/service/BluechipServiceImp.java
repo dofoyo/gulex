@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.rhb.gulex.bluechip.api.BluechipView;
@@ -27,10 +28,13 @@ import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 import com.rhb.gulex.traderecord.service.TradeRecordDTO;
 import com.rhb.gulex.traderecord.service.TradeRecordService;
+import com.rhb.gulex.util.FileUtil;
 
 @Service("BluechipServiceImp")
 public class BluechipServiceImp implements BluechipService {
-
+	@Value("${dataPath}")
+	private String dataPath;
+	
 	@Autowired
 	@Qualifier("FinancialStatementServiceImp")
 	FinancialStatementService financialStatementService;
@@ -266,6 +270,16 @@ public class BluechipServiceImp implements BluechipService {
 			TradeRecordDTO tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
 			bluechipDto.setTradeRecordEntity(tradeRecordDto.getTradeRecordEntity(date));
 		}*/
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(date);
+		sb.append(":");
+		for(BluechipDto bluechip : bluechips) {
+			sb.append(bluechip.getCode());
+			sb.append(",");
+		}
+		sb.deleteCharAt(sb.length()-1);
+		FileUtil.writeTextFile(dataPath+"bluechipids.txt", sb.toString(), true);
 		
 		return bluechips;
 	}
