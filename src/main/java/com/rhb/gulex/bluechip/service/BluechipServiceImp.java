@@ -266,6 +266,7 @@ public class BluechipServiceImp implements BluechipService {
 	@Override
 	public List<BluechipDto> getBluechips(LocalDate date) {
 		List<BluechipDto> bluechips = this.getBluechipDtos(date);
+		
 		/*for(BluechipDto bluechipDto : bluechips){
 			TradeRecordDTO tradeRecordDto = tradeRecordService.getTradeRecordsDTO(bluechipDto.getCode());
 			bluechipDto.setTradeRecordEntity(tradeRecordDto.getTradeRecordEntity(date));
@@ -274,8 +275,10 @@ public class BluechipServiceImp implements BluechipService {
 		StringBuffer sb = new StringBuffer();
 		sb.append(date);
 		sb.append(":");
+		String id;
 		for(BluechipDto bluechip : bluechips) {
-			sb.append(bluechip.getCode());
+			id = bluechip.getCode().indexOf("60")==0 ? "sh"+bluechip.getCode() : "sz"+bluechip.getCode();
+			sb.append(id);
 			sb.append(",");
 		}
 		sb.deleteCharAt(sb.length()-1);
