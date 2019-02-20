@@ -273,12 +273,13 @@ public class BluechipServiceImp implements BluechipService {
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append(date);
-		sb.append(":");
+		sb.append(",");
 		for(BluechipDto bluechip : bluechips) {
 			sb.append(bluechip.getCode());
 			sb.append(",");
 		}
 		sb.deleteCharAt(sb.length()-1);
+		sb.append("\n");
 		FileUtil.writeTextFile(dataPath+"bluechipids.txt", sb.toString(), true);
 		
 		return bluechips;
