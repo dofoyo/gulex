@@ -1,17 +1,10 @@
 package com.rhb.gulex.simulation.service;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +24,6 @@ import com.rhb.gulex.traderecord.repository.TradeRecordEntity;
 import com.rhb.gulex.traderecord.repository.TradeRecordRepository;
 import com.rhb.gulex.traderecord.service.TradeRecordService;
 import com.rhb.gulex.util.FileUtil;
-import com.rhb.gulex.util.LineChart;
-import com.rhb.gulex.util.LineChartDTO;
 
 /**
  * 
