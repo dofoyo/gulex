@@ -80,7 +80,7 @@ public class SimulationServiceImp implements SimulationService {
 		Long start = System.currentTimeMillis();
 
 		trader = new Trader(settings.getBeginDate(),settings.getCash());
-		trader.setBuyValvePeriod(settings.getBuyValvePeriod());
+		trader.setBuyValvePeriod_xx(settings.getBuyValvePeriod());
 		
 		trader.setFinancing(settings.isFinancing());
 		trader.setAmountFix(settings.isAmountFix());
@@ -93,7 +93,7 @@ public class SimulationServiceImp implements SimulationService {
 		int i=0;
 		for(LocalDate sDate : tradeDates){
 			//System.out.println(sDate.toString());
-			System.out.print(i++ + "/" + tradeDates.size() + "\r");
+			System.out.println(i++ + "/" + tradeDates.size() + "," + sDate);
 			this.trade(sDate);
 			
 		}
@@ -135,7 +135,7 @@ public class SimulationServiceImp implements SimulationService {
 		for(TradeDetail detail : onHandDetails) {
 			tradeRecordEntity = tradeRecordService.getSimilarTradeRecordEntity(detail.getCode(),sDate);
 			trader.setPrice(detail.getSeriesid(),tradeRecordEntity.getPrice() );
-
+			//System.out.println(tradeRecordEntity);
 		}
 		
 		//卖出操作：落选且股价低于60日均线的票，或止损。
@@ -144,42 +144,29 @@ public class SimulationServiceImp implements SimulationService {
 		boolean inGoodPeriod;
 		String buynote = null;
 		String sellnote = null;
-		
 		for(TradeDetail detail : onHandDetails) {
+			//System.out.println(detail);
 			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(detail.getCode(),sDate);
-					
+			//System.out.println(tradeRecordEntity);
 			if(tradeRecordEntity!=null) {   //停牌期间不能卖出
 				doSell = false;
 				sellnote = "";
 				inGoodPeriod = bluechipService.inGoodPeriod(detail.getCode(),sDate);
 
-				profitRate = trader.getOnHandProfitRate(detail.getCode());
-				
-
 				if(!inGoodPeriod && !tradeRecordEntity.isPriceOnAv(settings.getSellLine())){
 					sellnote = "落选，且股价低于"+settings.getSellLine()+"均线";
+					System.out.println(sellnote);
 					doSell = true;
 
 				}else if(tradeRecordEntity.getBelowAv60Days()>=10){
 					sellnote = "连续10个交易日股价低于60均线";
+					System.out.println(sellnote);
 					doSell = true;
-					/*				
-					
-				}else if(!tradeRecordEntity.isPriceOnAv(settings.getSellLine()) && tradeRecordEntity.getRateOfPriceOn250()>40){
-					sellnote = "股价低于"+settings.getSellLine()+"均线，且股价距离250日均线超过40%";
-					doSell = true;
-
-				}else if(!tradeRecordEntity.isPriceOnAv(250)){
-					sellnote = "股价低于250均线";
-					doSell = true;
-					
-				}else if (settings.isStopLoss() && profitRate<settings.getStopLossRate()){
-					sellnote = "止损，收益率为" + profitRate.toString() + ",低于" + settings.getStopLossRate().toString();
-					doSell = true;*/
 				}
 				
 				if(doSell) { 
 					trader.sell(detail.getSeriesid(), sDate, tradeRecordEntity.getPrice(),sellnote);
+					System.out.println("卖出");
 					//generateImage("卖出",detail.getCode(),detail.getName(),sDate,tradeRecordService.getTradeRecords(detail.getCode(), sDate));
 				}				
 			}
@@ -189,79 +176,54 @@ public class SimulationServiceImp implements SimulationService {
 		
 		//买入操作
 		boolean doBuy = false;
+		//System.out.println(bluechips.size());
 		for(BluechipDto bluechipDto : bluechips){
-			tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
-			if(tradeRecordEntity!=null  //停牌期间不能买入
-					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()),sDate)>settings.getNoBuyDays()  //才上市的新股不能买入
-					&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine()) //股价低于于120日均线不能买  
-					//&& tradeRecordEntity.isPriceOnAv(250) //股价低于于250日均线不能买  
-					//&& tradeRecordEntity.isPriceOnAv(60) //股价低于于60日均线不能买  
-					) {   
+				tradeRecordEntity = tradeRecordService.getTradeRecordEntity(bluechipDto.getCode(),sDate);
+				//System.out.println(tradeRecordEntity);
 				
-				doBuy = false;
-				
-				//1. 根据气球模型（60均线上堆积成交越多，股价上涨的概率越大）
-				if(tradeRecordEntity.getUpProbability()> buyValve
-						&& tradeRecordEntity.getBelowAv60Days()<5  //买入期间，股价可能会快速穿过60日均线，接近120或250线
-						){ 
-
-					buynote = "上涨概率大（" + tradeRecordEntity.getUpProbability() +")，买入";
+				if(tradeRecordEntity!=null  //停牌期间不能买入
+						&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()),sDate)>settings.getNoBuyDays()  //才上市的新股不能买入
+						&& tradeRecordEntity.isPriceOnAv(settings.getBuyLine()) //股价低于于120日均线不能买  
+						) {   
 					
-					if(!trader.onHand(bluechipDto.getCode())){
-						doBuy = true;
-					}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
-						buynote = buynote + " ，加仓";
-						doBuy = true;
+					System.out.println("IPO日期" + bluechipDto.getIpoDate() + " 大于" + settings.getNoBuyDays());
+					System.out.println("股价高于120日均线");
+					doBuy = false;
+					
+					
+					//1. 根据气球模型（60均线上堆积成交越多，股价上涨的概率越大）
+					if(tradeRecordEntity.getUpProbability()> buyValve
+							&& tradeRecordEntity.getBelowAv60Days()<5  //买入期间，股价可能会快速穿过60日均线，接近120或250线
+							){ 
+
+						buynote = "上涨概率" + tradeRecordEntity.getUpProbability() +"大于"+buyValve+"而且低于60日线的天数"+tradeRecordEntity.getBelowAv60Days()+"小于5天";
+						System.out.println(buynote);
+						
+						if(!trader.onHand(bluechipDto.getCode())){
+							System.out.println("之前无仓位，买入");
+							doBuy = true;
+						}else if(settings.isAddMore() && trader.getOnHandLowestProfitRate(bluechipDto.getCode())>settings.getAddMoreThan()){ 
+							System.out.println("之前有仓位，允许加仓吗？ " + settings.isAddMore() + ",之前持仓盈利" + trader.getOnHandLowestProfitRate(bluechipDto.getCode()) + "大于" + settings.getAddMoreThan());
+							buynote = buynote + " ，加仓";
+							System.out.println(buynote);
+							doBuy = true;
+						}else {
+							System.out.println("之前有仓位，允许加仓吗？ " + settings.isAddMore() + ",之前持仓盈利" + trader.getOnHandLowestProfitRate(bluechipDto.getCode()) + "小于" + settings.getAddMoreThan());
+							buynote = buynote + "不加仓";
+							System.out.println(buynote);							
+						}
+					}else {
+						buynote = "上涨概率" + tradeRecordEntity.getUpProbability() +"<"+buyValve+"或低于60日线的天数"+tradeRecordEntity.getBelowAv60Days()+">5天?";
+						System.out.println(buynote);						
 					}
+					
+					
+					if(doBuy) { 
+						trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),buynote);
+						//generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
+					}			
 				}
 				
-				
-/*				//2. 按均线操作
-				if(tradeRecordEntity.getBuyDay()>0 
-					&& ChronoUnit.DAYS.between(LocalDate.parse(bluechipDto.getIpoDate()), sDate)>settings.getNoBuyDays()) {
-					//int i = trader.countOnHands(bluechipDto.getCode());
-					doBuy = true;
-					
-					
-					if(tradeRecordEntity.getBuyDay()==1) {
-						buynote = "60日线上穿120线，买入";
-					}else{
-						buynote = "120日线上穿250线，加仓";
-					}
-
-					logger.info(buynote + ", " +tradeRecordEntity.toString());
-					
-				}*/
-				
-/*				//3. 按均线和气球模型操作
-				// 第一次买入：60日线上穿120日线
-				// 加仓买入：120日线上穿250日线，且盈利
-				// 加仓买入：气球模型，且盈利
-
-				
-				buynote = this.getBuynote(tradeRecordEntity);
-				doBuy = buynote==null ? false : true;*/
-				
-				if(doBuy) { 
-					trader.buy(bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordEntity.getPrice(),buynote);
-					//generateImage("买入", bluechipDto.getCode(),bluechipDto.getName(),sDate,tradeRecordService.getTradeRecords(bluechipDto.getCode(), sDate));
-				}			
-			}
-		}
-		
-		//限数卖出
-		TradeDetail tradeDetail;
-		if(settings.isOnHandsLimit()) {
-			sellnote = "超出持股数量，卖出表现最差的股票";
-			List<String> outers = trader.getOuters(settings.getOnHandsLimitNumber());
-			
-			for(String seriesid : outers) {
-				tradeDetail = trader.getOnHandTradeDetail(seriesid);
-				tradeRecordEntity = tradeRecordService.getTradeRecordEntity(tradeDetail.getCode(),sDate);
-				if(tradeRecordEntity != null) {
-					trader.sell(seriesid, sDate, sellnote);
-				}
-			}		
 		}
 
 

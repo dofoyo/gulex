@@ -7,10 +7,10 @@ public class SimulationSettings {
 	
 	//（买入）阈值设置：默认50。可设置为动态，根据前几次买入的盈亏决定。前几次买入赢率大，阀值降低些，否则，阀值升高
 	private Integer buyValve = 50;   
-	private boolean autoValveByPb = true;  //经过测试，根据PB进行阀值控制，在收益率影响不大的情况下，可以有效的控制仓位，即控制风险
+	private boolean autoValveByPb_xx = true;  //经过测试，根据PB进行阀值控制，在收益率影响不大的情况下，可以有效的控制仓位，即控制风险
 	private boolean autoBuyValveByWinLossRatio = false;
 	private Integer buyValvePeriodOfWinLossRatio = 5;
-	private Integer buyLine = 120; //股价再250均线上，才可买入
+	private Integer buyLine = 120; //股价再120均线上，才可买入
 	private Integer noBuyDays = 300; //新股禁入期间，再此期间内不买入。  300表示上市1年后，该股票原始股的中小股东的解禁后才能购买
 
 	//（买入）融资设置：
@@ -38,7 +38,7 @@ public class SimulationSettings {
 	
 	
 	private LocalDate beginDate = LocalDate.parse("2010-01-01");  //能找到的年报发布日期是从2010年开始的
-	private BigDecimal cash = new BigDecimal(1000000); //初始现金,默认为1百万。因为透支比不透效果更佳，所以系统选择透支。在透支的情况下，初始值为多少无影响
+	private BigDecimal cash = new BigDecimal(100000); //初始现金,默认为1百万。因为透支比不透效果更佳，所以系统选择透支。在透支的情况下，初始值为多少无影响
 	
 	public Integer getBuyValve(Integer winLossRatio) {
 		if(autoBuyValveByWinLossRatio && winLossRatio!=null) {
@@ -53,12 +53,12 @@ public class SimulationSettings {
 	
 	
 	
-	public boolean isAutoValveByPb() {
-		return autoValveByPb;
+	public boolean isAutoValveByPb_xxxx() {
+		return autoValveByPb_xx;
 	}
 
 	public void setAutoValveByPb(boolean autoValveByPb) {
-		this.autoValveByPb = autoValveByPb;
+		this.autoValveByPb_xx = autoValveByPb;
 	}
 	
 	public Integer getBuyValve() {

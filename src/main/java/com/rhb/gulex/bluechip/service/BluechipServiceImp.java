@@ -117,31 +117,29 @@ public class BluechipServiceImp implements BluechipService {
 		Set<Integer> okYears;
 		int i=0;
 		for(BluechipEntity entity : entities){
-			System.out.print(i++ + "/" + entities.size() + "\r");
-			
-			ipoDate = tradeRecordService.getIpoDate(entity.getCode()); 
-			//ipoDate = LocalDate.parse(entity.getIpoDate());
-			
-			//如果ipoDate==null，说明该股还未上市，还无法初始化bluechip
-			if(ipoDate!=null) { 
-				okYears = entity.getOkYears(ipoDate.getYear());
-				//如果okYears都在ipoDate之前，入选无意义
-				if(okYears.size()>0) {
-					bluechip = new Bluechip();
-					bluechip.setCode(entity.getCode());
-					bluechip.setName(entity.getName());
-					bluechip.setIpoDate(ipoDate);
-					bluechip.setOkYears(okYears);
-					bluechip.setIpoDate(ipoDate);
-					
-					if(entity.getReportDates()!=null) {
-						for(Map.Entry<Integer, String> entry : entity.getReportDates().entrySet()){
-							bluechip.addReportDate(entry.getKey(), LocalDate.parse(entry.getValue()));
+			System.out.println(i++ + "/" + entities.size() + "," + entity.getCode());
+				ipoDate = tradeRecordService.getIpoDate(entity.getCode()); 
+				//ipoDate = LocalDate.parse(entity.getIpoDate());
+				
+				//如果ipoDate==null，说明该股还未上市，还无法初始化bluechip
+				if(ipoDate!=null) { 
+					okYears = entity.getOkYears(ipoDate.getYear());
+					//如果okYears都在ipoDate之前，入选无意义
+					if(okYears.size()>0) {
+						bluechip = new Bluechip();
+						bluechip.setCode(entity.getCode());
+						bluechip.setName(entity.getName());
+						bluechip.setIpoDate(ipoDate);
+						bluechip.setOkYears(okYears);
+						bluechip.setIpoDate(ipoDate);
+						
+						if(entity.getReportDates()!=null) {
+							for(Map.Entry<Integer, String> entry : entity.getReportDates().entrySet()){
+								bluechip.addReportDate(entry.getKey(), LocalDate.parse(entry.getValue()));
+							}
 						}
+						this.bluechips.add(bluechip);					
 					}
-					this.bluechips.add(bluechip);					
-				}
-
 			}
 		}
 		

@@ -129,7 +129,8 @@ public class TradeRecordEntity {
 			i = (price.subtract(av120)).divide(av120,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs();
 		}
 		int bias = i.intValue();
-		
+		//System.out.println("BiasOfAv120=(" + price + "-" + av120 + "");
+		System.out.format("BiasOfAv120=(%f-%f)/%f=%d\n",price,av120,av120,i.intValue());
 		return bias;
 	}
 	
@@ -141,6 +142,7 @@ public class TradeRecordEntity {
 			i = (price.subtract(midPrice)).divide(midPrice,2,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).abs();
 		}
 		int bias = i.intValue()/2;  //经测试，取中位数的半值结果最好
+		System.out.format("BiasOfMidPrice=(%f-%f)/%f/2=%d\n",price,midPrice,midPrice,i.intValue());
 
 		return bias;
 	}
@@ -156,6 +158,8 @@ public class TradeRecordEntity {
 	public Integer getUpProbability(){
 		Integer upProbability = this.aboveAv60Days;
 		upProbability = upProbability - this.getBiasOfAv120() - this.getBiasOfMidPrice();
+		System.out.println("upProbability=" + this.aboveAv60Days + "-" + this.getBiasOfAv120() + "-"  + this.getBiasOfMidPrice() + "=" + upProbability);
+
 		return upProbability>0 ? upProbability : 0;
 		
 	}

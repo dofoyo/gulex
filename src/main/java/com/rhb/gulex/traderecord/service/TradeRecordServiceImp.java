@@ -92,7 +92,12 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			entity.setAv60(calAvaragePrice(entities.subList(0, i),entity.getPrice(),60));
 			entity.setAv250(calAvaragePrice(entities.subList(0, i),entity.getPrice(),250));
 			entity.setAboveAv120Days(calAboveAv120Days(entities.subList(0, i)));
-			entity.setAboveAv60Days(calAboveAv60Days(entities.subList(0, i)));
+			
+			if(entity.getDate().equals(LocalDate.parse("2017-01-13"))) {
+				entity.setAboveAv60Days(calAboveAv60Days(entities.subList(0, i),true));
+			}else {
+				entity.setAboveAv60Days(calAboveAv60Days(entities.subList(0, i),false));
+			}
 			
 			int k = i>10 ? i-10 : 0;  //近10个交易日,计算有多少个交易日是低于60日均线的
 			entity.setBelowAv60Days(calBelowAv60Days(entities.subList(k, i)));
@@ -155,7 +160,8 @@ public class TradeRecordServiceImp implements TradeRecordService {
 		return above;
 	}
 
-	private Integer calAboveAv60Days(List<TradeRecordEntity> records){
+	private Integer calAboveAv60Days(List<TradeRecordEntity> records,boolean show){
+		
 		int above = 0;
 		int start = records.size()>60 ? records.size()-60 : 0;
 		List<TradeRecordEntity> list = records.subList(start, records.size());
@@ -163,6 +169,8 @@ public class TradeRecordServiceImp implements TradeRecordService {
 			if(tr.isPriceOnAv(60)){
 				above++;
 			}
+			if(show) System.out.println(tr);
+			if(show) System.out.println(above);
 		}
 		return above;
 	}

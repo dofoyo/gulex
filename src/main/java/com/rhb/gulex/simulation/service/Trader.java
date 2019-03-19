@@ -24,7 +24,7 @@ public class Trader {
 
 	private BigDecimal cash;  //现金
 	
-	private Integer buyValvePeriod;
+	private Integer buyValvePeriod_xx;
 	
 	private boolean financing;
 	private boolean amountFix; //true表示固定值，false表示固定比率
@@ -112,7 +112,7 @@ public class Trader {
 		
 	}
 	
-	public Integer getWinLossRatio() {
+	public Integer getWinLossRatio_xxx() {
 		Double winLossRatio = null;
 		
 		if(onHands.size()>0) {
@@ -131,7 +131,7 @@ public class Trader {
 				
 			});
 			
-			for(int i=0; i<onHandsList.size() && i<buyValvePeriod; i++) {
+			for(int i=0; i<onHandsList.size() && i<buyValvePeriod_xx; i++) {
 				
 				//System.out.println(onHandsList.get(i));/////////////////////////////////////
 				
@@ -152,8 +152,8 @@ public class Trader {
 		return winLossRatio==null ? null : winLossRatio.intValue();
 	}
 	
-	public void setBuyValvePeriod(Integer period) {
-		this.buyValvePeriod = period;
+	public void setBuyValvePeriod_xx(Integer period) {
+		this.buyValvePeriod_xx = period;
 	}
 
 
