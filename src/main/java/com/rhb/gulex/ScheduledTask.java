@@ -150,7 +150,6 @@ public class ScheduledTask {
 			
 			System.out.println(Thread.currentThread().getName() + ":  下载年报任务完成.............");
 		}
-
 	}
 
 	
