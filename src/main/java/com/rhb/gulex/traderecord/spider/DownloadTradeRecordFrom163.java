@@ -19,7 +19,7 @@ public class DownloadTradeRecordFrom163 implements DownloadTradeRecord {
 	@Override
 	public Map<String,String> go(String code) {
 		String ocode = code;
-		String marketCode = code.indexOf("60")==0 ? "0" : "1";
+		String marketCode = code.indexOf("6")==0 ? "0" : "1";
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
 		LocalDate today = LocalDate.now();
 		
